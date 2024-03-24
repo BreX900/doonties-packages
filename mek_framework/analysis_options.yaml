@@ -1,0 +1,16 @@
+include: package:mek_lints/flutter_package.yaml
+
+analyzer:
+#  exclude:
+#    - lib/core.dart
+
+# https://dart.dev/tools/linter-rules
+# https://dart-lang.github.io/linter/lints/index.html.
+linter:
+  rules:
+    # Override
+    prefer_asserts_with_message: false
+    public_member_api_docs: false
+
+# Additional information about this file can be found at
+# https://dart.dev/guides/language/analysis-options

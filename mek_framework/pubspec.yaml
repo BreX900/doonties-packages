@@ -1,0 +1,69 @@
+name: mek
+description: Mek Core
+version: 0.0.1
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.2.0 <3.4.0'
+  flutter: '>=3.19.0 <3.20.0'
+
+scripts:
+  bootstrap: dart pub global activate rps 0.7.0
+
+  # To generate .g files:
+  runner:watch: dart run build_runner watch --delete-conflicting-outputs
+  # To generate library barrel file: https://pub.dev/packages/index_generator
+  generate:library: >-
+    dart pub global activate index_generator 3.4.1 &&
+    dart pub global run index_generator
+
+  # Integration tools
+  integration: rps check-format && rps analyze && rps test
+  # Integration tools
+  check-format: >-
+    dart format --line-length 100 --set-exit-if-changed --output none
+    $(find . ! -path "./.dart_tool/**" ! -path "./build/**" -name "*.dart" ! -name "*.g.dart")
+  analyze: flutter analyze --no-fatal-infos
+  test: flutter test ./test
+
+dependencies:
+  flutter: { sdk: flutter }
+
+  path_provider: ^2.1.2
+
+  mek_data_class: ^1.4.0
+  collection: ^1.18.0
+  pure_extensions: ^5.0.0
+  rxdart: ^0.27.7
+
+  meta: ^1.11.0
+  bloc: ^8.1.3
+  decimal: ^2.3.3
+  equatable: ^2.0.5
+  riverbloc: ^2.2.0
+  logging: ^1.2.0
+  fast_immutable_collections: ^10.2.1
+
+  flutter_riverpod: ^2.5.1
+
+  chips_input: ^0.1.0
+  flutter_typeahead: ^5.2.0
+#  multi_select_flutter: ^4.1.3
+  intl: ^0.18.1
+
+dev_dependencies:
+  mek_lints: ^4.0.0
+
+  flutter_test: { sdk: flutter }
+
+  build_runner: ^2.4.8
+  mek_data_class_generator: ^1.5.1
+
+index_generator:
+  exclude:
+    - '**.g.dart'
+    - '{_,**/_}*.dart'
+  indexes:
+    - path: lib
+
+flutter:

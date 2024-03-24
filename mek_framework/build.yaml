@@ -1,0 +1,23 @@
+targets:
+  $default:
+    builders:
+      source_gen:combining_builder:
+        generate_for:
+          - '**/*_bloc.dart'
+          - '**/*_data.dart'
+          - '**/*_style.dart'
+          - '**/*source*.dart'
+
+      mek_data_class_generator|data_class:
+        generate_for:
+          - '**/*_bloc.dart'
+          - '**/*_data.dart'
+          - '**/*_style.dart'
+          - '**/*source*.dart'
+        options:
+          page_width: 100
+          comparable: true
+          stringify: true
+          copyable: false
+          changeable: false
+          changes_visible: false
