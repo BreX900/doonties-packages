@@ -49,24 +49,17 @@ abstract class FieldBlocBase<TState extends FieldBlocStateBase<TValue>, TValue>
 
   void updateInitialValue(TValue value);
 
-  void enable();
-
-  void disable();
-
-  // ignore: avoid_positional_boolean_parameters
-  void markStateAs(bool isEnabled) {
-    if (isEnabled) {
-      enable();
-    } else {
-      disable();
-    }
-  }
-
   void markAsUpdated() => updateValue(state.value);
 
   void markAsChanged() => changeValue(state.value);
 
-  void touch();
+  void markStateAs({bool? enabled, bool? touched});
+
+  void enable() => markStateAs(enabled: true);
+
+  void disable() => markStateAs(enabled: false);
+
+  void touch() => markStateAs(touched: true);
 
   void clear({bool shouldUpdate = true});
 
@@ -205,13 +198,11 @@ class FieldBloc<TValue> extends FieldBlocBase<FieldBlocState<TValue>, TValue> {
   }
 
   @override
-  void disable() => emit(state.change((c) => c..isEnabled = false));
-
-  @override
-  void enable() => emit(state.change((c) => c..isEnabled = true));
-
-  @override
-  void touch() => emit(state.change((c) => c..isDirty = true));
+  void markStateAs({bool? enabled, bool? touched}) {
+    emit(state.change((c) => c
+      ..isDirty = touched ?? c.isDirty
+      ..isEnabled = enabled ?? c.isEnabled));
+  }
 
   @override
   void clear({bool shouldUpdate = true}) {

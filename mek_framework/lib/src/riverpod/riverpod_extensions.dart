@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mek/src/core/typedefs.dart';
 
 extension InvalidateFromProviderContainerExtension on ProviderContainer {
   /// Invalidate all ancestors providers from [provider] and flush it
@@ -89,43 +88,6 @@ extension ProviderListenableExtensions<T> on ProviderListenable<AsyncValue<T>> {
 }
 
 extension ListenAsyncWidgetRefExtension on WidgetRef {
-  @Deprecated('')
-  void listenAsyncValue<T>(
-    ProviderListenable<AsyncValue<T>> provider, {
-    ListenerCondition<AsyncValue<T>>? when,
-    void Function()? loading,
-    void Function(Object error, StackTrace stackTrace)? error,
-    void Function(T data)? data,
-  }) {
-    listen(provider, (previous, next) {
-      if (when != null && !when(previous!, next)) return;
-      next.whenOrNull<void>(
-        loading: loading,
-        error: error,
-        data: data,
-      );
-    });
-  }
-
-  @Deprecated('')
-  void listenManualAsyncValue<T>(
-    ProviderListenable<AsyncValue<T>> provider, {
-    bool fireImmediately = false,
-    ListenerCondition<AsyncValue<T>>? when,
-    void Function()? loading,
-    void Function(Object error, StackTrace stackTrace)? error,
-    void Function(T data)? data,
-  }) {
-    listenManual(fireImmediately: fireImmediately, provider, (previous, next) {
-      if (when != null && !when(previous!, next)) return;
-      next.whenOrNull<void>(
-        loading: loading,
-        error: error,
-        data: data,
-      );
-    });
-  }
-
   void listenManualFuture<T>(
     ProviderListenable<Future<T>> provider,
     void Function(T data) listener, {

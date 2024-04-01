@@ -26,33 +26,33 @@ class _DeferredLibraryBuilderState extends State<DeferredLibraryBuilder> {
   @override
   void initState() {
     super.initState();
-    _loadV2(widget.loader);
+    _load(widget.loader);
   }
 
   @override
   void didUpdateWidget(covariant DeferredLibraryBuilder oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.loader != oldWidget.loader) {
-      _loadV2(widget.loader);
+      _load(widget.loader);
     }
   }
 
-  void _loadV2(DeferredLibraryLoader loader) {
+  void _load(DeferredLibraryLoader loader) {
     _isLoading = !_libraries.containsKey(loader);
     if (!_isLoading) return;
 
     final loading = _libraries[loader];
     if (loading != null) {
-      unawaited(_waitLoadingV2(loader, loading));
+      unawaited(_waitLoading(loader, loading));
     } else {
       // ignore: discarded_futures
       final loading = loader();
       _libraries[loader] = loading;
-      unawaited(_waitLoadingV2(loader, loading));
+      unawaited(_waitLoading(loader, loading));
     }
   }
 
-  Future<void> _waitLoadingV2(DeferredLibraryLoader loader, Future<void> loading) async {
+  Future<void> _waitLoading(DeferredLibraryLoader loader, Future<void> loading) async {
     await loading;
     _libraries[loader] = null;
     if (widget.loader != loader) return;

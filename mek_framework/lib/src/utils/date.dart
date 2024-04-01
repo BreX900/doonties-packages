@@ -23,6 +23,4 @@ class Date extends DateTime {
 
 extension DateTimeToDate on DateTime {
   Date toDate() => Date.from(this);
-
-  DateTime get date => DateTime.utc(year, month, day);
 }

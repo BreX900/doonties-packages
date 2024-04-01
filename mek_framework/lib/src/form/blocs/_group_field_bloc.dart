@@ -35,30 +35,11 @@ abstract class GroupFieldBloc<TState extends GroupFieldBlocState<TValue>, TValue
   }
 
   @override
-  void disable() {
+  void markStateAs({bool? enabled, bool? touched}) {
+    if (enabled == null && touched == null) return;
     onChildrenUpdating(() {
       for (final field in state.flatFieldBlocs) {
-        field.disable();
-      }
-      emit(state.rebuild() as TState);
-    });
-  }
-
-  @override
-  void enable() {
-    onChildrenUpdating(() {
-      for (final field in state.flatFieldBlocs) {
-        field.enable();
-      }
-      emit(state.rebuild() as TState);
-    });
-  }
-
-  @override
-  void touch() {
-    onChildrenUpdating(() {
-      for (final field in state.flatFieldBlocs) {
-        field.touch();
+        field.markStateAs(enabled: enabled, touched: touched);
       }
       emit(state.rebuild() as TState);
     });

@@ -19,7 +19,6 @@ scripts:
 
   # Integration tools
   integration: rps check-format && rps analyze && rps test
-  # Integration tools
   check-format: >-
     dart format --line-length 100 --set-exit-if-changed --output none
     $(find . ! -path "./.dart_tool/**" ! -path "./build/**" -name "*.dart" ! -name "*.g.dart")

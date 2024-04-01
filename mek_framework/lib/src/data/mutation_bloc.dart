@@ -3,323 +3,279 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/src/core/_log.dart';
-import 'package:mek_data_class/mek_data_class.dart';
+import 'package:mek/src/core/typedefs.dart';
+import 'package:mek/src/data/mutation_state.dart';
+import 'package:mek/src/data/views.dart';
+import 'package:mek/src/riverpod/auto_dispose_extension.dart';
+import 'package:mek/src/riverpod/riverpod_adapters.dart';
+import 'package:meta/meta.dart';
 
-part 'mutation_bloc.g.dart';
+typedef StartMutationListener<Arg> = FutureOr<void> Function(Arg arg);
+typedef WillStartMutationListener<Arg> = FutureOr<bool> Function(Arg arg);
+typedef ErrorMutationListener<Arg> = FutureOr<void> Function(Arg arg, Object error);
+typedef DataMutationListener<Arg, Result> = FutureOr<void> Function(Arg arg, Result result);
+typedef ResultMutationListener<Arg, Result> = FutureOr<void> Function(
+    Arg arg, Object? error, Result? result);
 
-sealed class MutationState<TData> {
-  const MutationState._();
-
-  bool get isMutating;
-
-  bool get isIdle => this is IdleMutation<TData>;
-  bool get isLoading => this is LoadingMutation<TData>;
-  bool get isFailed => this is FailedMutation<TData>;
-  bool get isSuccess => this is SuccessMutation<TData>;
-
-  Object? get errorOrNull => whenOrNull(failed: (error) => error);
-
-  const factory MutationState.idle() = IdleMutation<TData>;
-  const factory MutationState.loading({double? progress}) = LoadingMutation<TData>;
-  const factory MutationState.failed({required Object error}) = FailedMutation<TData>;
-  const factory MutationState.success({required TData data}) = SuccessMutation<TData>;
-
-  MutationState<TData> toIdle({bool isMutating = false}) => IdleMutation(isMutating: isMutating);
-
-  MutationState<TData> toLoading({double? progress}) => LoadingMutation<TData>(progress: progress);
-
-  MutationState<TData> toFailed({
-    bool isMutating = false,
-    required Object error,
+extension MutationBlocExtension on WidgetRef {
+  MutationBloc<A, R> mutation<A, R>(
+    Future<R> Function(MutatorRef<R> ref, A arg) mutator, {
+    StartMutationListener<A>? onStart,
+    WillStartMutationListener<A>? onWillMutate,
+    ErrorMutationListener<A>? onError = _sentinelError,
+    @Deprecated('In favour of onSuccess') DataMutationListener<A, R>? onData,
+    DataMutationListener<A, R>? onSuccess,
+    ResultMutationListener<A, R>? onFinish,
   }) {
-    return FailedMutation(isMutating: isMutating, error: error);
-  }
-
-  MutationState<TData> toSuccess({
-    bool isMutating = false,
-    required TData data,
-  }) {
-    return SuccessMutation(isMutating: isMutating, data: data);
-  }
-
-  MutationState<TData> copyWith({required bool isMutating});
-
-  R map<R>({
-    required R Function(IdleMutation<TData> state) idle,
-    required R Function(LoadingMutation<TData> state) loading,
-    required R Function(FailedMutation<TData> state) failed,
-    required R Function(SuccessMutation<TData> state) success,
-  }) {
-    final state = this;
-    return switch (state) {
-      IdleMutation<TData>() => idle(state),
-      LoadingMutation<TData>() => loading(state),
-      FailedMutation<TData>() => failed(state),
-      SuccessMutation<TData>() => success(state),
-    };
-  }
-
-  R maybeMap<R>({
-    R Function(IdleMutation<TData> state)? idle,
-    R Function(LoadingMutation<TData> state)? loading,
-    R Function(FailedMutation<TData> state)? failed,
-    R Function(SuccessMutation<TData> state)? success,
-    required R Function(MutationState<TData>) orElse,
-  }) {
-    return map(
-      idle: idle ?? orElse,
-      loading: loading ?? orElse,
-      failed: failed ?? orElse,
-      success: success ?? orElse,
+    final mutation = MutationBloc<A, R>(
+      this,
+      mutator,
+      onStart: onStart,
+      onWillMutate: onWillMutate,
+      onError: onError == _sentinelError ? _listenError : onError,
+      onData: onSuccess ?? onData,
+      onFinish: onFinish,
     );
+    autoDispose(mutation.close);
+    return mutation;
   }
 
-  R? mapOrNull<R>({
-    R Function(IdleMutation<TData> state)? idle,
-    R Function(LoadingMutation<TData> state)? loading,
-    R Function(FailedMutation<TData> state)? failed,
-    R Function(SuccessMutation<TData> state)? success,
+  void listenMutation<A, R>(
+    MutationBloc<A, R> bloc, {
+    ListenerCondition<MutationState<R>>? when,
+    void Function()? idle,
+    void Function()? loading,
+    void Function(Object error)? failed,
+    void Function(R data)? success,
   }) {
-    R? orNull(_) => null;
-    return map(
-      idle: idle ?? orNull,
-      loading: loading ?? orNull,
-      failed: failed ?? orNull,
-      success: success ?? orNull,
-    );
+    listen(bloc.provider, (previous, next) {
+      if (previous != null && when != null && !when(previous, next)) return;
+      next.whenOrNull<void>(
+        idle: idle,
+        loading: loading,
+        failed: failed,
+        success: success,
+      );
+    });
   }
 
-  R when<R>({
-    required R Function() idle,
-    required R Function() loading,
-    required R Function(Object error) failed,
-    required R Function(TData data) success,
+  void listenManualMutation<A, R>(
+    MutationBloc<A, R> bloc, {
+    bool fireImmediately = false,
+    ListenerCondition<MutationState<R>>? when,
+    void Function()? idle,
+    void Function()? loading,
+    void Function(Object error)? failed,
+    void Function(R data)? success,
   }) {
-    return map(
-      idle: (state) => idle(),
-      loading: (state) => loading(),
-      failed: (state) => failed(state.error),
-      success: (state) => success(state.data),
-    );
+    listenManual(fireImmediately: fireImmediately, bloc.provider, (previous, next) {
+      if (when != null && !when(previous!, next)) return;
+      next.whenOrNull<void>(
+        idle: idle,
+        loading: loading,
+        failed: failed,
+        success: success,
+      );
+    });
   }
 
-  R maybeWhen<R>({
-    R Function()? idle,
-    R Function()? loading,
-    R Function(Object error)? failed,
-    R Function(TData data)? success,
-    required R Function() orElse,
-  }) {
-    return map(
-      idle: (_) => idle == null ? orElse() : idle(),
-      loading: (_) => loading == null ? orElse() : loading(),
-      failed: (state) => failed == null ? orElse() : failed(state.error),
-      success: (state) => success == null ? orElse() : success(state.data),
-    );
-  }
+  static void _sentinelError(void arg, void error) {}
 
-  R? whenOrNull<R>({
-    R Function()? idle,
-    R Function()? loading,
-    R Function(Object error)? failed,
-    R Function(TData data)? success,
-  }) {
-    return map(
-      idle: (_) => idle?.call(),
-      loading: (_) => loading?.call(),
-      failed: (state) => failed?.call(state.error),
-      success: (state) => success?.call(state.data),
-    );
-  }
+  void _listenError(void arg, Object error) => DataBuilders.listenError(context, error);
 }
 
-@DataClass()
-class IdleMutation<TData> extends MutationState<TData> with _$IdleMutation<TData> {
-  @override
-  final bool isMutating;
+class MutationBloc<TArg, TResult> extends Cubit<MutationState<TResult>> {
+  final WidgetRef _ref;
+  final FutureOr<TResult> Function(MutatorRef<TResult> ref, TArg arg) _mutator;
+  final StartMutationListener<TArg>? _onStart;
+  final WillStartMutationListener<TArg>? _onWillMutate;
+  final ErrorMutationListener<TArg>? _onError;
+  final DataMutationListener<TArg, TResult>? _onData;
+  final ResultMutationListener<TArg, TResult>? _onFinish;
 
-  const IdleMutation({this.isMutating = false}) : super._();
+  MutationBloc(
+    this._ref,
+    this._mutator, {
+    StartMutationListener<TArg>? onStart,
+    WillStartMutationListener<TArg>? onWillMutate,
+    ErrorMutationListener<TArg>? onError,
+    DataMutationListener<TArg, TResult>? onData,
+    ResultMutationListener<TArg, TResult>? onFinish,
+  })  : _onStart = onStart,
+        _onWillMutate = onWillMutate,
+        _onError = onError,
+        _onData = onData,
+        _onFinish = onFinish,
+        super(IdleMutation<TResult>());
 
-  @override
-  R map<R>({
-    required R Function(IdleMutation<TData> state) idle,
-    required R Function(LoadingMutation<TData> state) loading,
-    required R Function(FailedMutation<TData> state) failed,
-    required R Function(SuccessMutation<TData> state) success,
-  }) {
-    return idle(this);
-  }
+  // ignore: discarded_futures
+  void call(TArg arg) => run(arg);
 
-  @override
-  MutationState<TData> copyWith({required bool isMutating}) => toIdle(isMutating: isMutating);
-}
-
-@DataClass()
-class LoadingMutation<TData> extends MutationState<TData> with _$LoadingMutation<TData> {
-  final double? progress;
-
-  const LoadingMutation({this.progress}) : super._();
-
-  @override
-  bool get isMutating => true;
-
-  @override
-  MutationState<TData> copyWith({required bool isMutating}) => this;
-}
-
-@DataClass()
-class FailedMutation<TData> extends MutationState<TData> with _$FailedMutation<TData> {
-  @override
-  final bool isMutating;
-
-  final Object error;
-
-  const FailedMutation({
-    this.isMutating = false,
-    required this.error,
-  }) : super._();
-
-  @override
-  MutationState<TData> copyWith({required bool isMutating}) =>
-      toFailed(error: error, isMutating: isMutating);
-}
-
-@DataClass()
-class SuccessMutation<TData> extends MutationState<TData> with _$SuccessMutation<TData> {
-  @override
-  final bool isMutating;
-
-  final TData data;
-
-  const SuccessMutation({
-    this.isMutating = false,
-    required this.data,
-  }) : super._();
-
-  @override
-  MutationState<TData> copyWith({required bool isMutating}) =>
-      toSuccess(data: data, isMutating: false);
-}
-
-typedef ErrorAsyncListener = FutureOr<void> Function(Object error);
-typedef DataAsyncListener<T> = FutureOr<void> Function(T result);
-typedef ResultAsyncListener<T> = FutureOr<void> Function(Object? error, T? result);
-
-typedef Mutation<T> = FutureOr<T> Function(Ref ref);
-typedef MutationCallback = Future<void> Function();
-
-class MutatorBloc<T> extends Cubit<MutationState<T>> {
-  final SharedMutatingBloc _mutatorGroupBloc;
-  final Ref _ref;
-
-  StreamSubscription<void>? _mutableBlocSub;
-
-  MutatorBloc(this._mutatorGroupBloc, this._ref) : super(IdleMutation<T>()) {
-    _listenMutableBloc();
-  }
-
-  Future<void> call<R extends T>({
-    void Function()? onStart,
-    required Mutation<R> mutation,
-    ErrorAsyncListener? onError,
-    DataAsyncListener<R>? onData,
-    ResultAsyncListener<R>? onFinish,
-  }) async {
-    if (isClosed) throw StateError('Cant mutate if bloc is closed!');
+  Future<void> run(TArg arg) async {
+    if (isClosed) throw StateError("Can't mutate if bloc is closed!");
 
     if (state.isMutating) {
       lg.info('Bloc is mutating! $this');
       return;
     }
 
-    await _mutableBlocSub?.cancel();
-    _mutatorGroupBloc.notifyMutating();
+    if (!(await _onWillMutate?.call(arg) ?? true)) return;
+
     emit(state.toLoading());
 
-    await _tryCall(onStart);
+    await _tryCall1(_onStart, arg);
 
+    final ref = MutatorRef._(_ref, this);
     try {
-      final result = await mutation(_ref);
+      final result = await _mutator(ref, arg);
+      ref._dispose();
 
       if (isClosed) {
-        lg.info('Bloc is closed! $this');
+        lg.info('Bloc is closed! Cant emit success state. $this');
         return;
       }
 
-      await _tryCall1(onData, result);
-      await _tryCall2(onFinish, null, result);
+      await _tryCall2(_onData, arg, result);
+      await _tryCall3(_onFinish, arg, null, result);
 
       emit(state.toSuccess(data: result));
     } catch (error, stackTrace) {
       addError(error, stackTrace);
+      ref._dispose();
 
       if (isClosed) {
-        lg.info('Bloc is closed! $this');
+        lg.info('Bloc is closed!  Cant emit failed state. $this');
         return;
       }
 
-      await _tryCall1(onError, error);
-      await _tryCall2(onFinish, error, null);
+      await _tryCall2(_onError, arg, error);
+      await _tryCall3(_onFinish, arg, error, null);
 
       emit(state.toFailed(error: error));
-    } finally {
-      _mutatorGroupBloc.notifyMutated();
-      _listenMutableBloc();
+
+      rethrow;
     }
   }
 
-  void _listenMutableBloc() {
-    _mutableBlocSub = _mutatorGroupBloc.stream.listen((isMutating) {
-      if (isClosed) return;
-      emit(state.copyWith(isMutating: isMutating));
-    });
-  }
+  void emitProgress(double value) => emit(state.toLoading(progress: value));
 
-  FutureOr<void> _tryCall(FutureOr<void> Function()? fn) async {
+  FutureOr<void> _tryCall1<T1>(FutureOr<void> Function(T1)? fn, T1 $1) async {
     if (fn == null) return;
     try {
-      await fn();
+      await fn($1);
     } catch (error, stackTrace) {
       addError(error, stackTrace);
     }
   }
 
-  FutureOr<void> _tryCall1<T1>(FutureOr<void> Function(T1)? fn, T1 $0) async {
+  FutureOr<void> _tryCall2<T1, T2>(FutureOr<void> Function(T1, T2)? fn, T1 $1, T2 $2) async {
     if (fn == null) return;
     try {
-      await fn($0);
+      await fn($1, $2);
     } catch (error, stackTrace) {
       addError(error, stackTrace);
     }
   }
 
-  FutureOr<void> _tryCall2<T1, T2>(FutureOr<void> Function(T1, T2)? fn, T1 $0, T2 $1) async {
+  FutureOr<void> _tryCall3<T1, T2, T3>(
+    FutureOr<void> Function(T1, T2, T3)? fn,
+    T1 $1,
+    T2 $2,
+    T3 $3,
+  ) async {
     if (fn == null) return;
     try {
-      await fn($0, $1);
+      await fn($1, $2, $3);
     } catch (error, stackTrace) {
       addError(error, stackTrace);
     }
   }
 
   @override
-  Future<void> close() {
-    unawaited(_mutableBlocSub?.cancel());
-    return super.close();
-  }
+  String toString() => 'MutationBloc($_mutator)';
 }
 
-class SharedMutatingBloc extends Cubit<bool> {
-  SharedMutatingBloc() : super(false);
+class MutatorRef<R> implements Ref<MutationBloc<void, R>> {
+  WidgetRef? _ref;
+  MutationBloc<void, R>? _bloc;
 
-  void notifyMutating() {
-    if (isClosed) return;
-    assert(!state, 'Cant run more than on mutation at the same time!');
-    emit(true);
+  MutatorRef._(this._ref, this._bloc);
+
+  MutationBloc<void, R> get bloc => _get(_bloc);
+
+  @override
+  ProviderContainer get container => ProviderScope.containerOf(_get(_ref).context, listen: false);
+
+  @override
+  bool exists(ProviderBase<Object?> provider) => _get(_ref).exists(provider);
+
+  @override
+  void invalidate(ProviderOrFamily provider) => _get(_ref).invalidate(provider);
+
+  @override
+  T read<T>(ProviderListenable<T> provider) => _get(_ref).read(provider);
+
+  @override
+  T refresh<T>(Refreshable<T> provider) => _get(_ref).refresh(provider);
+
+  T _get<T>(T? v) {
+    if (v == null) throw StateError('Is disposed');
+    return v;
   }
 
-  void notifyMutated() {
-    if (isClosed) return;
-    emit(false);
+  void _dispose() {
+    _ref = null;
+    _bloc = null;
   }
+
+  @internal
+  @override
+  void invalidateSelf() => throw UnsupportedError('invalidateSelf');
+
+  @internal
+  @override
+  ProviderSubscription<T> listen<T>(
+    AlwaysAliveProviderListenable<T> provider,
+    void Function(T? previous, T next) listener, {
+    void Function(Object error, StackTrace stackTrace)? onError,
+    bool fireImmediately = false,
+  }) =>
+      throw UnsupportedError('listen<T>');
+
+  @internal
+  @override
+  void listenSelf(
+    void Function(MutationBloc<void, R>? previous, MutationBloc<void, R> next) listener, {
+    void Function(Object error, StackTrace stackTrace)? onError,
+  }) {
+    throw UnsupportedError('listenSelf');
+  }
+
+  @internal
+  @override
+  void notifyListeners() => throw UnsupportedError('notifyListeners');
+
+  @internal
+  @override
+  void onAddListener(void Function() cb) => throw UnsupportedError('onAddListener');
+
+  @internal
+  @override
+  void onCancel(void Function() cb) => throw UnsupportedError('onCancel');
+
+  @internal
+  @override
+  void onDispose(void Function() cb) => throw UnsupportedError('onDispose');
+
+  @internal
+  @override
+  void onRemoveListener(void Function() cb) => throw UnsupportedError('onRemoveListener');
+
+  @internal
+  @override
+  void onResume(void Function() cb) => throw UnsupportedError('onResume');
+
+  @internal
+  @override
+  T watch<T>(AlwaysAliveProviderListenable<T> provider) => throw UnsupportedError('watch<T>');
 }

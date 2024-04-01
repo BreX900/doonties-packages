@@ -1,26 +1,27 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:mek/src/utils/date.dart';
 import 'package:pure_extensions/pure_extensions.dart';
 import 'package:rxdart/rxdart.dart';
 
 extension DateTimeExtensions on DateTime {
-  /// The day of the week [monday]..[sunday].
-  ///
-  /// In accordance with ISO 8601
-  /// a week starts with Monday, which has the value 1.
-  DateTime get initialWeekDay => applyWeekday(DateTime.monday).date;
+  DateTime get date => (isUtc ? DateTime.utc : DateTime.new)(year, month, day);
 
   /// The day of the week [monday]..[sunday].
   ///
   /// In accordance with ISO 8601
   /// a week starts with Monday, which has the value 1.
-  DateTime get lastWeekDay => applyWeekday(DateTime.sunday).date;
+  DateTime get initialWeekDay => date.applyWeekday(DateTime.monday);
 
-  DateTime get initialMonthDay => copyWith(day: 1).date;
+  /// The day of the week [monday]..[sunday].
+  ///
+  /// In accordance with ISO 8601
+  /// a week starts with Monday, which has the value 1.
+  DateTime get lastWeekDay => date.applyWeekday(DateTime.sunday);
 
-  DateTime get lastMonthDay => copyWith(month: month + 1, day: 0).date;
+  DateTime get initialMonthDay => date.copyWith(day: 1);
+
+  DateTime get lastMonthDay => date.copyWith(month: month + 1, day: 0);
 
   DateTime applyWeekday(int weekday) {
     assert(weekday >= 1 && weekday <= 7);
