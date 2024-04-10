@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mek/src/data/views.dart';
 
@@ -12,27 +14,32 @@ abstract final class MekUtils {
     final backgroundColor = colors.errorContainer;
     final foregroundColor = colors.onErrorContainer;
 
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    late ScaffoldFeatureController controller;
+    final timer = Timer(snackBarDuration, () => controller.close());
+    controller = ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       padding: const EdgeInsets.fromLTRB(0.0, 14.0, 0.0, 14.0),
-      duration: snackBarDuration,
+      duration: const Duration(seconds: 60),
       showCloseIcon: true,
       closeIconColor: foregroundColor,
       backgroundColor: backgroundColor,
-      content: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(Icons.error_outline, color: foregroundColor),
-          ),
-          Expanded(
-            child: Text(
-              errorTranslator(data.error),
-              style: TextStyle(color: foregroundColor),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
+      content: InkWell(
+        onLongPress: timer.cancel,
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(Icons.error_outline, color: foregroundColor),
             ),
-          ),
-        ],
+            Expanded(
+              child: Text(
+                errorTranslator(data.error),
+                style: TextStyle(color: foregroundColor),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
     ));
   }

@@ -1,57 +1,54 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mek/src/utils/_listenable_extensions.dart';
+import 'package:mek/src/utils/_state_stremable_extensions.dart';
 // ignore: implementation_imports, depend_on_referenced_packages
 import 'package:riverpod/src/framework.dart';
 import 'package:rxdart/rxdart.dart';
-
-/// Version 2.0.0
 
 extension ProviderListenableExtensions2<T> on ProviderListenable<AsyncValue<T>> {
   ProviderListenable<Future<T>> get futureOfData => _IgnoreErrorsProviderListenable(this);
 }
 
-extension AsProviderStreamExtension<T> on Stream<T> {
-  ProviderListenable<T> provider(T initialValue) =>
-      _StreamProviderListenable<T>(this, initialValue);
-}
+// extension AsProviderStreamExtension<T> on Stream<T> {
+//   ProviderListenable<T> provider(T initialValue) =>
+//       _StreamProviderListenable<T>(this, initialValue);
+// }
 
 extension AsProviderValueStreamExtension<T> on ValueStream<T> {
-  ProviderListenable<T> get provider => _StreamProviderListenable<T>(this, value);
+  ProviderListenable<T> get provider => _ValueStreamProviderListenable<T>(this);
 }
 
 extension AsProviderBlocExtension<T> on StateStreamable<T> {
-  ProviderListenable<T> get provider => stream.provider(state);
+  ProviderListenable<T> get provider => _StateStreamableListenable(this);
 }
 
 extension AsProviderListenableExtension<T> on ValueListenable<T> {
-  ProviderListenable<T> get provider => _ValueProviderListenable<T>(this);
+  ProviderListenable<T> get provider => _ValueListenableProviderListenable<T>(this);
 }
 
 extension PickListenableExtension<T extends Listenable> on T {
-  ProviderListenable<R> pick<R>(R Function(T listenable) picker) =>
-      _ListenablePicker(this, picker).provider;
+  ProviderListenable<R> pick<R>(R Function(T listenable) picker) => $pick<R>(picker).provider;
 }
 
 extension SelectListenableExtension<T> on ValueListenable<T> {
-  ProviderListenable<R> select<R>(R Function(T value) selector) => provider.select(selector);
+  ProviderListenable<R> select<R>(R Function(T value) selector) => $select(selector).provider;
 }
 
 extension SelectBlocExtension<State> on StateStreamable<State> {
-  ProviderListenable<R> select<R>(R Function(State state) selector) => provider.select(selector);
+  ProviderListenable<R> select<R>(R Function(State state) selector) => $select(selector).provider;
 }
 
-class _IgnoreErrorsProviderListenable<T> with ProviderListenable<Future<T>>, EquatableMixin {
+class _IgnoreErrorsProviderListenable<T> with ProviderListenable<Future<T>> {
   final ProviderListenable<AsyncValue<T>> _provider;
 
   _IgnoreErrorsProviderListenable(this._provider);
 
   @override
   ProviderSubscription<Future<T>> addListener(
-    // ignore: invalid_use_of_internal_member
     Node node,
     void Function(Future<T>? previous, Future<T> next) listener, {
     required void Function(Object error, StackTrace stackTrace)? onError,
@@ -87,7 +84,6 @@ class _IgnoreErrorsProviderListenable<T> with ProviderListenable<Future<T>>, Equ
   }
 
   @override
-  // ignore: invalid_use_of_internal_member
   Future<T> read(Node node) {
     final state = _provider.read(node);
     if (!state.hasValue) {
@@ -108,100 +104,162 @@ class _IgnoreErrorsProviderListenable<T> with ProviderListenable<Future<T>>, Equ
   }
 
   @override
-  List<Object?> get props => [_provider];
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is _IgnoreErrorsProviderListenable<T> &&
+          runtimeType == other.runtimeType &&
+          _provider == other._provider;
+
+  @override
+  int get hashCode => Object.hash(runtimeType, _provider);
 }
 
-class _ListenablePicker<T extends Listenable, R> extends ValueListenable<R> with EquatableMixin {
-  final T listenable;
-  final R Function(T listenable) selector;
+// // ignore: must_be_immutable
+// class _StreamProviderListenable<T> extends _ProviderListenable<Stream<T>, T> {
+//   T _current;
+//
+//   _StreamProviderListenable(super.source, this._current);
+//
+//   @override
+//   T _read() => _current;
+//
+//   @override
+//   void Function() _addListener(
+//     void Function(T? previous, T next) listener, {
+//     required void Function(Object error, StackTrace stackTrace)? onError,
+//     required bool fireImmediately,
+//   }) {
+//     final subscription = source.listen((next) {
+//       final prev = _current;
+//       _current = next;
+//
+//       listener(prev, next);
+//     }, onError: onError);
+//
+//     if (fireImmediately) listener(null, _current);
+//
+//     return subscription.cancel;
+//   }
+// }
 
-  _ListenablePicker(this.listenable, this.selector);
+class _ValueStreamProviderListenable<T> extends _ProviderListenable<ValueStream<T>, T> {
+  _ValueStreamProviderListenable(super.source);
 
   @override
-  void addListener(VoidCallback listener) => listenable.addListener(listener);
+  T _read() => source.value;
 
   @override
-  void removeListener(VoidCallback listener) => listenable.removeListener(listener);
-
-  @override
-  R get value => selector(listenable);
-
-  @override
-  List<Object?> get props => [listenable, selector];
-}
-
-// ignore: must_be_immutable
-class _StreamProviderListenable<T> with ProviderListenable<T>, EquatableMixin {
-  final Stream<T> stream;
-  T _current;
-
-  _StreamProviderListenable(this.stream, this._current);
-
-  @override
-  ProviderSubscription<T> addListener(
-    // ignore: invalid_use_of_internal_member
-    Node node,
+  void Function() _addListener(
     void Function(T? previous, T next) listener, {
     required void Function(Object error, StackTrace stackTrace)? onError,
-    required void Function()? onDependencyMayHaveChanged,
     required bool fireImmediately,
   }) {
-    final subscription = stream.listen((next) {
-      final prev = _current;
-      _current = next;
+    var current = source.value;
+    final subscription = source.listen((next) {
+      final prev = current;
+      final next = current = source.value;
 
       listener(prev, next);
     }, onError: onError);
 
-    if (fireImmediately) listener(null, _current);
+    if (fireImmediately) listener(null, current);
 
-    return _Subscription(node, () => _current, subscription.cancel);
+    return subscription.cancel;
   }
-
-  @override
-  // ignore: invalid_use_of_internal_member
-  T read(Node node) => _current;
-
-  @override
-  late final List<Object?> props = [stream];
 }
 
-class _ValueProviderListenable<T> with ProviderListenable<T>, EquatableMixin {
-  final ValueListenable<T> listenable;
+class _ValueListenableProviderListenable<T> extends _ProviderListenable<ValueListenable<T>, T> {
+  _ValueListenableProviderListenable(super.source);
 
-  _ValueProviderListenable(this.listenable);
+  @override
+  T _read() => source.value;
+
+  @override
+  void Function() _addListener(
+    void Function(T? previous, T next) listener, {
+    required void Function(Object error, StackTrace stackTrace)? onError,
+    required bool fireImmediately,
+  }) {
+    var current = source.value;
+    void onChange() {
+      final prev = current;
+      final next = current = source.value;
+
+      listener(prev, next);
+    }
+
+    source.addListener(onChange);
+
+    if (fireImmediately) listener(null, current);
+
+    return () => source.removeListener(onChange);
+  }
+}
+
+class _StateStreamableListenable<T> extends _ProviderListenable<StateStreamable<T>, T> {
+  _StateStreamableListenable(super.source);
+
+  @override
+  T _read() => source.state;
+
+  @override
+  void Function() _addListener(
+    void Function(T? previous, T next) listener, {
+    required void Function(Object error, StackTrace stackTrace)? onError,
+    required bool fireImmediately,
+  }) {
+    var current = source.state;
+    final subscription = source.stream.listen((next) {
+      final prev = current;
+      current = next;
+
+      listener(prev, current);
+    });
+
+    if (fireImmediately) listener(null, current);
+
+    return subscription.cancel;
+  }
+}
+
+abstract class _ProviderListenable<S, T> with ProviderListenable<T> {
+  final S source;
+
+  _ProviderListenable(this.source);
+
+  T _read();
+
+  void Function() _addListener(
+    void Function(T? previous, T next) listener, {
+    required void Function(Object error, StackTrace stackTrace)? onError,
+    required bool fireImmediately,
+  });
+
+  @override
+  T read(Node node) => _read();
 
   @override
   ProviderSubscription<T> addListener(
-    // ignore: invalid_use_of_internal_member
     Node node,
     void Function(T? previous, T next) listener, {
     required void Function(Object error, StackTrace stackTrace)? onError,
     required void Function()? onDependencyMayHaveChanged,
     required bool fireImmediately,
   }) {
-    var current = listenable.value;
+    final closer = _addListener(listener, onError: onError, fireImmediately: fireImmediately);
 
-    void onChange() {
-      final prev = current;
-      final next = current = listenable.value;
-
-      listener(prev, next);
-    }
-
-    listenable.addListener(onChange);
-
-    if (fireImmediately) listener(null, current);
-
-    return _Subscription(node, () => listenable.value, () => listenable.removeListener(onChange));
+    return _Subscription(node, _read, closer);
   }
 
   @override
-  // ignore: invalid_use_of_internal_member
-  T read(Node node) => listenable.value;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is _ProviderListenable<S, T> &&
+          runtimeType == other.runtimeType &&
+          source == other.source;
 
   @override
-  late final List<Object?> props = [listenable];
+  int get hashCode => Object.hash(runtimeType, source);
 }
 
 class _Subscription<T> extends ProviderSubscription<T> {

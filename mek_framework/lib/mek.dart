@@ -51,6 +51,7 @@ export 'src/riverpod/auto_dispose_extension.dart';
 export 'src/riverpod/refreshable_consumer.dart';
 export 'src/riverpod/riverpod_adapters.dart';
 export 'src/riverpod/riverpod_extensions.dart';
+export 'src/riverpod/subscribe_extensions.dart';
 export 'src/shared/dart_extensions.dart';
 export 'src/shared/flutter_extensions.dart';
 export 'src/shared/handle_callback.dart';
