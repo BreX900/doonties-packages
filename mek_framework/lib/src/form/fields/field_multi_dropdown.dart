@@ -71,7 +71,7 @@ class FieldMultiDropdown<T> extends FieldBuilder<IList<T>> with InlineFieldBuild
 
     final child = InputDecorator(
       isEmpty: state.value.isEmpty,
-      decoration: decoration,
+      decoration: state.decorate(decoration, isEnabled: isEnabled),
       child: builder(context, state.value),
     );
     return PopupMenuButton<T>(
@@ -85,7 +85,7 @@ class FieldMultiDropdown<T> extends FieldBuilder<IList<T>> with InlineFieldBuild
       surfaceTintColor: theme.canvasColor,
       itemBuilder: (context) => itemBuilder(context, state.value),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: kToolbarHeight),
+        constraints: constraints ?? const BoxConstraints(minHeight: kToolbarHeight),
         child: formTheme.wrap(
           padding: padding,
           child: child,

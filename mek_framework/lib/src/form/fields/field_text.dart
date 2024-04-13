@@ -503,6 +503,7 @@ class EditFieldButton extends ConsumerWidget {
     final scope = TextFieldScope.of(context);
     final typeData = scope.typeData;
 
+    // ignore: deprecated_member_use_from_same_package
     final isValid = ref.watchCanSubmit(scope.fieldBloc!);
 
     return IconButton(
@@ -546,6 +547,7 @@ class SaveFieldButton extends ConsumerWidget {
     final hasUpdatedValue = ref.watch(fieldBloc.select((state) => state.hasUpdatedValue));
     if (hasUpdatedValue) return const SizedBox.shrink();
 
+    // ignore: deprecated_member_use_from_same_package
     final isValid = ref.watchCanSubmit(shouldHasNotUpdatedValue: false, fieldBloc);
 
     return IconButton(

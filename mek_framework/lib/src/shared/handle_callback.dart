@@ -1,14 +1,49 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:bloc/bloc.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/src/data/mutation_state.dart';
 import 'package:mek/src/form/blocs/field_bloc.dart';
 import 'package:mek/src/riverpod/riverpod_adapters.dart';
 import 'package:mek/src/shared/skeleton_form.dart';
 
+// enum SubmitStatus {
+//   disabled,
+//   pending,
+//   enabled;
+//
+//   bool get isDisabled => this == SubmitStatus.disabled;
+//   bool get isPending => this == SubmitStatus.pending;
+//   bool get isEnabled => this == SubmitStatus.enabled;
+// }
+
+extension FormBuildContextExtensions on BuildContext {
+  VoidCallback handleSubmit(
+    FieldBlocRule<dynamic> form,
+    FutureOr<void> Function() submitter, {
+    bool canEnableFormAfterSubmit = true,
+  }) {
+    return () async {
+      if (!form.state.status.isValid) {
+        form.touch();
+        await SkeletonForm.requestFocusOnError(this);
+        return;
+      }
+      final submitting = submitter();
+      if (submitting is! Future) return;
+      form.disable();
+      try {
+        await submitting;
+      } finally {
+        if (!form.isClosed && canEnableFormAfterSubmit) form.enable();
+      }
+    };
+  }
+}
+
 extension HandleWidgetRef on WidgetRef {
+  @Deprecated('')
   VoidCallback? handleSubmit(
     FieldBlocRule<dynamic> form,
     FutureOr<void> Function() submitter, {
@@ -40,6 +75,33 @@ extension HandleWidgetRef on WidgetRef {
     };
   }
 
+  // SubmitStatus watchSubmitStatus(
+  //   FieldBlocRule<dynamic> form, {
+  //   bool shouldDirty = true,
+  //   bool shouldHasNotUpdatedValue = false,
+  // }) {
+  //   return watch(form.select((state) {
+  //     if (shouldDirty && !state.isDirty) return SubmitStatus.disabled;
+  //     if (shouldHasNotUpdatedValue && state.hasUpdatedValue) return SubmitStatus.disabled;
+  //     if (!state.status.isPending) return SubmitStatus.pending;
+  //     if (!state.status.isValid) return SubmitStatus.disabled;
+  //     return SubmitStatus.disabled;
+  //   }));
+  // }
+
+  bool watchCanSubmit2(
+    FieldBlocRule<dynamic> form, {
+    bool shouldDirty = true,
+    bool shouldHasNotUpdatedValue = false,
+  }) {
+    return watch(form.select((state) {
+      if (shouldDirty && !state.isDirty) return false;
+      if (shouldHasNotUpdatedValue && state.hasUpdatedValue) return false;
+      return state.status.isValid;
+    }));
+  }
+
+  @Deprecated('')
   bool watchCanSubmit(
     FieldBlocRule<dynamic> form, {
     bool shouldDirty = true,
