@@ -72,6 +72,9 @@ abstract class MekTheme {
               kIsWeb ? _HorizontalPageTransitionsBuilder() : CupertinoPageTransitionsBuilder(),
         },
       ),
+      snackBarTheme: const SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+      ),
       extensions: {
         const BuiltFormTheme(
           fieldPadding: EdgeInsets.symmetric(horizontal: 16.0),

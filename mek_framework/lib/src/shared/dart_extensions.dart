@@ -64,6 +64,30 @@ extension IterableExtension<T> on Iterable<T> {
     if (!iterator.moveNext()) throw StateError('Too many elements');
     return result;
   }
+
+  // Iterable<T> intersect(T element) sync* {
+  //   final iterator = this.iterator;
+  //   if (!iterator.moveNext()) return;
+  //
+  //   yield iterator.current;
+  //
+  //   while (iterator.moveNext()) {
+  //     yield element;
+  //     yield iterator.current;
+  //   }
+  // }
+  //
+  // Iterable<R> intersectExpanded<R>(R element, R Function(T element) mapper) sync* {
+  //   final iterator = this.iterator;
+  //   if (!iterator.moveNext()) return;
+  //
+  //   yield iterator.current;
+  //
+  //   while (iterator.moveNext()) {
+  //     yield element;
+  //     yield iterator.current;
+  //   }
+  // }
 }
 
 extension ListExtensions<T> on List<T> {

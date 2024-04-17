@@ -7,7 +7,7 @@ class FieldMultiDropdown<T> extends FieldBuilder<IList<T>> with InlineFieldBuild
   final BoxConstraints? constraints;
   final InputDecoration decoration;
   final ValueChanged<IList<T>>? onChanged;
-  final List<PopupMenuEntry<T>> Function(BuildContext context, IList<T> selection) itemBuilder;
+  final List<PopupMenuEntry<T>> Function(BuildContext context, IList<T> selection) itemsBuilder;
   final Widget Function(BuildContext context, IList<T> selection) builder;
 
   const FieldMultiDropdown({
@@ -18,7 +18,7 @@ class FieldMultiDropdown<T> extends FieldBuilder<IList<T>> with InlineFieldBuild
     this.decoration = const InputDecoration(),
     this.padding,
     this.constraints,
-    required this.itemBuilder,
+    required this.itemsBuilder,
     required this.builder,
   });
 
@@ -31,9 +31,9 @@ class FieldMultiDropdown<T> extends FieldBuilder<IList<T>> with InlineFieldBuild
     this.padding,
     this.constraints,
     required List<PopupMenuItem<T>> Function(BuildContext context, IList<T> selection)
-        this.itemBuilder,
+        this.itemsBuilder,
   }) : builder = ((context, selection) {
-          final items = itemBuilder(context, selection);
+          final items = itemsBuilder(context, selection);
 
           return Padding(
             padding: const EdgeInsets.only(top: 6.0),
@@ -83,7 +83,7 @@ class FieldMultiDropdown<T> extends FieldBuilder<IList<T>> with InlineFieldBuild
       padding: EdgeInsets.zero,
       // decoration: state.decorate(decoration, isEnabled: isEnabled),
       surfaceTintColor: theme.canvasColor,
-      itemBuilder: (context) => itemBuilder(context, state.value),
+      itemBuilder: (context) => itemsBuilder(context, state.value),
       child: ConstrainedBox(
         constraints: constraints ?? const BoxConstraints(minHeight: kToolbarHeight),
         child: formTheme.wrap(

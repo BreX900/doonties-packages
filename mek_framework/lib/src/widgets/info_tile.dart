@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:pure_extensions/pure_extensions.dart';
 
-class InfoTile extends StatelessWidget {
+@Deprecated('In favour of InfoView')
+typedef InfoBodyTile = InfoTile;
+
+@Deprecated('In favour of InfoView')
+typedef InfoTile = InfoView;
+
+class InfoView extends StatelessWidget {
   final VoidCallback? onTap;
   final Widget? icon;
   final Widget title;
   final Widget? description;
   final List<Widget> actions;
 
-  const InfoTile({
+  const InfoView({
     super.key,
     this.onTap,
     this.icon,

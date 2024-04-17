@@ -1,6 +1,6 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:mek/src/shared/mek_utils.dart';
-import 'package:mek/src/widgets/dispenser.dart';
 import 'package:mek/src/widgets/info_tile.dart';
 
 Widget buildWithMaterial(BuildContext context, Widget child) {
@@ -34,7 +34,24 @@ class ErrorData {
   });
 }
 
-class DataBuilders extends DispensableEquatable<DataBuilders> {
+// extension BuildAsyncValue<T> on AsyncValue<T> {
+//   // buildView
+//   Widget buildScene({required Widget Function(T data) data}) {
+//     return when(
+//       skipLoadingOnReload: true,
+//       skipLoadingOnRefresh: true,
+//       loading: _buildLoadingView,
+//       error: _buildErrorView,
+//       data: data,
+//     );
+//   }
+//
+//   static Widget _buildLoadingView() => const Builder(builder: DataBuilders.buildLoading);
+//   static Widget _buildErrorView(Object error, StackTrace _) =>
+//       Builder(builder: (context) => DataBuilders.buildError(context, error));
+// }
+
+class DataBuilders extends ThemeExtension<DataBuilders> with EquatableMixin {
   final LoadingDataBuilder loadingBuilder;
   final ErrorDataBuilder errorBuilder;
   final ErrorDataListener errorListener;
@@ -42,11 +59,11 @@ class DataBuilders extends DispensableEquatable<DataBuilders> {
   const DataBuilders({
     this.loadingBuilder = _buildLoading,
     this.errorBuilder = _buildError,
-    this.errorListener = MekUtils.showSnackBarDataError,
+    this.errorListener = _showError,
   });
 
   static DataBuilders of(BuildContext context) =>
-      Dispense.maybeOf<DataBuilders>(context) ?? const DataBuilders();
+      Theme.of(context).extension<DataBuilders>() ?? const DataBuilders();
 
   static Widget buildLoading(BuildContext context) {
     return of(context).loadingBuilder(context, const LoadingData());
@@ -68,12 +85,26 @@ class DataBuilders extends DispensableEquatable<DataBuilders> {
   }
 
   static Widget _buildError(BuildContext context, ErrorData data) {
-    const child = InfoTile(
+    const child = InfoView(
       icon: Icon(Icons.error_outline),
       title: Text('🤖 My n_m_ _s r_b_t! 🤖'),
     );
     return buildWithMaterial(context, child);
   }
+
+  static void _showError(BuildContext context, ErrorData data) {
+    MekUtils.showSnackBarError(
+      context: context,
+      description: const Text('🤖 My n_m_ _s r_b_t! 🤖'),
+    );
+  }
+
+  @override
+  ThemeExtension<DataBuilders> copyWith() => this;
+
+  @override
+  ThemeExtension<DataBuilders> lerp(covariant ThemeExtension<DataBuilders>? other, double t) =>
+      other ?? this;
 
   @override
   List<Object?> get props => [loadingBuilder, errorBuilder, errorListener];

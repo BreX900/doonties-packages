@@ -1,22 +1,13 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/src/data/mutation_state.dart';
 import 'package:mek/src/form/blocs/field_bloc.dart';
 import 'package:mek/src/riverpod/riverpod_adapters.dart';
 import 'package:mek/src/shared/skeleton_form.dart';
-
-// enum SubmitStatus {
-//   disabled,
-//   pending,
-//   enabled;
-//
-//   bool get isDisabled => this == SubmitStatus.disabled;
-//   bool get isPending => this == SubmitStatus.pending;
-//   bool get isEnabled => this == SubmitStatus.enabled;
-// }
 
 extension FormBuildContextExtensions on BuildContext {
   VoidCallback handleSubmit(
@@ -51,11 +42,10 @@ extension HandleWidgetRef on WidgetRef {
     bool shouldHasNotUpdatedValue = true,
     bool canEnableFormAfterSubmit = true,
   }) {
-    final canSubmit = watch(form.select((state) {
-      if (shouldDirty && !state.isDirty) return false;
-      if (shouldHasNotUpdatedValue && state.hasUpdatedValue) return false;
-      return true;
-    }));
+    final canSubmit = watch(form.select(_FormSelector(
+      shouldDirty: shouldDirty,
+      shouldHasNotUpdatedValue: shouldHasNotUpdatedValue,
+    )));
     if (!canSubmit) return null;
 
     return () async {
@@ -75,30 +65,21 @@ extension HandleWidgetRef on WidgetRef {
     };
   }
 
-  // SubmitStatus watchSubmitStatus(
-  //   FieldBlocRule<dynamic> form, {
-  //   bool shouldDirty = true,
-  //   bool shouldHasNotUpdatedValue = false,
-  // }) {
-  //   return watch(form.select((state) {
-  //     if (shouldDirty && !state.isDirty) return SubmitStatus.disabled;
-  //     if (shouldHasNotUpdatedValue && state.hasUpdatedValue) return SubmitStatus.disabled;
-  //     if (!state.status.isPending) return SubmitStatus.pending;
-  //     if (!state.status.isValid) return SubmitStatus.disabled;
-  //     return SubmitStatus.disabled;
-  //   }));
-  // }
+  bool watchCanUpsert(FieldBlocRule<dynamic> form, {required bool isCreate}) {
+    return watch(form.select(_FormSelector(
+      shouldHasNotUpdatedValue: !isCreate,
+    )));
+  }
 
-  bool watchCanSubmit2(
-    FieldBlocRule<dynamic> form, {
-    bool shouldDirty = true,
-    bool shouldHasNotUpdatedValue = false,
-  }) {
-    return watch(form.select((state) {
-      if (shouldDirty && !state.isDirty) return false;
-      if (shouldHasNotUpdatedValue && state.hasUpdatedValue) return false;
-      return state.status.isValid;
-    }));
+  bool watchCanApplyFilters(FieldBlocRule<dynamic> form) {
+    return watch(form.select(const _FormSelector(
+      shouldDirty: true,
+      shouldHasNotUpdatedValue: true,
+    )));
+  }
+
+  bool watchIsValid(FieldBlocRule<dynamic> form) {
+    return watch(form.select(const _FormSelector()));
   }
 
   @Deprecated('')
@@ -107,11 +88,10 @@ extension HandleWidgetRef on WidgetRef {
     bool shouldDirty = true,
     bool shouldHasNotUpdatedValue = true,
   }) {
-    return watch(form.select((state) {
-      if (shouldDirty && !state.isDirty) return false;
-      if (shouldHasNotUpdatedValue && state.hasUpdatedValue) return false;
-      return state.status.isValid;
-    }));
+    return watch(form.select(_FormSelector(
+      shouldDirty: shouldDirty,
+      shouldHasNotUpdatedValue: shouldHasNotUpdatedValue,
+    )));
   }
 
   bool watchIdle({
@@ -137,6 +117,25 @@ extension HandleWidgetRef on WidgetRef {
     }
     return !val.isBusy;
   }
+}
+
+class _FormSelector with EquatableMixin {
+  final bool shouldDirty;
+  final bool shouldHasNotUpdatedValue;
+
+  const _FormSelector({
+    this.shouldDirty = false,
+    this.shouldHasNotUpdatedValue = false,
+  });
+
+  bool call(FieldBlocStateBase<dynamic> state) {
+    if (shouldDirty && !state.isDirty) return false;
+    if (shouldHasNotUpdatedValue && state.hasUpdatedValue) return false;
+    return state.status.isValid;
+  }
+
+  @override
+  List<Object?> get props => [shouldDirty, shouldHasNotUpdatedValue];
 }
 
 class _Val {

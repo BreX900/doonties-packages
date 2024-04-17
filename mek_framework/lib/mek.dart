@@ -67,4 +67,5 @@ export 'src/widgets/draggable_with_size.dart';
 export 'src/widgets/flat_list_tile.dart';
 export 'src/widgets/info_tile.dart';
 export 'src/widgets/linear_progress_indicator_bar.dart';
+export 'src/widgets/popup_menu.dart';
 export 'src/widgets/rotators.dart';
