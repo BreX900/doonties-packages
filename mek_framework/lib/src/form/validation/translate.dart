@@ -42,14 +42,16 @@ String translateValidationError(ValidationError e, ValidationTranslations t) {
       return t.lessOrEqualThanComparable(e.lessOrEqualThan!);
     }
   } else if (e is OptionsValidationError) {
-    if (e.minLength != null) {
-      return 'You can choose at least ${e.minLength} options.';
+    if (e.lengths != null) {
+      return 'Select (${e.lengths!.join(', ')}) options.';
+    } else if (e.minLength != null) {
+      return 'Select at least ${e.minLength} options.';
     } else if (e.maxLength != null) {
-      return 'You can choose up to ${e.maxLength} options.';
+      return 'Select up to ${e.maxLength} options.';
     } else if (e.whereIn != null) {
-      return 'It must contain these values (${e.whereIn!.join(', ')}).';
+      return 'Selection must contain these options (${e.whereIn!.join(', ')}).';
     } else if (e.whereNotIn != null) {
-      return 'It must not contains these values (${e.whereNotIn!.join(', ')}).';
+      return 'Selection must not contains these options (${e.whereNotIn!.join(', ')}).';
     }
   } else if (e is FileValidationError) {
     if (e.whereExtensionIn != null) {

@@ -65,6 +65,20 @@ extension IterableExtension<T> on Iterable<T> {
     return result;
   }
 
+  Map<K, V> groupFolding<K, V>(
+    K Function(T element) keyOf,
+    V Function(V previousValue, T element) combine,
+    V initialValue,
+  ) {
+    final result = <K, V>{};
+    for (final element in this) {
+      final key = keyOf(element);
+      final value = result.putIfAbsent(key, () => initialValue);
+      result[key] = combine(value, element);
+    }
+    return result;
+  }
+
   // Iterable<T> intersect(T element) sync* {
   //   final iterator = this.iterator;
   //   if (!iterator.moveNext()) return;
@@ -112,9 +126,12 @@ extension ListEntryExtensions<K, V> on Iterable<MapEntry<K, V>> {
 
   Iterable<MapEntry<K, V>> whereEntry(bool Function(K key, V value) predicate) sync* {
     for (final entry in this) {
-      if (!predicate(entry.key, entry.value)) yield entry;
+      if (predicate(entry.key, entry.value)) yield entry;
     }
   }
+
+  Iterable<K> get keys => map((e) => e.key);
+  Iterable<V> get values => map((e) => e.value);
 }
 
 FutureOr<List<T>> waitAll<T>(Iterable<FutureOr<T>> entries) {

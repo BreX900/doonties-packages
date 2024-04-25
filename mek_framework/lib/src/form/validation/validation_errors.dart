@@ -107,7 +107,7 @@ class DateTimeValidationError extends ValidationError {
 }
 
 class OptionsValidationError extends ValidationError {
-  final int? length;
+  final Set<int>? lengths;
   final int? minLength;
   final int? maxLength;
   final List<Object?>? whereIn;
@@ -116,7 +116,7 @@ class OptionsValidationError extends ValidationError {
   const OptionsValidationError({
     Validation<Iterable<Object?>>? validation,
     String? code,
-    this.length,
+    this.lengths,
     this.minLength,
     this.maxLength,
     this.whereIn,
@@ -125,7 +125,7 @@ class OptionsValidationError extends ValidationError {
 
   @override
   String toString() =>
-      '$OptionsValidationError{length:$length,minLength:$minLength,maxLength:$maxLength,whereIn:$whereIn,whereNotIn:$whereNotIn}';
+      '$OptionsValidationError{lengths:$lengths,minLength:$minLength,maxLength:$maxLength,whereIn:$whereIn,whereNotIn:$whereNotIn}';
 }
 
 class FileValidationError extends ValidationError {

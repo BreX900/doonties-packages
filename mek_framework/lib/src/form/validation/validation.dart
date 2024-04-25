@@ -287,6 +287,7 @@ class DateTimeValidation extends ValidationBase<DateTime> {
 /// It allows you to validate a list of options
 /// by checking the minimum length and if any particular options have been selected
 class OptionsValidation<T> extends ValidationBase<Iterable<T>> {
+  final Set<int>? lengths;
   final int? minLength;
   final int? maxLength;
   final List<T>? whereIn;
@@ -294,6 +295,7 @@ class OptionsValidation<T> extends ValidationBase<Iterable<T>> {
 
   const OptionsValidation({
     String? errorCode,
+    this.lengths,
     this.minLength,
     this.maxLength,
     this.whereIn,
@@ -302,7 +304,12 @@ class OptionsValidation<T> extends ValidationBase<Iterable<T>> {
 
   @override
   Object? call(Iterable<T> value) {
-    if (minLength != null && value.length < minLength!) {
+    if (lengths != null && !lengths!.contains(value.length)) {
+      return OptionsValidationError(
+        validation: this,
+        lengths: lengths,
+      );
+    } else if (minLength != null && value.length < minLength!) {
       return OptionsValidationError(
         validation: this,
         minLength: minLength,
