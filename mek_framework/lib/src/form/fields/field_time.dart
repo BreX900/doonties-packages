@@ -12,6 +12,7 @@ class FieldTime<T extends TimeOfDay?> extends FieldBuilder<T> with InlineFieldBu
     super.key,
     required super.fieldBloc,
     super.focusNode,
+    super.errorTranslator,
     this.decoration = const InputDecoration(),
     this.initialTime,
   });

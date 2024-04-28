@@ -32,6 +32,12 @@ extension DateTimeExtensions on DateTime {
         year: years != null ? year + years : null,
         month: months != null ? month + months : null,
       );
+
+  int differenceMonths(DateTime other) {
+    final x1 = year * 12 + month;
+    final x2 = other.year * 12 + other.month;
+    return x1 - x2;
+  }
 }
 
 extension MapExtensions<K, V> on Map<K, V> {

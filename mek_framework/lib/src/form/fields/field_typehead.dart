@@ -25,6 +25,7 @@ class FieldTypehead<T> extends FieldBuilder<T> {
     super.key,
     required super.fieldBloc,
     super.focusNode,
+    super.errorTranslator,
     this.decoration = const InputDecoration(),
     this.debounceDuration = const Duration(milliseconds: 300),
     required this.toText,

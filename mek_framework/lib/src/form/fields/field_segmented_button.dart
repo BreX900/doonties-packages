@@ -1,52 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mek/src/form/blocs/field_bloc.dart';
 import 'package:mek/src/form/fields/field_builder.dart';
 import 'package:mek/src/form/shared/built_form_theme.dart';
-
-abstract class FieldConverter<TBlocValue, TVIewValue> {
-  const FieldConverter();
-
-  TVIewValue convertForView(TBlocValue blocValue);
-
-  TBlocValue convertForBloc(TVIewValue viewValue);
-}
-
-// class _FieldConverter<T> extends FieldConverter<dynamic, T> {
-//   const _FieldConverter();
-//
-//   @override
-//   // ignore: avoid_annotating_with_dynamic
-//   T convertForView(dynamic blocValue) => blocValue;
-//
-//   @override
-//   dynamic convertForBloc(T viewValue) => viewValue;
-// }
-
-class DefaultFieldConverter<T> extends FieldConverter<T, T> {
-  const DefaultFieldConverter();
-
-  @override
-  T convertForView(T blocValue) => blocValue;
-
-  @override
-  T convertForBloc(T viewValue) => viewValue;
-}
-
-class SetFieldConverter<T> extends FieldConverter<T, Set<T>> {
-  final bool emptyIfNull;
-
-  const SetFieldConverter({this.emptyIfNull = false});
-
-  @override
-  Set<T> convertForView(T blocValue) => blocValue == null && emptyIfNull ? {} : {blocValue};
-
-  @override
-  T convertForBloc(Set<T> viewValue) => viewValue.singleOrNull as T;
-}
-
-extension X<T> on FieldBlocRule<T> {
-  FieldConverter<T, R> transform<R>(FieldConverter<T, R> converter) => converter;
-}
+import 'package:mek/src/form/shared/field_converter.dart';
 
 class FieldSegmentedButton<T> extends FieldBuilder<dynamic> with InlineFieldBuilder {
   final FieldConverter<dynamic, Set<T>> converter;
@@ -60,6 +15,7 @@ class FieldSegmentedButton<T> extends FieldBuilder<dynamic> with InlineFieldBuil
     super.key,
     required super.fieldBloc,
     super.focusNode,
+    super.errorTranslator,
     required this.converter,
     this.multiSelectionEnabled = false,
     this.emptySelectionAllowed = false,
@@ -75,7 +31,7 @@ class FieldSegmentedButton<T> extends FieldBuilder<dynamic> with InlineFieldBuil
     final isEnabled = state.isEnabled;
 
     void changeValue(Set<T> value) {
-      state.fieldBloc.changeValue(converter.convertForBloc(value));
+      state.fieldBloc.changeValue(converter.convertForBloc(state.fieldBloc, value));
     }
 
     final child = InputDecorator(
@@ -88,7 +44,7 @@ class FieldSegmentedButton<T> extends FieldBuilder<dynamic> with InlineFieldBuil
           multiSelectionEnabled: multiSelectionEnabled,
           emptySelectionAllowed: emptySelectionAllowed,
           showSelectedIcon: showSelectedIcon,
-          selected: converter.convertForView(state.value),
+          selected: converter.convertForView(state.fieldBloc, state.value),
           onSelectionChanged: isEnabled ? changeValue : null,
           segments: segments,
         ),

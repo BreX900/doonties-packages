@@ -14,6 +14,8 @@ extension FieldStatusExtensions on FieldStatus {
   bool get isDisabled => this == FieldStatus.disabled;
 }
 
+typedef FieldErrorTranslator = String? Function(BuildContext context, Object error);
+
 abstract class FieldBuilder<V> extends StatefulWidget {
   static const InputDecoration decorationBorderless = InputDecoration(
     border: InputBorder.none,
@@ -38,18 +40,21 @@ abstract class FieldBuilder<V> extends StatefulWidget {
   final FieldBlocRule<V>? fieldBloc;
   final V? value;
   final FocusNode? focusNode;
+  final FieldErrorTranslator? errorTranslator;
 
   const FieldBuilder({
     super.key,
     required FieldBlocRule<V> this.fieldBloc,
     required this.focusNode,
+    required this.errorTranslator,
   }) : value = null;
 
   const FieldBuilder.from({
     super.key,
     required V this.value,
   })  : fieldBloc = null,
-        focusNode = null;
+        focusNode = null,
+        errorTranslator = null;
 
   @override
   State<FieldBuilder<V>> createState();
@@ -118,6 +123,9 @@ abstract class FieldBuilderState<W extends FieldBuilder<V>, V> extends State<W> 
 
     final error = _fieldBlocState.error;
     if (error == null) return null;
+
+    final errorTranslator = widget.errorTranslator;
+    if (errorTranslator != null) return errorTranslator(context, error);
 
     if (error is! ValidationError) return '$error';
     return ValidationLocalizations.translate(context, error);

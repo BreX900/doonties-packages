@@ -16,6 +16,7 @@ class FieldDateTime<T extends DateTime?> extends FieldBuilder<T> with InlineFiel
     super.key,
     required super.fieldBloc,
     super.focusNode,
+    super.errorTranslator,
     this.readOnly = false,
     this.decoration = const InputDecoration(),
     this.format,

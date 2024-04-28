@@ -13,6 +13,7 @@ class FieldDuration<T extends Duration?> extends FieldBuilder<T> with InlineFiel
     super.key,
     required super.fieldBloc,
     super.focusNode,
+    super.errorTranslator,
     this.decoration = const InputDecoration(),
     this.initialTime,
   });

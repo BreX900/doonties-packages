@@ -11,6 +11,7 @@ class FieldSwitchListTile extends FieldBuilder<bool> with InlineFieldBuilder {
     super.key,
     required super.fieldBloc,
     super.focusNode,
+    super.errorTranslator,
     this.dense = false,
     this.contentPadding,
     this.title,

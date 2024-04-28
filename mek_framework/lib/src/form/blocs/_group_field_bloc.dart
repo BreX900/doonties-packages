@@ -11,7 +11,7 @@ abstract class GroupFieldBlocState<TValue> extends FieldBlocStateBase<TValue> {
   Iterable<FieldBlocStateBase<dynamic>> get flatFieldStates;
 
   @override
-  late final bool isEnabled = flatFieldStates.any((e) => e.isEnabled);
+  late final bool isEnabled = !flatFieldStates.every((e) => !e.isEnabled);
   @override
   late final bool isValidating = flatFieldStates.any((e) => e.isValidating);
   @override

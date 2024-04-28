@@ -1,38 +1,51 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
-import 'package:mek/mek.dart';
+import 'package:mek/src/form/fields/field_builder.dart';
+import 'package:mek/src/form/shared/built_form_theme.dart';
+import 'package:mek/src/form/shared/field_converter.dart';
 
-class FieldMultiDropdown<T> extends FieldBuilder<IList<T>> with InlineFieldBuilder {
+class FieldMultiDropdown<TBlocValue, TViewValue> extends FieldBuilder<TBlocValue>
+    with InlineFieldBuilder {
+  final FieldConverter<TBlocValue, ISet<TViewValue>> converter;
   final EdgeInsetsGeometry? padding;
   final BoxConstraints? constraints;
-  final InputDecoration decoration;
-  final ValueChanged<IList<T>>? onChanged;
-  final List<PopupMenuEntry<T>> Function(BuildContext context, IList<T> selection) itemsBuilder;
-  final Widget Function(BuildContext context, IList<T> selection) builder;
+  final InputDecoration? decoration;
+  final ValueChanged<TViewValue>? onChanged;
+  final List<PopupMenuEntry<TViewValue>> Function(BuildContext context, ISet<TViewValue> selection)
+      itemsBuilder;
+  final Widget Function(BuildContext context, ISet<TViewValue> selection)? builder;
+  final Widget? icon;
 
   const FieldMultiDropdown({
     super.key,
     required super.fieldBloc,
+    required this.converter,
     super.focusNode,
+    super.errorTranslator,
     this.onChanged,
     this.decoration = const InputDecoration(),
     this.padding,
     this.constraints,
     required this.itemsBuilder,
-    required this.builder,
-  });
+    this.builder,
+    this.icon,
+  }) : assert(builder == null || icon == null);
 
   FieldMultiDropdown.withChip({
     super.key,
     required super.fieldBloc,
+    required this.converter,
     super.focusNode,
+    super.errorTranslator,
     this.onChanged,
     this.decoration = const InputDecoration(),
     this.padding,
     this.constraints,
-    required List<PopupMenuItem<T>> Function(BuildContext context, IList<T> selection)
+    required List<PopupMenuItem<TViewValue>> Function(
+            BuildContext context, ISet<TViewValue> selection)
         this.itemsBuilder,
-  }) : builder = ((context, selection) {
+  })  : icon = null,
+        builder = ((context, selection) {
           final items = itemsBuilder(context, selection);
 
           return Padding(
@@ -46,7 +59,8 @@ class FieldMultiDropdown<T> extends FieldBuilder<IList<T>> with InlineFieldBuild
                 return Chip(
                   padding: EdgeInsets.zero,
                   labelPadding: const EdgeInsets.only(left: 8.0),
-                  onDeleted: () => fieldBloc.changeRemovingValue(selected),
+                  onDeleted: () => fieldBloc
+                      .changeValue(converter.convertForBloc(fieldBloc, selection.remove(selected))),
                   label: item.child ?? const SizedBox.shrink(),
                 );
               }).toList(),
@@ -55,26 +69,38 @@ class FieldMultiDropdown<T> extends FieldBuilder<IList<T>> with InlineFieldBuild
         });
 
   @override
-  Widget build(BuildContext context, InlineFieldBuilderState<IList<T>> state) {
+  Widget build(BuildContext context, InlineFieldBuilderState<TBlocValue> state) {
     final theme = Theme.of(context);
     final formTheme = BuiltFormTheme.of(context);
     final isEnabled = state.isEnabled;
 
-    void changeValue(T value) {
-      final selection = state.value;
-      final newSelection =
-          selection.contains(value) ? selection.remove(value) : selection.add(value);
-      state.fieldBloc.changeValue(newSelection);
+    final viewValue = converter.convertForView(state.fieldBloc, state.value);
+
+    void changeValue(TViewValue value) {
+      final newViewValue =
+          viewValue.contains(value) ? viewValue.remove(value) : viewValue.add(value);
+      final newBlocValue = converter.convertForBloc(state.fieldBloc, newViewValue);
+      state.fieldBloc.changeValue(newBlocValue);
       state.completeEditing();
-      onChanged?.call(newSelection);
+      onChanged?.call(value);
     }
 
-    final child = InputDecorator(
-      isEmpty: state.value.isEmpty,
-      decoration: state.decorate(decoration, isEnabled: isEnabled),
-      child: builder(context, state.value),
-    );
-    return PopupMenuButton<T>(
+    Widget buildChild(Widget Function(BuildContext context, ISet<TViewValue> selection) builder) {
+      final child = InputDecorator(
+        isEmpty: viewValue.isEmpty,
+        decoration: state.decorate(decoration!, isEnabled: isEnabled),
+        child: builder(context, viewValue),
+      );
+      return ConstrainedBox(
+        constraints: constraints ?? const BoxConstraints(minHeight: kToolbarHeight),
+        child: formTheme.wrap(
+          padding: padding,
+          child: child,
+        ),
+      );
+    }
+
+    return PopupMenuButton<TViewValue>(
       onSelected: changeValue,
       enabled: isEnabled,
       constraints: constraints,
@@ -83,14 +109,9 @@ class FieldMultiDropdown<T> extends FieldBuilder<IList<T>> with InlineFieldBuild
       padding: EdgeInsets.zero,
       // decoration: state.decorate(decoration, isEnabled: isEnabled),
       surfaceTintColor: theme.canvasColor,
-      itemBuilder: (context) => itemsBuilder(context, state.value),
-      child: ConstrainedBox(
-        constraints: constraints ?? const BoxConstraints(minHeight: kToolbarHeight),
-        child: formTheme.wrap(
-          padding: padding,
-          child: child,
-        ),
-      ),
+      itemBuilder: (context) => itemsBuilder(context, viewValue),
+      icon: icon,
+      child: builder != null ? buildChild(builder!) : null,
     );
 
     // final button = PopupMenuButton<T>(

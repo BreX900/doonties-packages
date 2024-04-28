@@ -1,9 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 
 class DraggableWithSize<T extends Object> extends StatelessWidget {
   final T? data;
@@ -25,6 +23,8 @@ class DraggableWithSize<T extends Object> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final platform = Theme.of(context).platform;
+
     final childWhenDragging = Builder(builder: (_) {
       final renderBox = context.findRenderObject()! as RenderBox;
 
@@ -44,23 +44,26 @@ class DraggableWithSize<T extends Object> extends StatelessWidget {
       );
     });
 
-    if (kIsWeb) {
-      return Draggable<T>(
-        data: data,
-        affinity: affinity,
-        onDragStarted: _onDragStarted,
-        childWhenDragging: childWhenDragging,
-        feedback: feedback,
-        child: child,
-      );
-    } else {
-      return LongPressDraggable<T>(
-        data: data,
-        onDragStarted: _onDragStarted,
-        childWhenDragging: childWhenDragging,
-        feedback: feedback,
-        child: child,
-      );
-    }
+    return switch (platform) {
+      TargetPlatform.android || TargetPlatform.iOS => LongPressDraggable<T>(
+          data: data,
+          onDragStarted: _onDragStarted,
+          childWhenDragging: childWhenDragging,
+          feedback: feedback,
+          child: child,
+        ),
+      TargetPlatform.fuchsia ||
+      TargetPlatform.linux ||
+      TargetPlatform.macOS ||
+      TargetPlatform.windows =>
+        Draggable<T>(
+          data: data,
+          affinity: affinity,
+          onDragStarted: _onDragStarted,
+          childWhenDragging: childWhenDragging,
+          feedback: feedback,
+          child: child,
+        ),
+    };
   }
 }

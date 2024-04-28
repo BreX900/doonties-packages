@@ -15,6 +15,7 @@ class FieldChipsInput<T extends Object> extends FieldBuilder<IList<T>> with Inli
     super.key,
     required super.fieldBloc,
     super.focusNode,
+    super.errorTranslator,
     this.decoration = const InputDecoration(),
     required this.findSuggestions,
     this.labelBuilder = _defaultLabelBuilder,

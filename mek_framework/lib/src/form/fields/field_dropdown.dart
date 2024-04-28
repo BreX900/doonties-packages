@@ -12,6 +12,7 @@ class FieldDropdown<T> extends FieldBuilder<T> with InlineFieldBuilder {
     super.key,
     required super.fieldBloc,
     super.focusNode,
+    super.errorTranslator,
     this.onChanged,
     this.decoration = const InputDecoration(),
     this.padding,

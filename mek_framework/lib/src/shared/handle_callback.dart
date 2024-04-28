@@ -10,18 +10,18 @@ import 'package:mek/src/riverpod/riverpod_adapters.dart';
 import 'package:mek/src/shared/skeleton_form.dart';
 
 extension FormBuildContextExtensions on BuildContext {
-  VoidCallback handleSubmit(
+  void Function(T) handleSubmit<T>(
     FieldBlocRule<dynamic> form,
-    FutureOr<void> Function() submitter, {
+    FutureOr<void> Function(T) submitter, {
     bool canEnableFormAfterSubmit = true,
   }) {
-    return () async {
+    return (arg) async {
       if (!form.state.status.isValid) {
         form.touch();
         await SkeletonForm.requestFocusOnError(this);
         return;
       }
-      final submitting = submitter();
+      final submitting = submitter(arg);
       if (submitting is! Future) return;
       form.disable();
       try {
@@ -34,6 +34,8 @@ extension FormBuildContextExtensions on BuildContext {
 }
 
 extension HandleWidgetRef on WidgetRef {
+  static bool shouldFormValid = true;
+
   @Deprecated('')
   VoidCallback? handleSubmit(
     FieldBlocRule<dynamic> form,
@@ -68,18 +70,20 @@ extension HandleWidgetRef on WidgetRef {
   bool watchCanUpsert(FieldBlocRule<dynamic> form, {required bool isCreate}) {
     return watch(form.select(_FormSelector(
       shouldHasNotUpdatedValue: !isCreate,
+      shouldValid: shouldFormValid,
     )));
   }
 
   bool watchCanApplyFilters(FieldBlocRule<dynamic> form) {
-    return watch(form.select(const _FormSelector(
+    return watch(form.select(_FormSelector(
       shouldDirty: true,
       shouldHasNotUpdatedValue: true,
+      shouldValid: shouldFormValid,
     )));
   }
 
   bool watchIsValid(FieldBlocRule<dynamic> form) {
-    return watch(form.select(const _FormSelector()));
+    return watch(form.select(const _FormSelector(shouldValid: true)));
   }
 
   @Deprecated('')
@@ -91,6 +95,7 @@ extension HandleWidgetRef on WidgetRef {
     return watch(form.select(_FormSelector(
       shouldDirty: shouldDirty,
       shouldHasNotUpdatedValue: shouldHasNotUpdatedValue,
+      shouldValid: true,
     )));
   }
 
@@ -122,20 +127,23 @@ extension HandleWidgetRef on WidgetRef {
 class _FormSelector with EquatableMixin {
   final bool shouldDirty;
   final bool shouldHasNotUpdatedValue;
+  final bool shouldValid;
 
   const _FormSelector({
     this.shouldDirty = false,
     this.shouldHasNotUpdatedValue = false,
+    this.shouldValid = false,
   });
 
   bool call(FieldBlocStateBase<dynamic> state) {
     if (shouldDirty && !state.isDirty) return false;
     if (shouldHasNotUpdatedValue && state.hasUpdatedValue) return false;
-    return state.status.isValid;
+    if (shouldValid && !state.status.isValid) return false;
+    return true;
   }
 
   @override
-  List<Object?> get props => [shouldDirty, shouldHasNotUpdatedValue];
+  List<Object?> get props => [shouldDirty, shouldHasNotUpdatedValue, shouldValid];
 }
 
 class _Val {
