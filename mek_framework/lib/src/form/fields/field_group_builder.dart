@@ -3,7 +3,7 @@ import 'package:mek/src/form/fields/field_builder.dart';
 
 class FieldGroupBuilder<T> extends FieldBuilder<T> with InlineFieldBuilder<T> {
   final EdgeInsetsGeometry padding;
-  final InputDecoration decoration;
+  final InputDecoration? decoration;
   final Widget Function(BuildContext context, FieldBuilderState<FieldBuilder<T>, T> state) builder;
 
   const FieldGroupBuilder({
@@ -21,19 +21,23 @@ class FieldGroupBuilder<T> extends FieldBuilder<T> with InlineFieldBuilder<T> {
     final hasFocus = state.watchHasFocus();
     final isEnabled = state.isEnabled;
 
-    final decoration = this.decoration.applyDefaults(const InputDecorationTheme(
-          contentPadding: EdgeInsets.zero,
-        ));
+    var child = builder(context, state);
+    if (this.decoration != null) {
+      final decoration = this.decoration!.applyDefaults(const InputDecorationTheme(
+        contentPadding: EdgeInsets.zero,
+      ));
+      child = InputDecorator(
+        isFocused: hasFocus,
+        decoration: state.decorate(decoration, isEnabled: isEnabled),
+        child: child,
+      );
+    }
 
     return Focus(
       focusNode: focusNode,
       child: Padding(
         padding: padding,
-        child: InputDecorator(
-          isFocused: hasFocus,
-          decoration: state.decorate(decoration, isEnabled: isEnabled),
-          child: builder(context, state),
-        ),
+        child: child,
       ),
     );
   }
