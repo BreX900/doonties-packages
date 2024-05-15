@@ -3,15 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:mek/mek.dart';
 
 abstract class MekTheme {
-  static ColorScheme buildColorScheme() {
-    final brightness = PlatformDispatcher.instance.platformBrightness;
+  static ColorScheme buildColorScheme(BuildContext context) {
+    final brightness = MediaQuery.platformBrightnessOf(context);
     const colorPrimary = Colors.amber;
     const colorSecondary = Colors.yellow;
 
     return ColorScheme.fromSeed(
       seedColor: colorPrimary,
       brightness: brightness,
-      background: brightness == Brightness.light ? null : Colors.black,
+      // ignore: deprecated_member_use
+      background: brightness == Brightness.light ? null : const Color(0xff121212),
       primary: colorPrimary,
       onPrimary: Colors.black,
       secondary: colorSecondary,
@@ -20,9 +21,10 @@ abstract class MekTheme {
   }
 
   static ThemeData build({
+    required BuildContext context,
     ColorScheme? colorScheme,
   }) {
-    colorScheme ??= buildColorScheme();
+    colorScheme ??= buildColorScheme(context);
 
     final platform = defaultTargetPlatform;
     const buttonSize = Size(kMinInteractiveDimension * 3, kMinInteractiveDimension);
@@ -31,7 +33,8 @@ abstract class MekTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
     ).copyWith(
-      canvasColor: colorScheme.brightness == Brightness.light ? null : const Color(0xff121212),
+      // ignore: deprecated_member_use
+      canvasColor: colorScheme.background,
       // textTheme: Typography.tall2018.apply(fontSizeFactor: 1.1),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -59,6 +62,7 @@ abstract class MekTheme {
           TargetPlatform.android || TargetPlatform.iOS => false,
           _ => true,
         },
+        backgroundColor: colorScheme.surfaceContainer,
       ),
       bannerTheme: MaterialBannerThemeData(
         backgroundColor: colorScheme.secondaryContainer,
@@ -66,6 +70,7 @@ abstract class MekTheme {
       inputDecorationTheme: const InputDecorationTheme(
         errorMaxLines: 5,
       ),
+      dialogBackgroundColor: colorScheme.surfaceContainer,
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
           TargetPlatform.iOS:

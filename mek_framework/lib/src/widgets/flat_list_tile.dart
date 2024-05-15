@@ -54,6 +54,7 @@ class ListTileLayout extends StatelessWidget {
         if (leading != null) ...[leading!, const SizedBox(width: 4.0)],
         Expanded(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               title,
@@ -63,6 +64,50 @@ class ListTileLayout extends StatelessWidget {
         ),
         if (trailing != null) trailing!,
       ],
+    );
+  }
+}
+
+class ParagraphTile extends StatelessWidget {
+  final VoidCallback? onTap;
+  final Widget title;
+  final Widget? subtitle;
+  final Widget? trailing;
+
+  const ParagraphTile({
+    super.key,
+    this.onTap,
+    required this.title,
+    this.subtitle,
+    this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+
+    return InkWell(
+      onTap: onTap,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: kMinInteractiveDimension),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: ListTileLayout(
+            title: DefaultTextStyle(
+              style: textTheme.titleSmall!,
+              child: title,
+            ),
+            subtitle: subtitle != null
+                ? DefaultTextStyle(
+                    style: textTheme.labelSmall!,
+                    child: subtitle!,
+                  )
+                : null,
+            trailing: trailing,
+          ),
+        ),
+      ),
     );
   }
 }
@@ -111,9 +156,9 @@ class FlatListTile extends StatelessWidget {
         ? _LisTileDefaultsM3(context)
         : _LisTileDefaultsM2(context, listTileStyle);
 
-    final states = <MaterialState>{
-      if (!enabled) MaterialState.disabled,
-      if (selected) MaterialState.selected,
+    final states = <WidgetState>{
+      if (!enabled) WidgetState.disabled,
+      if (selected) WidgetState.selected,
     };
     Color? resolveColor(Color? explicitColor, Color? selectedColor, Color? enabledColor,
         [Color? disabledColor]) {
@@ -169,7 +214,7 @@ class FlatListTile extends StatelessWidget {
   }
 }
 
-class _IndividualOverrides extends MaterialStateProperty<Color?> {
+class _IndividualOverrides extends WidgetStateProperty<Color?> {
   _IndividualOverrides({
     this.explicitColor,
     this.enabledColor,
@@ -183,14 +228,14 @@ class _IndividualOverrides extends MaterialStateProperty<Color?> {
   final Color? disabledColor;
 
   @override
-  Color? resolve(Set<MaterialState> states) {
-    if (explicitColor is MaterialStateColor) {
-      return MaterialStateProperty.resolveAs<Color?>(explicitColor, states);
+  Color? resolve(Set<WidgetState> states) {
+    if (explicitColor is WidgetStateColor) {
+      return WidgetStateProperty.resolveAs<Color?>(explicitColor, states);
     }
-    if (states.contains(MaterialState.disabled)) {
+    if (states.contains(WidgetState.disabled)) {
       return disabledColor;
     }
-    if (states.contains(MaterialState.selected)) {
+    if (states.contains(WidgetState.selected)) {
       return selectedColor;
     }
     return enabledColor;

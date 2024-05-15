@@ -252,9 +252,11 @@ class TextFieldScope extends InheritedWidget {
     required super.child,
   });
 
-  static TextFieldScope of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<TextFieldScope>()!;
+  static TextFieldScope? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<TextFieldScope>();
   }
+
+  static TextFieldScope of(BuildContext context) => maybeOf(context)!;
 
   @override
   bool updateShouldNotify(TextFieldScope oldWidget) {
@@ -566,13 +568,22 @@ class ClearFieldButton extends StatelessWidget {
     this.disableOnReadOnly = true,
   });
 
+  (FieldBlocRule?, bool) _of(BuildContext context) {
+    final scope = TextFieldScope.maybeOf(context);
+    if (scope != null) {
+      return (scope.fieldBloc, scope.typeData.readOnly);
+    }
+    final state = context.findAncestorStateOfType<FieldBuilderState>()!;
+    return (state.fieldBloc, false);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final scope = TextFieldScope.of(context);
-    final isEnabled = !(disableOnReadOnly && scope.typeData.readOnly);
+    final data = _of(context);
+    final isEnabled = !(disableOnReadOnly && data.$2);
 
     return IconButton(
-      onPressed: isEnabled ? () => scope.fieldBloc!.clear() : null,
+      onPressed: isEnabled ? () => data.$1!.clear() : null,
       icon: const Icon(Icons.clear),
     );
   }

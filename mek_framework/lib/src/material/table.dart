@@ -91,8 +91,8 @@ class MekTable extends StatelessWidget {
     }
 
     final effectiveDataRowColor = dataTableTheme.dataRowColor ?? theme.dataTableTheme.dataRowColor;
-    final defaultRowColor = MaterialStateProperty.resolveWith((states) {
-      if (states.contains(MaterialState.selected)) {
+    final defaultRowColor = WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) {
         return theme.colorScheme.primary.withOpacity(0.08);
       }
       return null;
@@ -125,9 +125,9 @@ class MekTable extends StatelessWidget {
           }).toList(),
         ),
         ...rows.map((row) {
-          final states = <MaterialState>{
-            if (row.isSelected) MaterialState.selected,
-            if (row.isDisabled) MaterialState.disabled,
+          final states = <WidgetState>{
+            if (row.isSelected) WidgetState.selected,
+            if (row.isDisabled) WidgetState.disabled,
           };
 
           return TableRow(

@@ -26,7 +26,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.19.x
+          flutter-version: 3.22.x
       - name: Resolve dependencies
         run: flutter pub get
         timeout-minutes: 2
@@ -35,8 +35,8 @@ jobs:
         run: dart pub global activate rps
 
       - name: Check code formatting
-        run: rps check-format
+        run: dart pub global run rps check-format
       - name: Analyze code
-        run: rps analyze
+        run: dart pub global run rps analyze
       - name: Test code
-        run: rps test
+        run: dart pub global run rps test
