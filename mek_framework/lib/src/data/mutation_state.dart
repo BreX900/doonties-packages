@@ -14,6 +14,11 @@ sealed class MutationState<TData> {
 
   Object? get errorOrNull => whenOrNull(failed: (error) => error);
 
+  double? get progressOrNull {
+    final state = this;
+    return state is LoadingMutation<TData> ? state.progress : null;
+  }
+
   const factory MutationState.idle() = IdleMutation<TData>;
   const factory MutationState.loading({double? progress}) = LoadingMutation<TData>;
   const factory MutationState.failed({required Object error}) = FailedMutation<TData>;

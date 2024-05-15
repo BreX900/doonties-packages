@@ -19,7 +19,7 @@ typedef ResultMutationListener<Arg, Result> = FutureOr<void> Function(
 
 extension MutationBlocExtension on WidgetRef {
   MutationBloc<A, R> mutation<A, R>(
-    Future<R> Function(MutatorRef<R> ref, A arg) mutator, {
+    Future<R> Function(MutationRef<R> ref, A arg) mutator, {
     StartMutationListener<A>? onStart,
     WillStartMutationListener<A>? onWillMutate,
     ErrorMutationListener<A>? onError = _sentinelError,
@@ -86,7 +86,7 @@ extension MutationBlocExtension on WidgetRef {
 
 class MutationBloc<TArg, TResult> extends Cubit<MutationState<TResult>> {
   final WidgetRef _ref;
-  final FutureOr<TResult> Function(MutatorRef<TResult> ref, TArg arg) _mutator;
+  final FutureOr<TResult> Function(MutationRef<TResult> ref, TArg arg) _mutator;
   final StartMutationListener<TArg>? _onStart;
   final WillStartMutationListener<TArg>? _onWillMutate;
   final ErrorMutationListener<TArg>? _onError;
@@ -125,7 +125,7 @@ class MutationBloc<TArg, TResult> extends Cubit<MutationState<TResult>> {
 
     await _tryCall1(_onStart, arg);
 
-    final ref = MutatorRef._(_ref, this);
+    final ref = MutationRef._(_ref, this);
     try {
       final result = await _mutator(ref, arg);
       ref._dispose();
@@ -157,7 +157,9 @@ class MutationBloc<TArg, TResult> extends Cubit<MutationState<TResult>> {
     }
   }
 
-  void emitProgress(double value) => emit(state.toLoading(progress: value));
+  void updateProgress(double value) => emit(state.toLoading(progress: value));
+  @Deprecated('In favour of updateProgress')
+  void emitProgress(double value) => updateProgress(value);
 
   FutureOr<void> _tryCall1<T1>(FutureOr<void> Function(T1)? fn, T1 $1) async {
     if (fn == null) return;
@@ -195,11 +197,14 @@ class MutationBloc<TArg, TResult> extends Cubit<MutationState<TResult>> {
   String toString() => 'MutationBloc($_mutator)';
 }
 
-class MutatorRef<R> implements Ref<MutationBloc<void, R>> {
+@Deprecated('In favour of MutationRef')
+typedef MutatorRef<R> = MutationRef<R>;
+
+class MutationRef<R> implements Ref<MutationBloc<void, R>> {
   WidgetRef? _ref;
   MutationBloc<void, R>? _bloc;
 
-  MutatorRef._(this._ref, this._bloc);
+  MutationRef._(this._ref, this._bloc);
 
   MutationBloc<void, R> get bloc => _get(_bloc);
 
@@ -217,6 +222,8 @@ class MutatorRef<R> implements Ref<MutationBloc<void, R>> {
 
   @override
   T refresh<T>(Refreshable<T> provider) => _get(_ref).refresh(provider);
+
+  void updateProgress(double value) => _get(_bloc).updateProgress(value);
 
   T _get<T>(T? v) {
     if (v == null) throw StateError('Is disposed');

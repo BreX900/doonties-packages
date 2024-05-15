@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+typedef ProgressEmitter = void Function(double value);
+
 abstract final class MekUtils {
   static void showSnackBarError({
     required BuildContext context,
@@ -24,6 +26,38 @@ abstract final class MekUtils {
         description: description,
       ),
     ));
+  }
+
+  static Future<void> process(
+    ProgressEmitter progressEmitter,
+    List<Future<void> Function(ProgressEmitter)> tasks,
+  ) async {
+    for (var i = 0; i < tasks.length; i++) {
+      progressEmitter(i / tasks.length);
+      void emitTaskProgress(double value) {
+        progressEmitter(i / tasks.length + 1 / tasks.length * value);
+      }
+
+      await tasks[i](emitTaskProgress);
+    }
+    progressEmitter(1.0);
+  }
+
+  static Future<void> processParallel(
+    ProgressEmitter progressEmitter,
+    List<Future<void> Function(ProgressEmitter)> tasks,
+  ) async {
+    var completedCount = 0;
+    await Future.wait(tasks.map((task) async {
+      void emitTaskProgress(double value) {
+        progressEmitter(completedCount / tasks.length + 1 / tasks.length * value);
+      }
+
+      await task(emitTaskProgress);
+
+      completedCount++;
+      progressEmitter(completedCount / tasks.length);
+    }));
   }
 }
 
