@@ -28,17 +28,19 @@ class Nav {
 }
 
 mixin TypedWidgetMixin<T> on Widget {
+  T get fallbackResult;
+
   void pop(BuildContext context, [T? result]) => Navigator.pop<T>(context, result);
 }
 
 Future<T> showTypedDialog<T>({
   required BuildContext context,
-  required T fallbackValue,
-  required TypedWidgetMixin<T> Function(BuildContext context) builder,
+  @Deprecated('') T? fallbackValue,
+  required TypedWidgetMixin<T> child,
 }) async {
-  final value = await showDialog(
+  final result = await showDialog(
     context: context,
-    builder: builder,
+    builder: (context) => child,
   );
-  return value ?? fallbackValue;
+  return result ?? child.fallbackResult;
 }

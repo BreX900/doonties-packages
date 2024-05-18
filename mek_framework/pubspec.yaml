@@ -18,7 +18,7 @@ scripts:
     dart pub global run index_generator
 
   # Integration tools
-  integration: rps check-format && rps analyze && rps test
+  integration: dart pub global run rps check-format && dart pub global run rps analyze && dart pub global run rps test
   check-format: >-
     dart format --line-length 100 --set-exit-if-changed --output none
     $(find . ! -path "./.dart_tool/**" ! -path "./build/**" -name "*.dart" ! -name "*.g.dart")

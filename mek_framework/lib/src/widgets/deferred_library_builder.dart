@@ -14,6 +14,12 @@ class DeferredLibraryBuilder extends StatefulWidget {
     required this.builder,
   });
 
+  const DeferredLibraryBuilder.multi({
+    super.key,
+    required this.loader,
+    required this.builder,
+  });
+
   @override
   State<DeferredLibraryBuilder> createState() => _DeferredLibraryBuilderState();
 }

@@ -13,17 +13,16 @@ extension ProviderListenableExtensions2<T> on ProviderListenable<AsyncValue<T>> 
   ProviderListenable<Future<T>> get futureOfData => _IgnoreErrorsProviderListenable(this);
 }
 
-// extension AsProviderStreamExtension<T> on Stream<T> {
-//   ProviderListenable<T> provider(T initialValue) =>
-//       _StreamProviderListenable<T>(this, initialValue);
-// }
-
 extension AsProviderValueStreamExtension<T> on ValueStream<T> {
   ProviderListenable<T> get provider => _ValueStreamProviderListenable<T>(this);
 }
 
-extension AsProviderBlocExtension<T> on StateStreamable<T> {
+extension AsProviderStateStremableExtension<T> on StateStreamable<T> {
   ProviderListenable<T> get provider => _StateStreamableListenable(this);
+}
+
+extension AsProviderStateNotififierExtension<T> on StateNotifier<T> {
+  ProviderListenable<T> get provider => _StateNotifierListenable(this);
 }
 
 extension AsProviderListenableExtension<T> on ValueListenable<T> {
@@ -38,8 +37,12 @@ extension SelectListenableExtension<T> on ValueListenable<T> {
   ProviderListenable<R> select<R>(R Function(T value) selector) => $select(selector).provider;
 }
 
-extension SelectBlocExtension<State> on StateStreamable<State> {
+extension SelectStateStreamableExtension<State> on StateStreamable<State> {
   ProviderListenable<R> select<R>(R Function(State state) selector) => $select(selector).provider;
+}
+
+extension SelectStateNotifierExtension<State> on StateNotifier<State> {
+  ProviderListenable<R> select<R>(R Function(State state) selector) => provider.select(selector);
 }
 
 class _IgnoreErrorsProviderListenable<T> with ProviderListenable<Future<T>> {
@@ -113,34 +116,6 @@ class _IgnoreErrorsProviderListenable<T> with ProviderListenable<Future<T>> {
   @override
   int get hashCode => Object.hash(runtimeType, _provider);
 }
-
-// // ignore: must_be_immutable
-// class _StreamProviderListenable<T> extends _ProviderListenable<Stream<T>, T> {
-//   T _current;
-//
-//   _StreamProviderListenable(super.source, this._current);
-//
-//   @override
-//   T _read() => _current;
-//
-//   @override
-//   void Function() _addListener(
-//     void Function(T? previous, T next) listener, {
-//     required void Function(Object error, StackTrace stackTrace)? onError,
-//     required bool fireImmediately,
-//   }) {
-//     final subscription = source.listen((next) {
-//       final prev = _current;
-//       _current = next;
-//
-//       listener(prev, next);
-//     }, onError: onError);
-//
-//     if (fireImmediately) listener(null, _current);
-//
-//     return subscription.cancel;
-//   }
-// }
 
 class _ValueStreamProviderListenable<T> extends _ProviderListenable<ValueStream<T>, T> {
   _ValueStreamProviderListenable(super.source);
@@ -219,6 +194,34 @@ class _StateStreamableListenable<T> extends _ProviderListenable<StateStreamable<
     if (fireImmediately) listener(null, current);
 
     return subscription.cancel;
+  }
+}
+
+class _StateNotifierListenable<T> extends _ProviderListenable<StateNotifier<T>, T> {
+  _StateNotifierListenable(super.source);
+
+  @override
+  // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+  T _read() => source.state;
+
+  @override
+  void Function() _addListener(
+    void Function(T? previous, T next) listener, {
+    required void Function(Object error, StackTrace stackTrace)? onError,
+    required bool fireImmediately,
+  }) {
+    // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+    var current = source.state;
+    final listenerRemover = source.addListener((next) {
+      final prev = current;
+      current = next;
+
+      listener(prev, current);
+    });
+
+    if (fireImmediately) listener(null, current);
+
+    return listenerRemover;
   }
 }
 

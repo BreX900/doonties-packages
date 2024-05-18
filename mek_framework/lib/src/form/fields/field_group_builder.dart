@@ -24,8 +24,8 @@ class FieldGroupBuilder<T> extends FieldBuilder<T> with InlineFieldBuilder<T> {
     var child = builder(context, state);
     if (this.decoration != null) {
       final decoration = this.decoration!.applyDefaults(const InputDecorationTheme(
-        contentPadding: EdgeInsets.zero,
-      ));
+            contentPadding: EdgeInsets.zero,
+          ));
       child = InputDecorator(
         isFocused: hasFocus,
         decoration: state.decorate(decoration, isEnabled: isEnabled),

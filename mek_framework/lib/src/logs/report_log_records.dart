@@ -32,9 +32,6 @@ extension ReportRecordsExtension on Logger {
   }
 }
 
-typedef _PWE<T> = ParallelWaitError<dynamic, T>;
-typedef _AE = AsyncError?;
-
 class _LogReporter {
   final ErrorDetailsMapper onErrorDetails;
 
@@ -69,7 +66,6 @@ class _LogReporter {
         ),
       );
     }
-    if (error != null) _log(error);
   }
 
   Future<void> reportToCrashlytics(Crashlytics crashlytics, LogRecord record) async {
@@ -99,59 +95,4 @@ class _LogReporter {
     debugPrint('Error when log is logged\n$error');
     debugPrintStack(stackTrace: stackTrace);
   }
-
-  void _log(Object error) {
-    switch (error) {
-      case ParallelWaitError<dynamic, dynamic>():
-        final errors = _resolveAsyncErrors(error).nonNulls.toList();
-        for (final e in errors) {
-          _printLoggingError(e.error, e.stackTrace);
-        }
-    }
-  }
-
-  List<AsyncError?> _resolveAsyncErrors(ParallelWaitError<dynamic, dynamic> error) {
-    switch (error) {
-      case _PWE<(_AE, _AE)>(errors: final e):
-        return [e.$1, e.$2];
-      case _PWE<(_AE, _AE, _AE)>(errors: final e):
-        return [e.$1, e.$2, e.$3];
-      case _PWE<(_AE, _AE, _AE, _AE)>(errors: final e):
-        return [e.$1, e.$2, e.$3, e.$4];
-      case _PWE<(_AE, _AE, _AE, _AE, _AE)>(errors: final e):
-        return [e.$1, e.$2, e.$3, e.$4, e.$5];
-      case _PWE<(_AE, _AE, _AE, _AE, _AE, _AE)>(errors: final e):
-        return [e.$1, e.$2, e.$3, e.$4, e.$5, e.$6];
-      case _PWE<(_AE, _AE, _AE, _AE, _AE, _AE, _AE)>(errors: final e):
-        return [e.$1, e.$2, e.$3, e.$4, e.$5, e.$6, e.$7];
-      case _PWE<(_AE, _AE, _AE, _AE, _AE, _AE, _AE, _AE)>(errors: final e):
-        return [e.$1, e.$2, e.$3, e.$4, e.$5, e.$6, e.$7, e.$8];
-      case _PWE<(_AE, _AE, _AE, _AE, _AE, _AE, _AE, _AE, _AE)>(errors: final e):
-        return [e.$1, e.$2, e.$3, e.$4, e.$5, e.$6, e.$7, e.$8, e.$9];
-    }
-    throw UnsupportedError('${error.errors}');
-  }
-}
-
-class ReportedException {
-  final Type type;
-  final String message;
-
-  const ReportedException(this.type, this.message);
-
-  @override
-  Type get runtimeType => type;
-
-  @override
-  String toString() => message;
-}
-
-class ReportedStackTrace implements StackTrace {
-  final StackTrace previous;
-  final StackTrace next;
-
-  const ReportedStackTrace(this.previous, this.next);
-
-  @override
-  String toString() => '$previous\n$next';
 }
