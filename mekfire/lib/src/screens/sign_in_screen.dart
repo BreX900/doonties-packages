@@ -53,8 +53,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   Widget build(BuildContext context) {
     final isIdle = ref.watchIdle(mutations: [_signIn, _sendPasswordResetEmail]);
 
-    final signIn = context.handleSubmit(_form, _signIn.run);
-    final sendPasswordResetEmail = context.handleSubmit(_emailFb, _sendPasswordResetEmail.run);
+    final signIn = context.handleMutation(_form, _signIn);
+    final sendPasswordResetEmail = context.handleMutation(_emailFb, _sendPasswordResetEmail);
 
     List<Widget> buildFields() {
       return [

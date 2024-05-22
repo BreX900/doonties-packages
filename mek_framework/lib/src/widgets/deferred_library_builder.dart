@@ -44,7 +44,7 @@ class _DeferredLibraryBuilderState extends State<DeferredLibraryBuilder> {
   }
 
   void _load(DeferredLibraryLoader loader) {
-    _isLoading = !_libraries.containsKey(loader);
+    _isLoading = !_libraries.containsKey(loader) || _libraries[loader] != null;
     if (!_isLoading) return;
 
     final loading = _libraries[loader];

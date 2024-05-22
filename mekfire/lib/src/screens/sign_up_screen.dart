@@ -48,7 +48,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     final isIdle = ref.watchIdle(mutations: [_signUp]);
-    final signUp = context.handleSubmit(_form, _signUp.run);
+    final signUp = context.handleMutation(_form, _signUp);
 
     return Scaffold(
       appBar: AppBar(

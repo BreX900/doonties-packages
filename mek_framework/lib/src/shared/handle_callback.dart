@@ -4,16 +4,16 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mek/src/data/mutation_state.dart';
-import 'package:mek/src/form/blocs/field_bloc.dart';
-import 'package:mek/src/riverpod/riverpod_adapters.dart';
-import 'package:mek/src/shared/skeleton_form.dart';
+import 'package:mek/mek.dart';
+import 'package:meta/meta.dart';
 
 extension FormBuildContextExtensions on BuildContext {
-  void Function(T) handleSubmit<T>(
+  @Deprecated('In favour of handleMutation')
+  void Function(T args) handleSubmit<T>(
     FieldBlocRule<dynamic> form,
-    FutureOr<void> Function(T) submitter, {
+    FutureOr<void> Function(T args) submitter, {
     bool canEnableFormAfterSubmit = true,
+    @internal bool shouldThrow = true,
   }) {
     return (arg) async {
       if (!form.state.status.isValid) {
@@ -26,10 +26,26 @@ extension FormBuildContextExtensions on BuildContext {
       form.disable();
       try {
         await submitting;
-      } finally {
         if (!form.isClosed && canEnableFormAfterSubmit) form.enable();
+      } catch (_) {
+        if (!form.isClosed) form.enable();
+        if (shouldThrow) rethrow;
       }
     };
+  }
+
+  void Function(T args) handleMutation<T>(
+    FieldBlocRule<dynamic> form,
+    MutationBloc<T, void> mutation, {
+    bool canEnableFormAfterSubmit = true,
+  }) {
+    // ignore: deprecated_member_use_from_same_package
+    return handleSubmit(
+      form,
+      mutation.run,
+      canEnableFormAfterSubmit: canEnableFormAfterSubmit,
+      shouldThrow: false,
+    );
   }
 }
 

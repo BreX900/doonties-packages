@@ -47,7 +47,7 @@ class _UserDeleteScreenState extends ConsumerState<UserDeleteScreenBase> {
   Widget _buildBody() {
     final isIdle = ref.watchIdle(mutations: [_deleteUser]);
 
-    final deleteUser = context.handleSubmit(_form, _deleteUser.run);
+    final deleteUser = context.handleMutation(_form, _deleteUser);
 
     List<Widget> buildFields() {
       return [
