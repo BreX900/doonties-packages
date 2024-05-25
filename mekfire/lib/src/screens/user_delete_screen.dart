@@ -29,7 +29,7 @@ class _UserDeleteScreenState extends ConsumerState<UserDeleteScreenBase> {
   }, onWillMutate: (_) async {
     return await showTypedDialog(
       context: context,
-      child: const ConfirmableDialog.delete(
+      builder: (context) => const ConfirmableDialog.delete(
         title: Text('Delete the user?'),
         content: Text('This action is not reversible.\n'
             'All user data will be deleted and cannot be restored.'),

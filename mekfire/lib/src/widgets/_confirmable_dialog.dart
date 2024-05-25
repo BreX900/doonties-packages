@@ -6,9 +6,6 @@ class ConfirmableDialog extends StatelessWidget with TypedWidgetMixin<bool> {
   final Widget? content;
   final Widget positive;
 
-  @override
-  bool get fallbackResult => false;
-
   const ConfirmableDialog({
     super.key,
     required this.title,

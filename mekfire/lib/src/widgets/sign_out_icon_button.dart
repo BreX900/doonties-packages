@@ -9,12 +9,12 @@ class SignOutIconButton extends StatelessWidget {
   static Future<void> signOut(BuildContext context) async {
     final canSignOut = await showTypedDialog(
       context: context,
-      child: const ConfirmableDialog(
+      builder: (context) => const ConfirmableDialog(
         title: Text('Sign-out?'),
         positive: Text('Sign-out'),
       ),
     );
-    if (!canSignOut) return;
+    if (!(canSignOut ?? false)) return;
     await UserAuthProviders.signOut();
   }
 

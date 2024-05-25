@@ -11,7 +11,7 @@ import 'package:mek/src/riverpod/riverpod_adapters.dart';
 import 'package:meta/meta.dart';
 
 typedef StartMutationListener<Arg> = FutureOr<void> Function(Arg arg);
-typedef WillStartMutationListener<Arg> = FutureOr<bool> Function(Arg arg);
+typedef WillStartMutationListener<Arg> = FutureOr<bool?> Function(Arg arg);
 typedef ErrorMutationListener<Arg> = FutureOr<void> Function(Arg arg, Object error);
 typedef DataMutationListener<Arg, Result> = FutureOr<void> Function(Arg arg, Result result);
 typedef ResultMutationListener<Arg, Result> = FutureOr<void> Function(
