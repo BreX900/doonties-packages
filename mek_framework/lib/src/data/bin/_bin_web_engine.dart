@@ -1,24 +1,21 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
-
 import 'package:mek/src/data/bin/_bin_engine.dart' as rules_;
+import 'package:web/web.dart';
 
 class BinEngine implements rules_.BinEngine {
   const BinEngine();
 
   static BinEngine instance = const BinEngine();
 
-  html.Storage get localStorage => html.window.localStorage;
+  Storage get localStorage => window.localStorage;
 
   @override
-  Future<String?> read(String prefix, String name) async => localStorage[_get(prefix, name)];
+  Future<String?> read(String name) async => localStorage.getItem(_getKey(name));
 
   @override
-  Future<void> write(String prefix, String name, String data) async =>
-      localStorage[_get(prefix, name)] = data;
+  Future<void> write(String name, String data) async => localStorage.setItem(_getKey(name), data);
 
   @override
-  Future<void> delete(String prefix, String name) async => localStorage.remove(_get(prefix, name));
+  Future<void> delete(String name) async => localStorage.removeItem(_getKey(name));
 
-  String _get(String prefix, String name) => prefix.isEmpty ? name : '$prefix#$name';
+  String _getKey(String name) => name;
 }

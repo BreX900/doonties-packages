@@ -583,7 +583,7 @@ class ClearFieldButton extends StatelessWidget {
     final isEnabled = !(disableOnReadOnly && data.$2);
 
     return IconButton(
-      onPressed: isEnabled ? () => data.$1!.clear() : null,
+      onPressed: isEnabled ? () => data.$1!.clear(shouldUpdate: false) : null,
       icon: const Icon(Icons.clear),
     );
   }

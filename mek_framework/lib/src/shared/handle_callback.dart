@@ -12,9 +12,11 @@ extension FormBuildContextExtensions on BuildContext {
   void Function(T args) handleSubmit<T>(
     FieldBlocRule<dynamic> form,
     FutureOr<void> Function(T args) submitter, {
-    bool canEnableFormAfterSubmit = true,
+    @Deprecated('In favour of isFormDisabledAfterSubmit') bool canEnableFormAfterSubmit = true,
+    bool? isFormDisabledAfterSubmit,
     @internal bool shouldThrow = true,
   }) {
+    isFormDisabledAfterSubmit ??= !canEnableFormAfterSubmit;
     return (arg) async {
       if (!form.state.status.isValid) {
         form.touch();
@@ -26,7 +28,7 @@ extension FormBuildContextExtensions on BuildContext {
       form.disable();
       try {
         await submitting;
-        if (!form.isClosed && canEnableFormAfterSubmit) form.enable();
+        if (!form.isClosed && !isFormDisabledAfterSubmit!) form.enable();
       } catch (_) {
         if (!form.isClosed) form.enable();
         if (shouldThrow) rethrow;
@@ -37,12 +39,15 @@ extension FormBuildContextExtensions on BuildContext {
   void Function(T args) handleMutation<T>(
     FieldBlocRule<dynamic> form,
     MutationBloc<T, void> mutation, {
-    bool canEnableFormAfterSubmit = true,
+    bool? isFormDisabledAfterSubmit,
+    @Deprecated('In favour of isFormDisabledAfterSubmit') bool canEnableFormAfterSubmit = true,
   }) {
     // ignore: deprecated_member_use_from_same_package
     return handleSubmit(
       form,
       mutation.run,
+      isFormDisabledAfterSubmit: isFormDisabledAfterSubmit,
+      // ignore: deprecated_member_use_from_same_package
       canEnableFormAfterSubmit: canEnableFormAfterSubmit,
       shouldThrow: false,
     );

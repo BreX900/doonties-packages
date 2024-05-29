@@ -9,28 +9,28 @@ class BinEngine implements rules_.BinEngine {
   static BinEngine instance = const BinEngine();
 
   @override
-  Future<String?> read(String prefix, String name) async {
-    final file = await _get(prefix, name);
+  Future<String?> read(String name) async {
+    final file = await _get(name);
     if (!file.existsSync()) return null;
     return await file.readAsString();
   }
 
   @override
-  Future<void> write(String prefix, String name, String data) async {
-    final file = await _get(prefix, name);
+  Future<void> write(String name, String data) async {
+    final file = await _get(name);
     if (!file.parent.existsSync()) await file.parent.create(recursive: true);
     await file.writeAsString(data, flush: true);
   }
 
   @override
-  Future<void> delete(String prefix, String name) async {
-    final file = await _get(prefix, name);
+  Future<void> delete(String name) async {
+    final file = await _get(name);
     if (!file.existsSync()) return;
     await file.delete();
   }
 
-  Future<File> _get(String prefix, String name) async {
+  Future<File> _get(String name) async {
     final directory = await getApplicationDocumentsDirectory();
-    return File('${directory.path}/${prefix.isEmpty ? name : '$prefix/$name'}');
+    return File('${directory.path}/$name');
   }
 }

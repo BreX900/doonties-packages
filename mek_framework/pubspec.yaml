@@ -29,6 +29,7 @@ dependencies:
   flutter: { sdk: flutter }
 
   path_provider: ^2.1.2
+  web: ^0.5.1
 
   mek_data_class: ^1.4.0
   collection: ^1.18.0
