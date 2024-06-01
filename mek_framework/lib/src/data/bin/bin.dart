@@ -1,13 +1,14 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
-import 'package:mek/src/data/bin/_bin_utils.dart';
 import 'package:mek/src/data/bin/bin_base.dart';
 import 'package:mek/src/data/bin/bin_engine.dart';
 import 'package:mek/src/shared/_task_processor.dart';
 
 class Bin<T> implements BinBase<T> {
+  static final Set<String> _usedNames = HashSet();
+
   final BinEngine _engine;
   final BinSerializer<T> _serializer;
   final BinDeserializer<T> _deserializer;
@@ -18,12 +19,12 @@ class Bin<T> implements BinBase<T> {
 
   factory Bin({
     BinEngine? engine,
-    String name = 'default_lazy.bin',
+    String name = '_default.bin',
     BinSerializer<T>? serializer,
     required BinDeserializer<T> deserializer,
     required T fallbackData,
   }) {
-    if (usedBinNames.contains(name)) throw StateError('Already used "$name" bin!');
+    if (_usedNames.contains(name)) throw StateError('Already used "$name" bin!');
 
     return Bin._(
       engine: engine ?? BinEngine.instance,
@@ -58,6 +59,7 @@ class Bin<T> implements BinBase<T> {
     });
   }
 
+  @override
   Future<T> read() async {
     final data = await _engine.read(_name);
     return data != null ? _deserializer(jsonDecode(data) as Object) : _fallbackData;
@@ -83,33 +85,9 @@ class Bin<T> implements BinBase<T> {
   @override
   Future<void> close() async {
     await _controller.close();
-    usedBinNames.remove(_name);
+    _usedNames.remove(_name);
   }
 
   @override
   String toString() => 'Bin<$T>($_name)';
-}
-
-extension LazyBinMap<K, V> on Bin<Map<K, V>> {
-  Future<V?> getOrNull(K key) async {
-    final data = await read();
-    return data[key];
-  }
-
-  Future<V> get(K key, V fallbackValue) async {
-    final value = await getOrNull(key);
-    return value ?? fallbackValue;
-  }
-}
-
-extension LazyBinIMap<K, V> on Bin<IMap<K, V>> {
-  Future<V?> getOrNull(K key) async {
-    final data = await read();
-    return data[key];
-  }
-
-  Future<V> get(K key, V fallbackValue) async {
-    final value = await getOrNull(key);
-    return value ?? fallbackValue;
-  }
 }

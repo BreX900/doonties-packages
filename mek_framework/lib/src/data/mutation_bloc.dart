@@ -6,8 +6,8 @@ import 'package:mek/src/core/_log.dart';
 import 'package:mek/src/core/typedefs.dart';
 import 'package:mek/src/data/mutation_state.dart';
 import 'package:mek/src/data/views.dart';
+import 'package:mek/src/riverpod/adapters/state_stremable_provider.dart';
 import 'package:mek/src/riverpod/auto_dispose_extension.dart';
-import 'package:mek/src/riverpod/riverpod_adapters.dart';
 import 'package:meta/meta.dart';
 
 typedef StartMutationListener<Arg> = FutureOr<void> Function(Arg arg);
@@ -36,7 +36,7 @@ extension MutationBlocExtension on WidgetRef {
       onData: onSuccess ?? onData,
       onFinish: onFinish,
     );
-    autoDispose(mutation.close);
+    onDispose(mutation.close);
     return mutation;
   }
 

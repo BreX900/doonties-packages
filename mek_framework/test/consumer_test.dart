@@ -4,7 +4,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mek/src/bloc/state_bloc.dart';
-import 'package:mek/src/riverpod/riverpod_adapters.dart';
+import 'package:mek/src/riverpod/adapters/state_stremable_provider.dart';
+import 'package:mek/src/riverpod/adapters/value_listenable_provider.dart';
 
 Widget _build({required Widget child}) {
   return Directionality(

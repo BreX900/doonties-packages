@@ -10,7 +10,7 @@ import 'package:mek/src/form/blocs/field_bloc.dart';
 import 'package:mek/src/form/fields/field_builder.dart';
 import 'package:mek/src/form/shared/built_form_theme.dart';
 import 'package:mek/src/form/shared/text_field_type_data.dart';
-import 'package:mek/src/riverpod/riverpod_adapters.dart';
+import 'package:mek/src/riverpod/adapters/state_stremable_provider.dart';
 import 'package:mek/src/shared/handle_callback.dart';
 
 class FieldText<T> extends FieldBuilder<T> {
@@ -216,8 +216,10 @@ abstract class FieldConvert<T> {
 
   static const FieldConvert<String> text = _TextFieldConverter();
   static const FieldConvert<int> integer = _IntFieldConvert();
-  static FieldConvert<Decimal> decimal({required Locale locale, int minimumFractionDigits = 2}) =>
-      _DecimalFieldConvert(locale: locale, minimumFractionDigits: minimumFractionDigits);
+  static FieldConvert<Decimal> decimal(NumberFormat format) => _DecimalFieldConvert(format);
+  static FieldConvert<Decimal> decimalFrom(
+          {required Locale locale, int minimumFractionDigits = 2}) =>
+      _DecimalFieldConvert.from(locale: locale, minimumFractionDigits: minimumFractionDigits);
 }
 
 abstract class TextFieldType {
@@ -300,16 +302,15 @@ class _IntFieldConvert extends FieldConvert<int> {
 }
 
 class _DecimalFieldConvert extends FieldConvert<Decimal> {
-  final Locale locale;
-  final int minimumFractionDigits;
+  final NumberFormat _format;
 
-  const _DecimalFieldConvert({
-    required this.locale,
-    this.minimumFractionDigits = 2,
-  });
+  _DecimalFieldConvert(this._format);
 
-  NumberFormat get _format => NumberFormat.decimalPattern(locale.languageCode)
-    ..minimumFractionDigits = minimumFractionDigits;
+  _DecimalFieldConvert.from({
+    required Locale locale,
+    int minimumFractionDigits = 2,
+  }) : _format = NumberFormat.decimalPattern(locale.languageCode)
+          ..minimumFractionDigits = minimumFractionDigits;
 
   @override
   Decimal? toValue(String text) {

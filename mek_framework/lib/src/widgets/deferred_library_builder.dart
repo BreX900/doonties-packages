@@ -14,18 +14,15 @@ class DeferredLibraryBuilder extends StatefulWidget {
     required this.builder,
   });
 
-  const DeferredLibraryBuilder.multi({
-    super.key,
-    required this.loader,
-    required this.builder,
-  });
-
   @override
   State<DeferredLibraryBuilder> createState() => _DeferredLibraryBuilderState();
 }
 
 class _DeferredLibraryBuilderState extends State<DeferredLibraryBuilder> {
-  static final _libraries = <DeferredLibraryLoader, Future<void>?>{};
+  // - if loader does not exist, library isn't loaded. Please load the library
+  // - if loader does exist with Future, library is loading. Please await the Future
+  // - if loader does exist without Future, library is already loaded. Please skip the load
+  static final _libraryLoaders = <DeferredLibraryLoader, Future<void>?>{};
 
   var _isLoading = true;
 
@@ -44,27 +41,19 @@ class _DeferredLibraryBuilderState extends State<DeferredLibraryBuilder> {
   }
 
   void _load(DeferredLibraryLoader loader) {
-    _isLoading = !_libraries.containsKey(loader) || _libraries[loader] != null;
-    if (!_isLoading) return;
-
-    final loading = _libraries[loader];
-    if (loading != null) {
-      unawaited(_waitLoading(loader, loading));
-    } else {
-      // ignore: discarded_futures
-      final loading = loader();
-      _libraries[loader] = loading;
-      unawaited(_waitLoading(loader, loading));
-    }
+    // ignore: discarded_futures
+    final loading = _libraryLoaders.putIfAbsent(loader, loader);
+    _isLoading = loading != null;
+    if (loading != null) unawaited(_waitLoading(loader, loading));
   }
 
   Future<void> _waitLoading(DeferredLibraryLoader loader, Future<void> loading) async {
     await loading;
-    _libraries[loader] = null;
+    _libraryLoaders[loader] = null;
+
     if (widget.loader != loader) return;
-    setState(() {
-      _isLoading = false;
-    });
+
+    setState(() => _isLoading = false);
   }
 
   @override

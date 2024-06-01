@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/src/internals.dart';
 
 extension AutoDisposeWidgetRefExtension on WidgetRef {
-  ProviderSubscription<void> autoDispose<T>(VoidCallback disposer) {
+  ProviderSubscription<void> onDispose<T>(VoidCallback disposer) {
     return listenManual(_AutoDisposeProviderListenable(disposer), _noop);
   }
 
@@ -13,7 +13,7 @@ extension AutoDisposeWidgetRefExtension on WidgetRef {
     void Function(Object error, StackTrace stackTrace)? onError,
   }) {
     T? prev;
-    return autoDispose(stream.listen((next) {
+    return onDispose(stream.listen((next) {
       listener(prev, next);
       prev = next;
     }, onError: onError).cancel);
@@ -22,7 +22,7 @@ extension AutoDisposeWidgetRefExtension on WidgetRef {
   static void _noop(_, __) {}
 }
 
-class _AutoDisposeProviderListenable with ProviderListenable<void> {
+class _AutoDisposeProviderListenable implements ProviderListenable<void> {
   final VoidCallback disposer;
 
   _AutoDisposeProviderListenable(this.disposer);
@@ -40,6 +40,10 @@ class _AutoDisposeProviderListenable with ProviderListenable<void> {
 
   @override
   void read(Node node) {}
+
+  @override
+  ProviderListenable<Selected> select<Selected>(Selected Function(void value) selector) =>
+      throw UnimplementedError();
 }
 
 class _AutoDisposeProviderSubscription extends ProviderSubscription<void> {

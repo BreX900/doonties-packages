@@ -32,6 +32,6 @@ extension SubscribeWidgetRefExtension on WidgetRef {
     void Function(T event) listener, {
     void Function(Object error, StackTrace stackTrace)? onError,
   }) {
-    return autoDispose(stream.listen(listener, onError: onError).cancel);
+    return onDispose(stream.listen(listener, onError: onError).cancel);
   }
 }

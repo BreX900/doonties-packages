@@ -23,6 +23,7 @@ class CachedBin<T> implements BinBase<T> {
   @override
   Stream<T> get stream => _bin.stream;
 
+  @override
   T read() => _data;
 
   @override
