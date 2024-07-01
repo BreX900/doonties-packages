@@ -69,6 +69,7 @@ class ListTileLayout extends StatelessWidget {
 }
 
 class ParagraphTile extends StatelessWidget {
+  final bool dense;
   final VoidCallback? onTap;
   final Widget title;
   final Widget? subtitle;
@@ -76,6 +77,7 @@ class ParagraphTile extends StatelessWidget {
 
   const ParagraphTile({
     super.key,
+    this.dense = false,
     this.onTap,
     required this.title,
     this.subtitle,
@@ -90,7 +92,9 @@ class ParagraphTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: kMinInteractiveDimension),
+        constraints: dense
+            ? const BoxConstraints(minHeight: kMinInteractiveDimension / 2)
+            : const BoxConstraints(minHeight: kMinInteractiveDimension),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: ListTileLayout(

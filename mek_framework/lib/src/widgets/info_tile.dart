@@ -1,5 +1,5 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:pure_extensions/pure_extensions.dart';
 
 @Deprecated('In favour of InfoView')
 typedef InfoBodyTile = InfoTile;
@@ -53,7 +53,10 @@ class InfoView extends StatelessWidget {
             if (actions.isNotEmpty) ...[
               const SizedBox(height: 16.0),
               Column(
-                children: actions.joinElement(const SizedBox(height: 16.0)).toList(),
+                children: actions.expandIndexed((index, child) sync* {
+                  if (index == 0) yield const SizedBox(height: 16.0);
+                  yield child;
+                }).toList(),
               )
             ],
           ],

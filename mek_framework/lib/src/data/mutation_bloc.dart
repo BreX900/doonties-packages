@@ -114,14 +114,14 @@ class MutationBloc<TArg, TResult> extends Cubit<MutationState<TResult>> {
   Future<void> run(TArg arg) async {
     if (isClosed) throw StateError("Can't mutate if bloc is closed!");
 
-    if (state.isMutating) {
+    if (state.args.contains(arg)) {
       lg.info('Bloc is mutating! $this');
       return;
     }
 
     if (!(await _onWillMutate?.call(arg) ?? true)) return;
 
-    emit(state.toLoading());
+    emit(state.toLoading(arg: arg));
 
     await _tryCall1(_onStart, arg);
 
@@ -138,7 +138,7 @@ class MutationBloc<TArg, TResult> extends Cubit<MutationState<TResult>> {
       await _tryCall2(_onData, arg, result);
       await _tryCall3(_onFinish, arg, null, result);
 
-      emit(state.toSuccess(data: result));
+      emit(state.toSuccess(arg: arg, data: result));
     } catch (error, stackTrace) {
       addError(error, stackTrace);
       ref._dispose();
@@ -151,15 +151,19 @@ class MutationBloc<TArg, TResult> extends Cubit<MutationState<TResult>> {
       await _tryCall2(_onError, arg, error);
       await _tryCall3(_onFinish, arg, error, null);
 
-      emit(state.toFailed(error: error));
+      emit(state.toFailed(arg: arg, error: error));
 
       rethrow;
     }
   }
 
-  void updateProgress(double value) => emit(state.toLoading(progress: value));
-  @Deprecated('In favour of updateProgress')
-  void emitProgress(double value) => updateProgress(value);
+  void updateProgress(double value) {
+    if (state is! LoadingMutation<TResult>) {
+      lg.info("Bloc isn't mutating! Cant update progress state. $this");
+      return;
+    }
+    emit(state.toLoading(arg: state.args.single, progress: value));
+  }
 
   FutureOr<void> _tryCall1<T1>(FutureOr<void> Function(T1)? fn, T1 $1) async {
     if (fn == null) return;
@@ -196,9 +200,6 @@ class MutationBloc<TArg, TResult> extends Cubit<MutationState<TResult>> {
   @override
   String toString() => 'MutationBloc($_mutator)';
 }
-
-@Deprecated('In favour of MutationRef')
-typedef MutatorRef<R> = MutationRef<R>;
 
 class MutationRef<R> implements Ref<MutationBloc<void, R>> {
   WidgetRef? _ref;

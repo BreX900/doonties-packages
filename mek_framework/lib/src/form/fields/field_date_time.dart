@@ -5,6 +5,7 @@ import 'package:mek/src/form/shared/built_form_theme.dart';
 
 class FieldDateTime<T extends DateTime?> extends FieldBuilder<T> with InlineFieldBuilder<T> {
   final bool readOnly;
+  final EdgeInsetsGeometry? padding;
   final InputDecoration decoration;
   final DateFormat? format;
   final Future<DateTime?> Function(BuildContext context, DateTime value)? picker;
@@ -18,6 +19,7 @@ class FieldDateTime<T extends DateTime?> extends FieldBuilder<T> with InlineFiel
     super.focusNode,
     super.errorTranslator,
     this.readOnly = false,
+    this.padding,
     this.decoration = const InputDecoration(),
     this.format,
     this.picker,
@@ -27,6 +29,7 @@ class FieldDateTime<T extends DateTime?> extends FieldBuilder<T> with InlineFiel
   const FieldDateTime.from({
     super.key,
     required super.value,
+    this.padding,
     this.decoration = const InputDecoration(),
     this.format,
     this.initialDate,
@@ -65,7 +68,10 @@ class FieldDateTime<T extends DateTime?> extends FieldBuilder<T> with InlineFiel
       focusNode: state.focusNode,
       onTap: canEdit ? changeValue : null,
       customBorder: decoration.border ?? decorationTheme.border,
-      child: theme.wrap(child: child),
+      child: theme.wrap(
+        padding: padding,
+        child: child,
+      ),
     );
   }
 }

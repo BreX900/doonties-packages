@@ -37,19 +37,16 @@ abstract class MekTheme {
       canvasColor: colorScheme.background,
       // textTheme: Typography.tall2018.apply(fontSizeFactor: 1.1),
       elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          minimumSize: buttonSize,
-        ),
+        style: ElevatedButton.styleFrom(minimumSize: buttonSize),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(minimumSize: buttonSize),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          minimumSize: buttonSize,
-        ),
+        style: OutlinedButton.styleFrom(minimumSize: buttonSize),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          minimumSize: buttonSize,
-        ),
+        style: TextButton.styleFrom(minimumSize: buttonSize),
       ),
       listTileTheme: const ListTileThemeData(
         titleAlignment: ListTileTitleAlignment.center,
@@ -87,6 +84,11 @@ abstract class MekTheme {
       },
     );
   }
+}
+
+extension FloatingActionSpace on FloatingActionButtonThemeData {
+  double get standardFloatSpace =>
+      kFloatingActionButtonMargin * 2 + (sizeConstraints?.maxHeight ?? 56.0);
 }
 
 class _HorizontalPageTransitionsBuilder extends PageTransitionsBuilder {

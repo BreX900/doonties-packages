@@ -1,11 +1,14 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:mek_data_class/mek_data_class.dart';
 
 part 'mutation_state.g.dart';
 
 sealed class MutationState<TData> {
-  const MutationState._();
+  final ISet<Object?> args;
 
-  bool get isMutating;
+  const MutationState._({required this.args});
+
+  bool get isMutating => args.isNotEmpty;
 
   bool get isIdle => this is IdleMutation<TData>;
   bool get isLoading => this is LoadingMutation<TData>;
@@ -20,29 +23,31 @@ sealed class MutationState<TData> {
   }
 
   const factory MutationState.idle() = IdleMutation<TData>;
-  const factory MutationState.loading({double? progress}) = LoadingMutation<TData>;
-  const factory MutationState.failed({required Object error}) = FailedMutation<TData>;
-  const factory MutationState.success({required TData data}) = SuccessMutation<TData>;
+  const factory MutationState.loading({required ISet<Object?> args, double? progress}) =
+      LoadingMutation<TData>;
+  const factory MutationState.failed({required ISet<Object?> args, required Object error}) =
+      FailedMutation<TData>;
+  const factory MutationState.success({required ISet<Object?> args, required TData data}) =
+      SuccessMutation<TData>;
 
-  MutationState<TData> toIdle({bool isMutating = false}) => IdleMutation(isMutating: isMutating);
+  MutationState<TData> toIdle() => IdleMutation<TData>();
 
-  MutationState<TData> toLoading({double? progress}) => LoadingMutation<TData>(progress: progress);
+  MutationState<TData> toLoading({required Object? arg, double? progress}) =>
+      LoadingMutation<TData>(args: args.add(arg), progress: progress);
 
   MutationState<TData> toFailed({
-    bool isMutating = false,
+    required Object? arg,
     required Object error,
   }) {
-    return FailedMutation(isMutating: isMutating, error: error);
+    return FailedMutation(args: args.remove(arg), error: error);
   }
 
   MutationState<TData> toSuccess({
-    bool isMutating = false,
+    required Object? arg,
     required TData data,
   }) {
-    return SuccessMutation(isMutating: isMutating, data: data);
+    return SuccessMutation(args: args.remove(arg), data: data);
   }
-
-  MutationState<TData> copyWith({required bool isMutating});
 
   R map<R>({
     required R Function(IdleMutation<TData> state) idle,
@@ -135,10 +140,7 @@ sealed class MutationState<TData> {
 
 @DataClass()
 class IdleMutation<TData> extends MutationState<TData> with _$IdleMutation<TData> {
-  @override
-  final bool isMutating;
-
-  const IdleMutation({this.isMutating = false}) : super._();
+  const IdleMutation() : super._(args: const ISet.empty());
 
   @override
   R map<R>({
@@ -149,54 +151,25 @@ class IdleMutation<TData> extends MutationState<TData> with _$IdleMutation<TData
   }) {
     return idle(this);
   }
-
-  @override
-  MutationState<TData> copyWith({required bool isMutating}) => toIdle(isMutating: isMutating);
 }
 
 @DataClass()
 class LoadingMutation<TData> extends MutationState<TData> with _$LoadingMutation<TData> {
   final double? progress;
 
-  const LoadingMutation({this.progress}) : super._();
-
-  @override
-  bool get isMutating => true;
-
-  @override
-  MutationState<TData> copyWith({required bool isMutating}) => this;
+  const LoadingMutation({required super.args, this.progress}) : super._();
 }
 
 @DataClass()
 class FailedMutation<TData> extends MutationState<TData> with _$FailedMutation<TData> {
-  @override
-  final bool isMutating;
-
   final Object error;
 
-  const FailedMutation({
-    this.isMutating = false,
-    required this.error,
-  }) : super._();
-
-  @override
-  MutationState<TData> copyWith({required bool isMutating}) =>
-      toFailed(error: error, isMutating: isMutating);
+  const FailedMutation({required super.args, required this.error}) : super._();
 }
 
 @DataClass()
 class SuccessMutation<TData> extends MutationState<TData> with _$SuccessMutation<TData> {
-  @override
-  final bool isMutating;
-
   final TData data;
 
-  const SuccessMutation({
-    this.isMutating = false,
-    required this.data,
-  }) : super._();
-
-  @override
-  MutationState<TData> copyWith({required bool isMutating}) =>
-      toSuccess(data: data, isMutating: false);
+  const SuccessMutation({required super.args, required this.data}) : super._();
 }

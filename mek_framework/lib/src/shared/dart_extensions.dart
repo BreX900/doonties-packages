@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:pure_extensions/pure_extensions.dart';
 import 'package:rxdart/rxdart.dart';
 
 extension DateTimeExtensions on DateTime {
@@ -46,7 +45,7 @@ extension MapExtensions<K, V> on Map<K, V> {
   Iterable<R> mapEntries<R>(R Function(K key, V value) mapper) => entries.mapTo(mapper);
 
   Map<KR, VR> mapWhereNotNull<KR, VR>(MapEntry<KR, VR>? Function(K key, V value) mapper) =>
-      entries.map((e) => mapper(e.key, e.value)).nonNulls.toMap();
+      Map.fromEntries(entries.map((e) => mapper(e.key, e.value)).nonNulls);
 }
 
 extension SetExtensions<T> on Set<T> {

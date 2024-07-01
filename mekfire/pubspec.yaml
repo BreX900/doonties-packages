@@ -23,9 +23,9 @@ scripts:
 dependencies:
   flutter: { sdk: flutter }
 
-  firebase_auth: ^4.19.5
+  firebase_auth: ^5.1.0
 
-  rxdart: ^0.27.7
+  rxdart: ^0.28.0
 
   flutter_riverpod: ^2.5.1
   mek: { path: ../mek_framework }
