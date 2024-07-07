@@ -18,3 +18,8 @@ extension ListIExtensions<E> on List<E> {
 extension MapIExtensions<K, V> on Map<K, V> {
   IMap<K, V> asIMap([ConfigMap? config]) => IMap.unsafe(this, config: config ?? IMap.defaultConfig);
 }
+
+extension IListExtensions<E> on IList<E> {
+  IList<E> sortReversedBy(Comparable Function(E element) comparator) =>
+      sort((a, b) => comparator(b).compareTo(comparator(a)));
+}

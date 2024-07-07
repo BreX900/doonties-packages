@@ -55,6 +55,9 @@ extension SetExtensions<T> on Set<T> {
 extension IterableExtension<T> on Iterable<T> {
   bool equals(Iterable<T> other) => const IterableEquality<Object?>().equals(this, other);
 
+  List<T> sortedReversedBy(Comparable Function(T value) comparator) =>
+      sorted((a, b) => comparator(b).compareTo(comparator(a)));
+
   R? firstType<R extends Object>() {
     for (final element in this) {
       if (element is R) return element;
@@ -113,6 +116,9 @@ extension ListExtensions<T> on List<T> {
   Iterable<T> skipLast(int count) => take(length - count);
 
   Iterable<T> takeLast(int count) => skip(length - count);
+
+  void sortReversedBy(Comparable Function(T value) comparator) =>
+      sort((a, b) => comparator(b).compareTo(comparator(a)));
 }
 
 extension ListEntryExtensions<K, V> on Iterable<MapEntry<K, V>> {
@@ -137,6 +143,7 @@ extension ListEntryExtensions<K, V> on Iterable<MapEntry<K, V>> {
 
   Iterable<K> get keys => map((e) => e.key);
   Iterable<V> get values => map((e) => e.value);
+  Map<K, V> toMap() => Map.fromEntries(this);
 }
 
 FutureOr<List<T>> waitAll<T>(Iterable<FutureOr<T>> entries) {
