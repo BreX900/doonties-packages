@@ -3,6 +3,20 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:rxdart/rxdart.dart';
 
+abstract final class Comparators {
+  static Comparator<T> by<T, K extends Comparable<K>>(K Function(T element) keyOf) {
+    return (a, b) => keyOf(a).compareTo(keyOf(b));
+  }
+
+  static Comparator<T> byBool<T>(bool Function(T element) keyOf) {
+    return (a, b) {
+      if (keyOf(a) && !keyOf(b)) return 1;
+      if (!keyOf(a) && keyOf(b)) return -1;
+      return 0;
+    };
+  }
+}
+
 extension DateTimeExtensions on DateTime {
   DateTime get date => (isUtc ? DateTime.utc : DateTime.new)(year, month, day);
 
@@ -54,9 +68,6 @@ extension SetExtensions<T> on Set<T> {
 
 extension IterableExtension<T> on Iterable<T> {
   bool equals(Iterable<T> other) => const IterableEquality<Object?>().equals(this, other);
-
-  List<T> sortedReversedBy(Comparable Function(T value) comparator) =>
-      sorted((a, b) => comparator(b).compareTo(comparator(a)));
 
   R? firstType<R extends Object>() {
     for (final element in this) {
@@ -116,9 +127,6 @@ extension ListExtensions<T> on List<T> {
   Iterable<T> skipLast(int count) => take(length - count);
 
   Iterable<T> takeLast(int count) => skip(length - count);
-
-  void sortReversedBy(Comparable Function(T value) comparator) =>
-      sort((a, b) => comparator(b).compareTo(comparator(a)));
 }
 
 extension ListEntryExtensions<K, V> on Iterable<MapEntry<K, V>> {
