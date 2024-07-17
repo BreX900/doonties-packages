@@ -46,10 +46,14 @@ extension DateTimeExtensions on DateTime {
         month: months != null ? month + months : null,
       );
 
-  int differenceMonths(DateTime other) {
-    final x1 = year * 12 + month;
-    final x2 = other.year * 12 + other.month;
-    return x1 - x2;
+  double differenceMonths(DateTime other) {
+    final months = (year - other.year) * 12 + (month - other.month);
+
+    final fixedOther = other.copyWith(year: year, month: month);
+    final monthTime = fixedOther.difference(fixedOther.copyWith(month: fixedOther.month - 1));
+    final consumedMonthTime = fixedOther.difference(this);
+
+    return months - consumedMonthTime.inDays / monthTime.inDays;
   }
 }
 
@@ -68,6 +72,30 @@ extension SetExtensions<T> on Set<T> {
 
 extension IterableExtension<T> on Iterable<T> {
   bool equals(Iterable<T> other) => const IterableEquality<Object?>().equals(this, other);
+
+  T firstSortedBy(Comparator<T> comparator) {
+    final iterator = this.iterator;
+    if (!iterator.moveNext()) throw StateError('');
+    var element = iterator.current;
+    while (iterator.moveNext()) {
+      final score = comparator(element, iterator.current);
+      if (score <= 0) continue;
+      element = iterator.current;
+    }
+    return element;
+  }
+
+  T lastSortedBy(Comparator<T> comparator) {
+    final iterator = this.iterator;
+    if (!iterator.moveNext()) throw StateError('');
+    var element = iterator.current;
+    while (iterator.moveNext()) {
+      final score = comparator(element, iterator.current);
+      if (score >= 0) continue;
+      element = iterator.current;
+    }
+    return element;
+  }
 
   R? firstType<R extends Object>() {
     for (final element in this) {
