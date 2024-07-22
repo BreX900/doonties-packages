@@ -48,7 +48,7 @@ class _LogReporter {
         stackTrace: record.stackTrace,
       );
     } else if (error is FlutterErrorDetails) {
-      final entry = _mapErrorAndStackTrace(error.exception, error.stack!);
+      final entry = _mapErrorAndStackTrace(error.exception, error.stack ?? StackTrace.current);
       final details = error.copyWith(
         exception: entry.error,
         stack: entry.stackTrace,

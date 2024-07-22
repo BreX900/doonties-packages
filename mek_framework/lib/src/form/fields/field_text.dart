@@ -28,6 +28,7 @@ class FieldText<T> extends FieldBuilder<T> {
   final TextAlign textAlign;
   final TextStyle? style;
   final TextInputType? keyboardType;
+  final TextCapitalization textCapitalization;
   final InputDecoration decoration;
 
   final EdgeInsetsGeometry? padding;
@@ -48,6 +49,7 @@ class FieldText<T> extends FieldBuilder<T> {
     this.keyboardType,
     this.textAlign = TextAlign.start,
     this.style,
+    this.textCapitalization = TextCapitalization.none,
     this.decoration = const InputDecoration(),
     this.padding,
   });
@@ -68,6 +70,7 @@ class FieldText<T> extends FieldBuilder<T> {
         maxLength = null,
         onEditingComplete = null,
         inputFormatters = null,
+        textCapitalization = TextCapitalization.none,
         super.from();
 
   static void update(BuildContext context, TextFieldTypeData data) {
@@ -184,6 +187,7 @@ class _FieldTextState<T> extends FieldBuilderState<FieldText<T>, T> {
         autocorrect: typeData.autocorrect,
         keyboardType: typeData.keyboardType,
         inputFormatters: widget.inputFormatters ?? typeData.inputFormatters,
+        textCapitalization: widget.textCapitalization,
         // textInputAction: nextFocusNode != null ? TextInputAction.next : null,
       );
     });

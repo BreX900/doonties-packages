@@ -104,7 +104,7 @@ class ListFieldsBloc<TFieldBloc extends FieldBlocRule<TValue>, TValue>
   StreamSubscription<void> onAttachingListeners(ListFieldBlocState<TFieldBloc, TValue> state) {
     return Rx.combineLatestList(state.fieldBlocs.map((e) => e.hotStream))
         .skip(1)
-        .listen((states) => emit(state.change((c) => c..fieldStates = states)));
+        .listen((states) => emit(this.state.change((c) => c..fieldStates = states)));
   }
 
   void _ensureValidValue(List<TValue> value) {

@@ -101,7 +101,7 @@ class MapFieldBloc<TKey, TValue>
       return fieldBloc.hotStream.map((state) => MapEntry(key, state));
       // ignore: unnecessary_lambdas
     }), (states) => IMap.fromEntries(states)).skip(1).listen((states) {
-      emit(state.change((c) => c..fieldStates = states));
+      emit(this.state.change((c) => c..fieldStates = states));
     });
   }
 
