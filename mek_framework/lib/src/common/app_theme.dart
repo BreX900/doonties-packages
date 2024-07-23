@@ -86,6 +86,13 @@ abstract class MekTheme {
   }
 }
 
+extension CardThemeBorderRadiusExtension on CardTheme {
+  BorderRadius get borderRadius {
+    assert(shape == null);
+    return const BorderRadius.all(Radius.circular(12.0));
+  }
+}
+
 extension FloatingActionSpace on FloatingActionButtonThemeData {
   double get standardFloatSpace =>
       kFloatingActionButtonMargin * 2 + (sizeConstraints?.maxHeight ?? 56.0);
