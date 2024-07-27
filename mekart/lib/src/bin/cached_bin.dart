@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
-import 'package:mek/mek.dart';
+import 'package:mekart/src/bin/bin.dart';
+import 'package:mekart/src/bin/bin_base.dart';
 
 class CachedBin<T> implements BinBase<T> {
   final Bin<T> _bin;

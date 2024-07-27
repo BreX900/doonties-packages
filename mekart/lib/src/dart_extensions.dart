@@ -1,8 +1,5 @@
 import 'dart:async';
 
-import 'package:collection/collection.dart';
-import 'package:rxdart/rxdart.dart';
-
 abstract final class Comparators {
   static Comparator<T> by<T, K extends Comparable<K>>(K Function(T element) keyOf) {
     return (a, b) => keyOf(a).compareTo(keyOf(b));
@@ -58,21 +55,13 @@ extension DateTimeExtensions on DateTime {
 }
 
 extension MapExtensions<K, V> on Map<K, V> {
-  bool equals(Map<K, V> other) => const MapEquality<Object?, Object?>().equals(this, other);
-
   Iterable<R> mapEntries<R>(R Function(K key, V value) mapper) => entries.mapTo(mapper);
 
   Map<KR, VR> mapWhereNotNull<KR, VR>(MapEntry<KR, VR>? Function(K key, V value) mapper) =>
       Map.fromEntries(entries.map((e) => mapper(e.key, e.value)).nonNulls);
 }
 
-extension SetExtensions<T> on Set<T> {
-  bool equals(Set<T> other) => const SetEquality<Object?>().equals(this, other);
-}
-
 extension IterableExtension<T> on Iterable<T> {
-  bool equals(Iterable<T> other) => const IterableEquality<Object?>().equals(this, other);
-
   T firstSortedBy(Comparator<T> comparator) {
     final iterator = this.iterator;
     if (!iterator.moveNext()) throw StateError('');
@@ -208,12 +197,4 @@ FutureOr<List<T>> waitAll<T>(Iterable<FutureOr<T>> entries) {
 
   if (completer == null) return List<T>.from(values);
   return completer.future;
-}
-
-extension AsyncSwitchMapStream<T> on Stream<T> {
-  Stream<R> asyncSwitchMap<R>(Future<R> Function(T event) mapper) {
-    return switchMap<R>((event) async* {
-      yield await mapper(event);
-    });
-  }
 }

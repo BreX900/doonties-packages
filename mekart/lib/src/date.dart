@@ -1,4 +1,3 @@
-import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 
 @immutable
@@ -28,8 +27,6 @@ class DateRange {
 
 @immutable
 class Date {
-  static final DateFormat _format = DateFormat('yyyy-MM-dd');
-
   final DateTime _value;
 
   int get year => _value.year;
@@ -46,7 +43,19 @@ class Date {
 
   factory Date.from(DateTime dateTime) => Date(dateTime.year, dateTime.month, dateTime.day);
 
-  static Date parse(String source) => Date.from(_format.parseStrict(source, true));
+  static Date parse(String source) {
+    final segments = source.split('-');
+    if (segments.length != 3) throw FormatException('Invalid date format', source);
+
+    final year = int.tryParse(segments[0]);
+    if (year == null) throw FormatException('Invalid date format', source, 0);
+    final month = int.tryParse(segments[1]);
+    if (month == null) throw FormatException('Invalid date format', source, 5);
+    final day = int.tryParse(segments[2]);
+    if (day == null) throw FormatException('Invalid date format', source, 8);
+
+    return Date(year, month, day);
+  }
 
   @Deprecated('In favour of copyWith')
   Date replace({int? year, int? month, int? day}) => copyWith(year: year, month: month, day: day);
@@ -88,7 +97,9 @@ class Date {
   int get hashCode => Object.hash(runtimeType, _value);
 
   @override
-  String toString() => _format.format(_value);
+  String toString() => '${_padNumber(year, 4)}-${_padNumber(month, 2)}-${_padNumber(day, 2)}';
+
+  static String _padNumber(int value, int width) => value.toString().padLeft(width, '0');
 }
 
 extension DateTimeToDate on DateTime {

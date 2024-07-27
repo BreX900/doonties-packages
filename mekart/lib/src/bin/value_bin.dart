@@ -1,6 +1,6 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
-import 'package:mek/src/data/bin/bin_base.dart';
-import 'package:mek/src/data/bin/cached_bin.dart';
+import 'package:mekart/src/bin/bin_base.dart';
+import 'package:mekart/src/bin/cached_bin.dart';
 
 abstract class CachedValueBin<T> {
   const CachedValueBin();

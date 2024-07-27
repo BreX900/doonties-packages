@@ -1,10 +1,9 @@
-import 'package:mek/src/data/bin/_bin_engine.dart' as rules_;
+import 'package:mekart/src/bin/_bin_engine.dart' as rules_;
 import 'package:web/web.dart';
 
 class BinEngine implements rules_.BinEngine {
-  const BinEngine();
-
-  static BinEngine instance = const BinEngine();
+  // ignore: avoid_unused_constructor_parameters
+  const BinEngine({required String? directoryPath});
 
   Storage get localStorage => window.localStorage;
 
