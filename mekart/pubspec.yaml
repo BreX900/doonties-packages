@@ -18,6 +18,3 @@ dependencies:
 
 dev_dependencies:
   mek_lints: ^4.0.0
-
-  path: ^1.9.0
-  args: ^2.5.0
