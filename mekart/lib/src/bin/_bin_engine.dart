@@ -1,6 +1,9 @@
 abstract class BinEngine {
-  // ignore: avoid_unused_constructor_parameters
-  factory BinEngine({required String? directoryPath}) => throw UnimplementedError();
+  factory BinEngine({
+    // ignore: avoid_unused_constructor_parameters
+    required String? directoryPath,
+  }) =>
+      throw UnimplementedError();
 
   Future<String?> read(String name);
 

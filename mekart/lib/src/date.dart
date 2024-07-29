@@ -103,5 +103,5 @@ class Date {
 }
 
 extension DateTimeToDate on DateTime {
-  Date toDate() => Date.from(this);
+  Date asDate() => Date.from(this);
 }

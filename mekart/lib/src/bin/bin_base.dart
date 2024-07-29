@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
-typedef BinSerializer<T> = Object Function(T data);
+typedef BinSerializer<T> = Object? Function(T data);
 typedef BinDeserializer<T> = T Function(Object data);
 
 abstract class BinBase<T> {

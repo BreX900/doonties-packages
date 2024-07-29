@@ -14,6 +14,7 @@ class Bin<T> implements BinBase<T> {
   final BinDeserializer<T> _deserializer;
   final String _name;
   final T _fallbackData;
+  final JsonEncoder _encoder;
   final _lock = Lock();
   final _controller = StreamController<T>.broadcast(sync: true);
 
@@ -23,6 +24,7 @@ class Bin<T> implements BinBase<T> {
     BinSerializer<T>? serializer,
     required BinDeserializer<T> deserializer,
     required T fallbackData,
+    JsonEncoder encoder = const JsonEncoder(),
   }) {
     if (_usedNames.contains(name)) throw StateError('Already used "$name" bin!');
 
@@ -32,6 +34,7 @@ class Bin<T> implements BinBase<T> {
       serializer: serializer ?? ((data) => data as Object),
       deserializer: deserializer,
       fallbackData: fallbackData,
+      encoder: encoder,
     );
   }
 
@@ -41,11 +44,13 @@ class Bin<T> implements BinBase<T> {
     required BinSerializer<T> serializer,
     required BinDeserializer<T> deserializer,
     required T fallbackData,
+    required JsonEncoder encoder,
   })  : _engine = engine,
         _serializer = serializer,
         _deserializer = deserializer,
         _name = name,
-        _fallbackData = fallbackData;
+        _fallbackData = fallbackData,
+        _encoder = encoder;
 
   @override
   Stream<T> get onChanges => _controller.stream;
@@ -67,7 +72,7 @@ class Bin<T> implements BinBase<T> {
 
   @override
   Future<void> write(T data) async {
-    final rawData = jsonEncode(_serializer(data));
+    final rawData = _encoder.convert(_serializer(data));
     final newData = data != null ? _deserializer(jsonDecode(rawData) as Object) : _fallbackData;
     _controller.add(newData);
 

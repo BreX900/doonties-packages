@@ -1,5 +1,12 @@
 import 'dart:io';
 
+import 'package:logging/logging.dart';
+
+const bool kReleaseMode = bool.fromEnvironment('RELEASE_MODE');
+const bool kDebugMode = !kReleaseMode;
+
+final lg = Logger.detached('app');
+
 Future<void> runProcess(
   String executable,
   List<String> arguments, {
