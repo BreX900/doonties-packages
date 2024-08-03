@@ -19,7 +19,9 @@ Future<void> runWithRef(FutureOr<void> Function(ProviderRef ref) body) async {
       if (record.error != null) stdout.writeln(record.error);
       if (record.stackTrace != null) stdout.writeln(record.stackTrace);
     } else {
-      stderr.writeln('$record\n${record.error}\n${record.stackTrace}');
+      stdout.writeln(record);
+      stderr.writeln('${record.error}\n${record.stackTrace}');
+      exitCode = 1;
     }
   });
 
@@ -31,6 +33,10 @@ Future<void> runWithRef(FutureOr<void> Function(ProviderRef ref) body) async {
     container.clear();
     await logSub.cancel();
   }
+}
+
+Future<void> run(FutureOr<void> Function() Function(ProviderRef ref) creator) async {
+  await runWithRef((ref) => creator(ref).call());
 }
 
 abstract class App {
@@ -46,10 +52,12 @@ class ProviderOverride<T> {
   final T value;
 
   ProviderOverride(this.provider, this.value);
+
+  ProviderElement<T> create() => _ValueProviderElement(value);
 }
 
 class ProviderContainer implements ProviderRef {
-  Map<Provider<Object?>, Object?> _providers = {};
+  var _providers = <Provider<Object?>, ProviderElement<Object?>>{};
 
   ProviderContainer({
     List<ProviderOverride<dynamic>> overrides = const [],
@@ -58,18 +66,22 @@ class ProviderContainer implements ProviderRef {
   }
 
   @override
-  T read<T>(Provider<T> provider) =>
-      _providers.putIfAbsent(provider, () => provider.create(this)) as T;
+  T read<T>(Provider<T> provider) {
+    final element = _providers.putIfAbsent(provider, () => provider.create()) as ProviderElement<T>;
+    return element.read(this);
+  }
 
-  void apply({List<ProviderOverride<dynamic>> overrides = const []}) {
+  void apply({List<ProviderOverride<Object?>> overrides = const []}) {
     for (final override in overrides) {
-      _providers[override.provider] = override.value;
+      _providers[override.provider] = override.create();
     }
   }
 
   void clear() {
-    _providers.forEach((provider, instance) => provider.dispose(instance));
-    _providers = {};
+    for (final instance in _providers.values) {
+      instance.dispose();
+    }
+    _providers = const {};
   }
 }
 
@@ -77,45 +89,62 @@ abstract class ProviderRef {
   T read<T>(Provider<T> provider);
 }
 
-// abstract class Disposable {
-//   void dispose();
-// }
+class Provider<T> {
+  final ProviderElement<T> Function() _creator;
 
-abstract class Provider<T> {
-  factory Provider(T Function(ProviderRef ref) creator, [void Function(T instance)? disposer]) =
-      _ValueProvider<T>;
+  factory Provider.value(T value) => Provider._(() => _ValueProviderElement(value));
 
-  // static Provider from<T extends Disposable>(T Function(ProviderRef ref) creator) =>
-  //     _DisposableProvider<T>(creator);
+  factory Provider.factory(T Function(ProviderRef ref) creator) =>
+      Provider._(() => _FactoryProviderElement(creator));
 
-  const Provider._();
+  factory Provider.disposable(
+    T Function(ProviderRef ref) creator,
+    void Function(T instance) disposer,
+  ) =>
+      Provider._(() => _DisposableProviderElement(creator, disposer));
 
-  T create(ProviderRef app);
+  const Provider._(this._creator);
 
-  void dispose(T instance);
+  ProviderElement<T> create() => _creator();
 }
 
-class _ValueProvider<T> extends Provider<T> {
+abstract class ProviderElement<T> {
+  const ProviderElement._();
+
+  T read(ProviderRef ref);
+
+  void dispose() {}
+}
+
+class _ValueProviderElement<T> extends ProviderElement<T> {
+  final T value;
+
+  const _ValueProviderElement(this.value) : super._();
+
+  @override
+  T read(ProviderRef ref) => value;
+}
+
+class _FactoryProviderElement<T> extends ProviderElement<T> {
   final T Function(ProviderRef ref) creator;
-  final void Function(T instance)? disposer;
 
-  const _ValueProvider(this.creator, [this.disposer]) : super._();
-
-  @override
-  T create(ProviderRef ref) => creator(ref);
+  const _FactoryProviderElement(this.creator) : super._();
 
   @override
-  void dispose(T instance) => disposer?.call(instance);
+  T read(ProviderRef ref) => creator(ref);
 }
 
-// class _DisposableProvider<T extends Disposable> extends Provider<T> {
-//   final T Function(ProviderRef ref) creator;
-//
-//   const _DisposableProvider(this.creator) : super._();
-//
-//   @override
-//   T create(ProviderRef ref) => creator(ref);
-//
-//   @override
-//   void dispose(T instance) => instance.dispose();
-// }
+class _DisposableProviderElement<T> extends ProviderElement<T> {
+  final T Function(ProviderRef ref) creator;
+  final void Function(T instance) disposer;
+
+  _DisposableProviderElement(this.creator, this.disposer) : super._();
+
+  late final T _instance;
+
+  @override
+  T read(ProviderRef ref) => _instance ??= creator(ref);
+
+  @override
+  void dispose() => disposer(_instance);
+}
