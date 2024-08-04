@@ -26,7 +26,7 @@ class DateRange {
 }
 
 @immutable
-class Date {
+class Date implements Comparable<Date> {
   final DateTime _value;
 
   int get year => _value.year;
@@ -84,9 +84,12 @@ class Date {
     return copyWith(day: day - (this.weekday - 1) + (weekday - 1));
   }
 
-  DateTime get dateTime => _value;
+  DateTime asDateTime() => _value;
 
   DateTime toDateTime() => _value.toLocal();
+
+  @override
+  int compareTo(Date other) => _value.compareTo(other._value);
 
   @override
   bool operator ==(Object other) =>
@@ -102,6 +105,6 @@ class Date {
   static String _padNumber(int value, int width) => value.toString().padLeft(width, '0');
 }
 
-extension DateTimeToDate on DateTime {
+extension DateTimeAsDate on DateTime {
   Date asDate() => Date.from(this);
 }

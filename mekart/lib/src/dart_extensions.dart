@@ -14,24 +14,38 @@ abstract final class Comparators {
   }
 }
 
+DateTime parseDate(String source) {
+  final segments = source.split('-');
+  if (segments.length != 3) throw FormatException('Invalid date format', source);
+
+  final year = int.tryParse(segments[0]);
+  if (year == null) throw FormatException('Invalid date format', source, 0);
+  final month = int.tryParse(segments[1]);
+  if (month == null) throw FormatException('Invalid date format', source, 5);
+  final day = int.tryParse(segments[2]);
+  if (day == null) throw FormatException('Invalid date format', source, 8);
+
+  return DateTime.utc(year, month, day);
+}
+
 extension DateTimeExtensions on DateTime {
-  DateTime get date => (isUtc ? DateTime.utc : DateTime.new)(year, month, day);
+  DateTime withoutTime() => (isUtc ? DateTime.utc : DateTime.new)(year, month, day);
 
   /// The day of the week [monday]..[sunday].
   ///
   /// In accordance with ISO 8601
   /// a week starts with Monday, which has the value 1.
-  DateTime get initialWeekDay => date.applyWeekday(DateTime.monday);
+  DateTime get initialWeekDay => withoutTime().applyWeekday(DateTime.monday);
 
   /// The day of the week [monday]..[sunday].
   ///
   /// In accordance with ISO 8601
   /// a week starts with Monday, which has the value 1.
-  DateTime get lastWeekDay => date.applyWeekday(DateTime.sunday);
+  DateTime get lastWeekDay => withoutTime().applyWeekday(DateTime.sunday);
 
-  DateTime get initialMonthDay => date.copyWith(day: 1);
+  DateTime get initialMonthDay => withoutTime().copyWith(day: 1);
 
-  DateTime get lastMonthDay => date.copyWith(month: month + 1, day: 0);
+  DateTime get lastMonthDay => withoutTime().copyWith(month: month + 1, day: 0);
 
   DateTime applyWeekday(int weekday) {
     assert(weekday >= 1 && weekday <= 7);
@@ -52,6 +66,10 @@ extension DateTimeExtensions on DateTime {
 
     return months - consumedMonthTime.inDays / monthTime.inDays;
   }
+
+  String toDateString() => '${_padNumber(year, 4)}-${_padNumber(month, 2)}-${_padNumber(day, 2)}';
+
+  static String _padNumber(int value, int width) => value.toString().padLeft(width, '0');
 }
 
 extension MapExtensions<K, V> on Map<K, V> {

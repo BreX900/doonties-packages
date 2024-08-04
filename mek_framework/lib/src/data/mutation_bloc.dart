@@ -201,6 +201,7 @@ class MutationBloc<TArg, TResult> extends Cubit<MutationState<TResult>> {
   String toString() => 'MutationBloc($_mutator)';
 }
 
+@optionalTypeArgs
 class MutationRef<R> implements Ref<MutationBloc<void, R>> {
   WidgetRef? _ref;
   MutationBloc<void, R>? _bloc;

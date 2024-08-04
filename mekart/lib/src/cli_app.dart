@@ -140,11 +140,16 @@ class _DisposableProviderElement<T> extends ProviderElement<T> {
 
   _DisposableProviderElement(this.creator, this.disposer) : super._();
 
-  late final T _instance;
+  T? _instance;
 
   @override
   T read(ProviderRef ref) => _instance ??= creator(ref);
 
   @override
-  void dispose() => disposer(_instance);
+  void dispose() {
+    final instance = _instance;
+    if (instance == null) return;
+    disposer(instance);
+    _instance = null;
+  }
 }
