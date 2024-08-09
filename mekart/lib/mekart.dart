@@ -1,6 +1,7 @@
 library;
 
 export 'src/bin/bin.dart';
+export 'src/bin/bin_base.dart';
 export 'src/bin/bin_engine.dart';
 export 'src/bin/cached_bin.dart';
 export 'src/bin/value_bin.dart';

@@ -1,4 +1,6 @@
 abstract class BinEngine {
+  static late BinEngine instance;
+
   factory BinEngine({
     // ignore: avoid_unused_constructor_parameters
     required String? directoryPath,

@@ -4,12 +4,12 @@ import 'dart:io';
 import 'package:logging/logging.dart';
 import 'package:mekart/src/cli_utils.dart';
 
-@Deprecated('In favour of runWithAppRef')
-Future<void> runApp(App app) async {
-  await runWithRef((ref) async {
-    app._ref = ref;
-    await app.run();
-  });
+abstract class App {
+  FutureOr<void> run();
+}
+
+Future<void> runApp(App Function(ProviderRef ref) creator) async {
+  await runWithRef((ref) => creator(ref).run());
 }
 
 Future<void> runWithRef(FutureOr<void> Function(ProviderRef ref) body) async {
@@ -33,18 +33,6 @@ Future<void> runWithRef(FutureOr<void> Function(ProviderRef ref) body) async {
     container.clear();
     await logSub.cancel();
   }
-}
-
-Future<void> run(FutureOr<void> Function() Function(ProviderRef ref) creator) async {
-  await runWithRef((ref) => creator(ref).call());
-}
-
-abstract class App {
-  late ProviderRef _ref;
-
-  ProviderRef get ref => _ref;
-
-  FutureOr<void> run();
 }
 
 class ProviderOverride<T> {

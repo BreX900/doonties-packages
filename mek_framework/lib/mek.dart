@@ -60,6 +60,7 @@ export 'src/riverpod/future_of_data_provider.dart';
 export 'src/riverpod/refreshable_consumer.dart';
 export 'src/riverpod/riverpod_extensions.dart';
 export 'src/riverpod/subscribe_extensions.dart';
+export 'src/shared/disposer.dart';
 export 'src/shared/flutter_extensions.dart';
 export 'src/shared/handle_callback.dart';
 export 'src/shared/mek_utils.dart';

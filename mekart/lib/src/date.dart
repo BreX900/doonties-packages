@@ -43,6 +43,8 @@ class Date implements Comparable<Date> {
 
   factory Date.from(DateTime dateTime) => Date(dateTime.year, dateTime.month, dateTime.day);
 
+  static Date fromJson(String source) => Date.parse(source);
+
   static Date parse(String source) {
     final segments = source.split('-');
     if (segments.length != 3) throw FormatException('Invalid date format', source);
@@ -88,6 +90,8 @@ class Date implements Comparable<Date> {
 
   DateTime toDateTime() => _value.toLocal();
 
+  String toJson() => '${_padNumber(year, 4)}-${_padNumber(month, 2)}-${_padNumber(day, 2)}';
+
   @override
   int compareTo(Date other) => _value.compareTo(other._value);
 
@@ -100,7 +104,7 @@ class Date implements Comparable<Date> {
   int get hashCode => Object.hash(runtimeType, _value);
 
   @override
-  String toString() => '${_padNumber(year, 4)}-${_padNumber(month, 2)}-${_padNumber(day, 2)}';
+  String toString() => toJson();
 
   static String _padNumber(int value, int width) => value.toString().padLeft(width, '0');
 }

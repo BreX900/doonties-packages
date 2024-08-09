@@ -43,6 +43,7 @@ dependencies:
   logging: ^1.2.0
   fast_immutable_collections: ^10.2.4
 
+  nested: ^1.0.0
   flutter_riverpod: ^2.5.1
 
 #  chips_input: ^0.1.0
@@ -64,5 +65,7 @@ index_generator:
     - '{_,**/_}*.dart'
   indexes:
     - path: lib
+      exports:
+        - package: package:mekart/mekart.dart
 
 flutter:

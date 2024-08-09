@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:mekart/src/bin/_bin_engine.dart' as rules_;
 
 class BinEngine implements rules_.BinEngine {
+  static late BinEngine instance;
+
   final String directoryPath;
 
   BinEngine({required this.directoryPath});

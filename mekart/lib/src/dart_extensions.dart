@@ -28,6 +28,10 @@ DateTime parseDate(String source) {
   return DateTime.utc(year, month, day);
 }
 
+extension StringExtensions on String {
+  String? get nullIfEmpty => isEmpty ? null : this;
+}
+
 extension DateTimeExtensions on DateTime {
   DateTime withoutTime() => (isUtc ? DateTime.utc : DateTime.new)(year, month, day);
 

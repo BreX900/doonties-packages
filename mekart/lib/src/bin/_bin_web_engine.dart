@@ -2,6 +2,8 @@ import 'package:mekart/src/bin/_bin_engine.dart' as rules_;
 import 'package:web/web.dart';
 
 class BinEngine implements rules_.BinEngine {
+  static late BinEngine instance;
+
   // ignore: avoid_unused_constructor_parameters
   const BinEngine({required String? directoryPath});
 
