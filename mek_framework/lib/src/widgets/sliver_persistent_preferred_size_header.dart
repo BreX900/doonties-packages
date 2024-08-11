@@ -1,35 +1,47 @@
 import 'package:flutter/material.dart';
 
-class SliverPersistentPreferredSizeHeader extends StatelessWidget {
+class SliverPersistentSizeHeader extends StatelessWidget {
   final bool pinned;
   final bool floating;
-  final PreferredSizeWidget child;
+  final double height;
+  final Widget child;
 
-  const SliverPersistentPreferredSizeHeader({
+  const SliverPersistentSizeHeader({
     super.key,
     this.pinned = false,
     this.floating = false,
+    required this.height,
     required this.child,
   });
+
+  SliverPersistentSizeHeader.preferred({
+    super.key,
+    this.pinned = false,
+    this.floating = false,
+    required PreferredSizeWidget this.child,
+  }) : height = child.preferredSize.height;
 
   @override
   Widget build(BuildContext context) {
     return SliverPersistentHeader(
       pinned: pinned,
       floating: floating,
-      delegate: _SliverPersistentPreferredSizeHeaderDelegate(child: child),
+      delegate: _SliverPersistentPreferredSizeHeaderDelegate(
+        height: height,
+        child: child,
+      ),
     );
   }
 }
 
 class _SliverPersistentPreferredSizeHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final PreferredSizeWidget child;
+  final double height;
+  final Widget child;
 
   const _SliverPersistentPreferredSizeHeaderDelegate({
+    required this.height,
     required this.child,
   });
-
-  double get height => child.preferredSize.height;
 
   @override
   double get maxExtent => height;

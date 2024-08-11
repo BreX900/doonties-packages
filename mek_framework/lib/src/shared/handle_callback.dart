@@ -43,7 +43,7 @@ extension FormBuildContextExtensions on BuildContext {
   void Function(T args) handleMutation<T>(
     FieldBlocRule<dynamic> form,
     MutationBloc<T, void> mutation, {
-    bool? isFormDisabledAfterSubmit,
+    bool? isFormDisabledAfterSubmit, // Default `false`
     @Deprecated('In favour of isFormDisabledAfterSubmit') bool canEnableFormAfterSubmit = true,
   }) {
     // ignore: deprecated_member_use_from_same_package

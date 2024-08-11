@@ -9,12 +9,22 @@ class TaskQueue {
   final List<Task> _processing = [];
   Completer<void>? _completer;
 
-  TaskQueue({required this.length});
+  TaskQueue({this.length = 2});
+
+  static Future<void>? wait<T>(
+    Iterable<T> elements,
+    Future<void> Function(T element) tasker, {
+    int parallels = 2,
+  }) {
+    final queue = TaskQueue(length: parallels);
+    queue.addAll(elements, tasker);
+    return queue.future;
+  }
 
   int get pendingCount => _pending.length;
   int get processingCount => _processing.length;
 
-  Future<void> get wait => _completer?.future ?? Future<void>.value();
+  Future<void>? get future => _completer?.future;
 
   void add(Future<void> Function() task) {
     _completer ??= Completer();
@@ -23,16 +33,35 @@ class TaskQueue {
     _next();
   }
 
+  void addAll<T>(Iterable<T> elements, Future<void> Function(T element) tasker) {
+    for (final element in elements) {
+      add(() async => tasker(element));
+    }
+  }
+
+  // void addFuture(Future<void> future) => addTask(() => future);
+  //
+  // void addFutures(Iterable<Future<void>> futures) {
+  //   final iterator = futures.iterator;
+  //   for (var i = _processing.length; i < length; i++) {
+  //     if (!iterator.moveNext()) return;
+  //     addFuture(iterator.current);
+  //   }
+  //   while (iterator.moveNext()) {
+  //     addFuture(iterator.current);
+  //   }
+  // }
+
   void _next() {
-    if (_pending.isEmpty) {
+    if (_pending.isEmpty && _processing.isEmpty) {
       _completer?.complete();
       _completer = null;
       return;
     }
 
-    if (_processing.length >= 5) {
-      return;
-    }
+    if (_pending.isEmpty) return;
+
+    if (_processing.length >= length) return;
 
     final task = _pending.removeFirst();
     _processing.add(task);

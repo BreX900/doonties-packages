@@ -86,7 +86,7 @@ extension MapExtensions<K, V> on Map<K, V> {
 extension IterableExtension<T> on Iterable<T> {
   T firstSortedBy(Comparator<T> comparator) {
     final iterator = this.iterator;
-    if (!iterator.moveNext()) throw StateError('');
+    if (!iterator.moveNext()) throw StateError('No element');
     var element = iterator.current;
     while (iterator.moveNext()) {
       final score = comparator(element, iterator.current);
@@ -98,7 +98,7 @@ extension IterableExtension<T> on Iterable<T> {
 
   T lastSortedBy(Comparator<T> comparator) {
     final iterator = this.iterator;
-    if (!iterator.moveNext()) throw StateError('');
+    if (!iterator.moveNext()) throw StateError('No element');
     var element = iterator.current;
     while (iterator.moveNext()) {
       final score = comparator(element, iterator.current);

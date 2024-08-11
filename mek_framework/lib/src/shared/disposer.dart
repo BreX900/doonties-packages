@@ -9,25 +9,28 @@ abstract class DisposerProvider {
   Disposer get _disposer;
 }
 
+extension on DisposerProvider {
+  void _add(VoidCallback disposer) => _disposer.add(disposer);
+}
+
 class Disposer implements DisposerProvider {
   final _entries = <VoidCallback>[];
-  @override
-  Disposer get _disposer => this;
 
   void add(VoidCallback disposer) {
     _entries.add(disposer);
   }
 
-  void remove(VoidCallback disposer, {bool shouldDispose = true}) {
+  void remove(VoidCallback disposer, {bool shouldDispose = false}) {
     if (!_entries.remove(disposer)) return;
     if (shouldDispose) disposer();
   }
 
   void dispose() {
-    for (final disposer in _entries) {
-      disposer();
-    }
+    _entries.forEach(Zone.current.runGuarded);
   }
+
+  @override
+  Disposer get _disposer => this;
 }
 
 mixin StateDisposer<T extends StatefulWidget> on State<T> implements DisposerProvider {
@@ -86,13 +89,25 @@ mixin StateNotifierDisposer<T> on StateNotifier<T> implements DisposerProvider {
 }
 
 extension DisposableStreamSubscriptionExtension<T> on StreamSubscription<T> {
-  void addToDisposer(DisposerProvider disposer) => disposer._disposer.add(cancel);
-}
-
-extension DisposableBlocExtension<State> on BlocBase<State> {
-  void addToDisposer(DisposerProvider disposer) => disposer._disposer.add(close);
+  void disposeBy(DisposerProvider disposer) => disposer._add(cancel);
 }
 
 extension DisposableCompositeSubscriptionExtension on CompositeSubscription {
-  void addToDisposer(DisposerProvider disposer) => disposer._disposer.add(cancel);
+  void disposeBy(DisposerProvider disposer) => disposer._add(cancel);
+}
+
+extension DisposableChangeNotifierExtension on ChangeNotifier {
+  void disposeBy(DisposerProvider disposer) => disposer._add(dispose);
+}
+
+extension DisposableValueNotifierExtension<T> on ValueNotifier<T> {
+  void disposeBy(DisposerProvider disposer) => disposer._add(dispose);
+}
+
+extension DisposableBlocExtension<State> on BlocBase<State> {
+  void disposeBy(DisposerProvider disposer) => disposer._add(close);
+}
+
+extension DisposableStateNotifierExtension<State> on StateNotifier<State> {
+  void disposeBy(DisposerProvider disposer) => disposer._add(dispose);
 }
