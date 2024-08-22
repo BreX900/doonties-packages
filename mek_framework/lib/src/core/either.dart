@@ -2,11 +2,17 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 
-abstract class Either<L, R> {
+sealed class Either<L, R> {
   const Either();
 
-  const factory Either.left(L value) = _Left<L, R>;
-  const factory Either.right(R value) = _Right<L, R>;
+  L? get leftOrNull => when((left) => left, (_) => null);
+  L? get rightOrNull => when((left) => left, (_) => null);
+
+  bool get isLeft => when((_) => true, (_) => false);
+  bool get isRight => when((_) => false, (_) => true);
+
+  const factory Either.left(L value) = LeftEither<L, R>;
+  const factory Either.right(R value) = RightEither<L, R>;
 
   T when<T>(T Function(L value) left, T Function(R value) right);
 
@@ -22,10 +28,10 @@ abstract class Either<L, R> {
   }
 }
 
-class _Left<L, R> extends Either<L, R> with EquatableMixin {
+class LeftEither<L, R> extends Either<L, R> with EquatableMixin {
   final L value;
 
-  const _Left(this.value);
+  const LeftEither(this.value);
 
   @override
   T when<T>(T Function(L value) left, T Function(R value) right) => left(value);
@@ -34,10 +40,10 @@ class _Left<L, R> extends Either<L, R> with EquatableMixin {
   List<Object?> get props => [value];
 }
 
-class _Right<L, R> extends Either<L, R> with EquatableMixin {
+class RightEither<L, R> extends Either<L, R> with EquatableMixin {
   final R value;
 
-  const _Right(this.value);
+  const RightEither(this.value);
 
   @override
   T when<T>(T Function(L value) left, T Function(R value) right) => right(value);

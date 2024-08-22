@@ -77,6 +77,11 @@ extension DateTimeExtensions on DateTime {
 }
 
 extension MapExtensions<K, V> on Map<K, V> {
+  V get(K key) {
+    if (containsKey(key)) return this[key] as V;
+    throw ArgumentError.notNull('$key');
+  }
+
   Iterable<R> mapEntries<R>(R Function(K key, V value) mapper) => entries.mapTo(mapper);
 
   Map<KR, VR> mapWhereNotNull<KR, VR>(MapEntry<KR, VR>? Function(K key, V value) mapper) =>
@@ -123,10 +128,19 @@ extension IterableExtension<T> on Iterable<T> {
     return result;
   }
 
+  Iterable<R> whereTypeExtend<R extends T>() => whereType<R>();
+
+  Iterable<R> mapNonNulls<R>(R? Function(T e) toElement) sync* {
+    for (final element in this) {
+      final result = toElement(element);
+      if (result != null) yield result;
+    }
+  }
+
   Map<K, V> groupFolding<K, V>(
+    V initialValue,
     K Function(T element) keyOf,
     V Function(V previousValue, T element) combine,
-    V initialValue,
   ) {
     final result = <K, V>{};
     for (final element in this) {

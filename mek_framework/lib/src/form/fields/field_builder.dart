@@ -41,17 +41,20 @@ abstract class FieldBuilder<V> extends StatefulWidget {
   final V? value;
   final FocusNode? focusNode;
   final FieldErrorTranslator? errorTranslator;
+  final bool enabled;
 
   const FieldBuilder({
     super.key,
     required FieldBlocRule<V> this.fieldBloc,
     required this.focusNode,
     required this.errorTranslator,
+    this.enabled = true,
   }) : value = null;
 
   const FieldBuilder.from({
     super.key,
     required V this.value,
+    this.enabled = true,
   })  : fieldBloc = null,
         focusNode = null,
         errorTranslator = null;
@@ -81,7 +84,7 @@ abstract class FieldBuilderState<W extends FieldBuilder<V>, V> extends State<W> 
   FocusNode? _focusNode;
   FocusNode get focusNode => (_focusNode ?? widget.focusNode)!;
 
-  bool get isEnabled => _fieldBlocState.isEnabled;
+  bool get isEnabled => widget.enabled && _fieldBlocState.isEnabled;
   V get value => _fieldBlocState.value;
 
   @override
@@ -101,6 +104,9 @@ abstract class FieldBuilderState<W extends FieldBuilder<V>, V> extends State<W> 
     if (widget.fieldBloc != oldWidget.fieldBloc) {
       _disposeFieldBloc();
       _initFieldBloc();
+    }
+    if (value != oldWidget.value) {
+      _fieldBloc?.updateValue(widget.value as V);
     }
   }
 

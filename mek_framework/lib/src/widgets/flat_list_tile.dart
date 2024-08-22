@@ -9,6 +9,7 @@ class DropdownListTileMenuItem<T> extends DropdownMenuItem<T> {
     super.alignment,
     Widget? leading,
     required Widget title,
+    Widget? subtitle,
     Widget? trailing,
   }) : super(
           child: ListTileLayout(
@@ -28,6 +29,7 @@ class DropdownListTileMenuItem<T> extends DropdownMenuItem<T> {
                   })
                 : null,
             title: title,
+            subtitle: subtitle,
             trailing: trailing,
           ),
         );

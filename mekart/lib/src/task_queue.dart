@@ -8,6 +8,7 @@ class TaskQueue {
   final Queue<Task> _pending = Queue();
   final List<Task> _processing = [];
   Completer<void>? _completer;
+  List<AsyncError> _errors = [];
 
   TaskQueue({this.length = 2});
 
@@ -54,8 +55,14 @@ class TaskQueue {
 
   void _next() {
     if (_pending.isEmpty && _processing.isEmpty) {
-      _completer?.complete();
+      if (_errors.isNotEmpty) {
+        _completer?.completeError(ParallelWaitError(null, _errors, defaultError: _errors.first));
+      } else {
+        _completer?.complete();
+      }
+
       _completer = null;
+      _errors = [];
       return;
     }
 
@@ -71,6 +78,8 @@ class TaskQueue {
   Future<void> _wait(Task task) async {
     try {
       await task();
+    } catch (error, stackTrace) {
+      _errors.add(AsyncError(error, stackTrace));
     } finally {
       _processing.remove(task);
       _next();

@@ -2,16 +2,16 @@ import 'package:flutter/widgets.dart';
 import 'package:nested/nested.dart';
 
 class InheritedValue<T extends Object> extends InheritedWidget implements SingleChildWidget {
-  final T data;
+  final T value;
 
   const InheritedValue({
     super.key,
-    required this.data,
+    required this.value,
     required super.child,
   });
 
   @override
-  bool updateShouldNotify(InheritedValue<T> oldWidget) => data != oldWidget.data;
+  bool updateShouldNotify(InheritedValue<T> oldWidget) => value != oldWidget.value;
 
   @override
   // ignore: library_private_types_in_public_api

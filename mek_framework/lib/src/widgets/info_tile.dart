@@ -31,35 +31,38 @@ class InfoView extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconTheme.merge(
-              data: const IconThemeData(size: 48.0),
-              child: icon ?? const Icon(Icons.info_outline, size: 48.0),
-            ),
-            const SizedBox(height: 16.0),
-            DefaultTextStyle.merge(
-              style: textTheme.titleMedium,
-              textAlign: TextAlign.center,
-              child: title,
-            ),
-            const SizedBox(height: 8.0),
-            if (description != null)
-              DefaultTextStyle.merge(
-                textAlign: TextAlign.center,
-                child: description!,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconTheme.merge(
+                data: const IconThemeData(size: 48.0),
+                child: icon ?? const Icon(Icons.info_outline, size: 48.0),
               ),
-            if (actions.isNotEmpty) ...[
               const SizedBox(height: 16.0),
-              Column(
-                children: actions.expandIndexed((index, child) sync* {
-                  if (index == 0) yield const SizedBox(height: 16.0);
-                  yield child;
-                }).toList(),
-              )
+              DefaultTextStyle.merge(
+                style: textTheme.titleMedium,
+                textAlign: TextAlign.center,
+                child: title,
+              ),
+              const SizedBox(height: 8.0),
+              if (description != null)
+                DefaultTextStyle.merge(
+                  textAlign: TextAlign.center,
+                  child: description!,
+                ),
+              if (actions.isNotEmpty) ...[
+                const SizedBox(height: 16.0),
+                Column(
+                  children: actions.expandIndexed((index, child) sync* {
+                    if (index == 0) yield const SizedBox(height: 16.0);
+                    yield child;
+                  }).toList(),
+                )
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
