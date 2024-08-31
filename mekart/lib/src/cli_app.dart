@@ -4,16 +4,56 @@ import 'dart:io';
 import 'package:logging/logging.dart';
 import 'package:mekart/src/cli_utils.dart';
 
-abstract class App {
+abstract class CliApp {
   FutureOr<void> run();
 }
 
-Future<void> runApp(App Function(ProviderRef ref) creator) async {
-  await runWithRef((ref) => creator(ref).run());
+abstract class App {
+  ProviderRef? _ref;
+  ProviderRef get ref => _ref!;
+
+  FutureOr<void> run();
 }
 
-Future<void> runWithRef(FutureOr<void> Function(ProviderRef ref) body) async {
-  final logSub = lg.onRecord.listen((record) {
+void runApp(App app) {
+  runWithRef((ref) async {
+    app._ref = ref;
+    await app.run();
+    app._ref = null;
+  });
+}
+
+void runCliApp(CliApp Function(ProviderRef ref) creator) {
+  final logSub = _listenLogRecords();
+  final container = ProviderContainer();
+
+  Zone.current.runGuarded(() async {
+    try {
+      final app = creator(container);
+      await app.run();
+    } finally {
+      container.clear();
+      await logSub.cancel();
+    }
+  });
+}
+
+void runWithRef(FutureOr<void> Function(ProviderRef ref) body) {
+  final logSub = _listenLogRecords();
+  final container = ProviderContainer();
+
+  Zone.current.runGuarded(() async {
+    try {
+      await body(container);
+    } finally {
+      container.clear();
+      await logSub.cancel();
+    }
+  });
+}
+
+StreamSubscription<LogRecord> _listenLogRecords() {
+  return lg.onRecord.listen((record) {
     if (record.level < Level.SEVERE) {
       stdout.writeln(record);
       if (record.error != null) stdout.writeln(record.error);
@@ -24,15 +64,6 @@ Future<void> runWithRef(FutureOr<void> Function(ProviderRef ref) body) async {
       exitCode = 1;
     }
   });
-
-  final container = ProviderContainer();
-
-  try {
-    await body(container);
-  } finally {
-    container.clear();
-    await logSub.cancel();
-  }
 }
 
 class ProviderOverride<T> {
