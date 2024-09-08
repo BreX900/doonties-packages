@@ -75,7 +75,7 @@ class ProviderOverride<T> {
   ProviderElement<T> create(ProviderContainer container) => _ValueProviderElement(container, value);
 }
 
-class ProviderContainer with _DisposersMixin implements ProviderRef {
+class ProviderContainer implements ProviderRef {
   var _providers = <Provider<Object?>, ProviderElement<Object?>>{};
 
   ProviderContainer({
@@ -97,9 +97,7 @@ class ProviderContainer with _DisposersMixin implements ProviderRef {
     }
   }
 
-  @override
   void dispose() {
-    super.dispose();
     for (final instance in _providers.values) {
       Zone.current.runGuarded(instance.dispose);
     }
@@ -109,7 +107,9 @@ class ProviderContainer with _DisposersMixin implements ProviderRef {
 
 abstract class ProviderRef {
   R read<R>(Provider<R> provider);
+}
 
+abstract class SingletonProviderRef extends ProviderRef {
   void onDispose(void Function() disposer);
 }
 
@@ -122,7 +122,7 @@ class Provider<T> {
   factory Provider.factory(T Function(ProviderRef ref) creator) =>
       Provider._((container) => _FactoryProviderElement(container, creator));
 
-  factory Provider.singleton(T Function(ProviderRef ref) creator) =>
+  factory Provider.singleton(T Function(SingletonProviderRef ref) creator) =>
       Provider._((container) => _SingletonProviderElement(container, creator));
 
   const Provider._(this._creator);
@@ -130,7 +130,7 @@ class Provider<T> {
   ProviderElement<T> create(ProviderContainer container) => _creator(container);
 }
 
-abstract class ProviderElement<T> with _DisposersMixin implements ProviderRef {
+abstract class ProviderElement<T> implements ProviderRef {
   ProviderContainer? _container;
   ProviderContainer get container => _container!;
 
@@ -141,20 +141,8 @@ abstract class ProviderElement<T> with _DisposersMixin implements ProviderRef {
 
   T get();
 
-  @override
   void dispose() {
-    super.dispose();
     _container = null;
-  }
-}
-
-mixin _DisposersMixin {
-  final _disposers = <void Function()>[];
-
-  void onDispose(void Function() disposer) => _disposers.add(disposer);
-
-  void dispose() {
-    _disposers.forEach(Zone.current.runGuarded);
   }
 }
 
@@ -176,8 +164,9 @@ class _FactoryProviderElement<T> extends ProviderElement<T> {
   T get() => creator(this);
 }
 
-class _SingletonProviderElement<T> extends ProviderElement<T> {
-  final T Function(ProviderRef ref) creator;
+class _SingletonProviderElement<T> extends ProviderElement<T> implements SingletonProviderRef {
+  final _disposers = <void Function()>[];
+  final T Function(SingletonProviderRef ref) creator;
 
   _SingletonProviderElement(super._container, this.creator) : super._();
 
@@ -187,7 +176,11 @@ class _SingletonProviderElement<T> extends ProviderElement<T> {
   T get() => _instance ??= creator(this);
 
   @override
+  void onDispose(void Function() disposer) => _disposers.add(disposer);
+
+  @override
   void dispose() {
+    _disposers.forEach(Zone.current.runGuarded);
     super.dispose();
     _instance = null;
   }
