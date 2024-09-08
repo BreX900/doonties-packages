@@ -347,11 +347,12 @@ class _NumericTextFieldType extends TextFieldType {
     return data.copyWith(
       keyboardType: TextInputType.numberWithOptions(signed: signed, decimal: decimal),
       inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'(\d|[,.])*')),
         _NumericTextInputFormatter(
           languageCode: locale.languageCode,
           signed: signed,
           decimal: decimal,
-        )
+        ),
       ],
     );
   }
@@ -389,11 +390,7 @@ class _NumericTextInputFormatter implements TextInputFormatter {
       var dividend = separatorOffset != -1 ? newValue.text.substring(separatorOffset + 1) : '';
       dividend = dividend.replaceAll(symbols.GROUP_SEP, '');
 
-      buffer.add(dividend.substring(0, min(dividend.length, 3)));
-      for (var i = 3; i < dividend.length; i += 3) {
-        buffer.add(symbols.GROUP_SEP);
-        buffer.add(dividend.substring(i, min(dividend.length, i + 3)));
-      }
+      buffer.add(dividend);
     }
 
     final text = buffer.join();

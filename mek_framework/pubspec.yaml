@@ -12,7 +12,7 @@ scripts:
 
   # To generate .g files:
   runner:watch: dart run build_runner watch --delete-conflicting-outputs
-  # To generate library barrel file: https://pub.dev/packages/index_generator
+  # To generate library file: https://pub.dev/packages/index_generator
   generate:library: >-
     dart pub global activate index_generator 3.4.1 &&
     dart pub global run index_generator
@@ -58,6 +58,8 @@ dev_dependencies:
   build_runner: ^2.4.11
   mek_data_class_generator: ^1.5.1
 
+flutter: {}
+
 index_generator:
   exclude:
     - '**.g.dart'
@@ -66,5 +68,3 @@ index_generator:
     - path: lib
       exports:
         - package: package:mekart/mekart.dart
-
-flutter:

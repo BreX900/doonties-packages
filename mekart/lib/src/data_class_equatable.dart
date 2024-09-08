@@ -1,7 +1,9 @@
 import 'package:collection/collection.dart';
+import 'package:meta/meta.dart';
 
 mixin DataClassEquatable {
-  Map<String, Object> get props;
+  @protected
+  Map<String, Object?> get props;
 
   @override
   bool operator ==(Object other) {
@@ -14,12 +16,22 @@ mixin DataClassEquatable {
   @override
   int get hashCode => runtimeType.hashCode ^ Object.hashAll(props.values);
 
-  // @override
-  // String toString() {
-  //   final classToString = '$runtimeType';
-  //   props.forEach(classToString.add);
-  //   return classToString.toString();
-  // }
+  @override
+  String toString() {
+    final b = StringBuffer(runtimeType);
+    b.write('(');
+    b.writeln();
+    props.forEach((name, value) {
+      b.write('  ');
+      b.write(name);
+      b.write(': ');
+      b.write(value is String ? "'$value'" : value);
+      b.write(',');
+      b.writeln();
+    });
+    b.write(')');
+    return b.toString();
+  }
 }
 
 const _equality = IterableEquality(_Equality());

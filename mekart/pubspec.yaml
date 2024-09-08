@@ -6,9 +6,22 @@ version: 1.0.0
 environment:
   sdk: ^3.4.4
 
-# Add regular dependencies here.
+scripts:
+  bootstrap: dart pub global activate rps 0.7.0
+
+  # To generate library file: https://pub.dev/packages/index_generator
+  generate:library: >-
+    dart pub global activate index_generator 3.4.1 &&
+    dart pub global run index_generator
+
+  # Integration tools
+  integration: dart pub global run rps check-format && dart pub global run rps analyze
+  check-format: >-
+    dart format --line-length 100 --set-exit-if-changed --output none
+    $(find . ! -path "./.dart_tool/**" ! -path "./build/**" -name "*.dart" ! -name "*.g.dart")
+  analyze: dart analyze
+
 dependencies:
-  # path: ^1.8.0
   web: '>=0.5.0 <2.0.0'
   meta: ^1.12.0
   fast_immutable_collections: ^10.2.0
@@ -19,3 +32,11 @@ dependencies:
 
 dev_dependencies:
   mek_lints: ^4.0.0
+
+index_generator:
+  exclude:
+    - '**.g.dart'
+    - '{_,**/_}*.dart'
+  indexes:
+    - path: lib
+      exclude: [ '*.dart', '**/cli_**' ]

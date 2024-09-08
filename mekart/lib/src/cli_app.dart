@@ -32,7 +32,7 @@ void runCliApp(CliApp Function(ProviderRef ref) creator) {
       final app = creator(container);
       await app.run();
     } finally {
-      container.clear();
+      container.dispose();
       await logSub.cancel();
     }
   });
@@ -46,7 +46,7 @@ void runWithRef(FutureOr<void> Function(ProviderRef ref) body) {
     try {
       await body(container);
     } finally {
-      container.clear();
+      container.dispose();
       await logSub.cancel();
     }
   });
@@ -72,10 +72,10 @@ class ProviderOverride<T> {
 
   ProviderOverride(this.provider, this.value);
 
-  ProviderElement<T> create() => _ValueProviderElement(value);
+  ProviderElement<T> create(ProviderContainer container) => _ValueProviderElement(container, value);
 }
 
-class ProviderContainer implements ProviderRef {
+class ProviderContainer with _DisposersMixin implements ProviderRef {
   var _providers = <Provider<Object?>, ProviderElement<Object?>>{};
 
   ProviderContainer({
@@ -85,90 +85,110 @@ class ProviderContainer implements ProviderRef {
   }
 
   @override
-  T read<T>(Provider<T> provider) {
-    final element = _providers.putIfAbsent(provider, () => provider.create()) as ProviderElement<T>;
-    return element.read(this);
+  R read<R>(Provider<R> provider) {
+    final element =
+        _providers.putIfAbsent(provider, () => provider.create(this)) as ProviderElement<R>;
+    return element.get();
   }
 
   void apply({List<ProviderOverride<Object?>> overrides = const []}) {
     for (final override in overrides) {
-      _providers[override.provider] = override.create();
+      _providers[override.provider] = override.create(this);
     }
   }
 
-  void clear() {
+  @override
+  void dispose() {
+    super.dispose();
     for (final instance in _providers.values) {
-      instance.dispose();
+      Zone.current.runGuarded(instance.dispose);
     }
     _providers = const {};
   }
 }
 
 abstract class ProviderRef {
-  T read<T>(Provider<T> provider);
+  R read<R>(Provider<R> provider);
+
+  void onDispose(void Function() disposer);
 }
 
 class Provider<T> {
-  final ProviderElement<T> Function() _creator;
+  final ProviderElement<T> Function(ProviderContainer container) _creator;
 
-  factory Provider.value(T value) => Provider._(() => _ValueProviderElement(value));
+  factory Provider.value(T value) =>
+      Provider._((container) => _ValueProviderElement(container, value));
 
   factory Provider.factory(T Function(ProviderRef ref) creator) =>
-      Provider._(() => _FactoryProviderElement(creator));
+      Provider._((container) => _FactoryProviderElement(container, creator));
 
-  factory Provider.disposable(
-    T Function(ProviderRef ref) creator,
-    void Function(T instance) disposer,
-  ) =>
-      Provider._(() => _DisposableProviderElement(creator, disposer));
+  factory Provider.singleton(T Function(ProviderRef ref) creator) =>
+      Provider._((container) => _SingletonProviderElement(container, creator));
 
   const Provider._(this._creator);
 
-  ProviderElement<T> create() => _creator();
+  ProviderElement<T> create(ProviderContainer container) => _creator(container);
 }
 
-abstract class ProviderElement<T> {
-  const ProviderElement._();
+abstract class ProviderElement<T> with _DisposersMixin implements ProviderRef {
+  ProviderContainer? _container;
+  ProviderContainer get container => _container!;
 
-  T read(ProviderRef ref);
+  ProviderElement._(this._container);
 
-  void dispose() {}
+  @override
+  R read<R>(Provider<R> provider) => container.read(provider);
+
+  T get();
+
+  @override
+  void dispose() {
+    super.dispose();
+    _container = null;
+  }
+}
+
+mixin _DisposersMixin {
+  final _disposers = <void Function()>[];
+
+  void onDispose(void Function() disposer) => _disposers.add(disposer);
+
+  void dispose() {
+    _disposers.forEach(Zone.current.runGuarded);
+  }
 }
 
 class _ValueProviderElement<T> extends ProviderElement<T> {
   final T value;
 
-  const _ValueProviderElement(this.value) : super._();
+  _ValueProviderElement(super._container, this.value) : super._();
 
   @override
-  T read(ProviderRef ref) => value;
+  T get() => value;
 }
 
 class _FactoryProviderElement<T> extends ProviderElement<T> {
   final T Function(ProviderRef ref) creator;
 
-  const _FactoryProviderElement(this.creator) : super._();
+  _FactoryProviderElement(super._container, this.creator) : super._();
 
   @override
-  T read(ProviderRef ref) => creator(ref);
+  T get() => creator(this);
 }
 
-class _DisposableProviderElement<T> extends ProviderElement<T> {
+class _SingletonProviderElement<T> extends ProviderElement<T> {
   final T Function(ProviderRef ref) creator;
-  final void Function(T instance) disposer;
 
-  _DisposableProviderElement(this.creator, this.disposer) : super._();
+  _SingletonProviderElement(super._container, this.creator) : super._();
 
   T? _instance;
 
   @override
-  T read(ProviderRef ref) => _instance ??= creator(ref);
+  T get() => _instance ??= creator(this);
 
   @override
   void dispose() {
-    final instance = _instance;
-    if (instance == null) return;
-    disposer(instance);
+    super.dispose();
     _instance = null;
   }
 }
