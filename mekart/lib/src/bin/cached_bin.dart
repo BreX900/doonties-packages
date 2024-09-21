@@ -42,6 +42,9 @@ class CachedBin<T> implements BinBase<T> {
     await _subscription.cancel();
     await _bin.close();
   }
+
+  @override
+  String toString() => 'CachedBin($_bin)';
 }
 
 extension BinMap<K, V> on CachedBin<Map<K, V>> {
@@ -50,9 +53,11 @@ extension BinMap<K, V> on CachedBin<Map<K, V>> {
     return data[key];
   }
 
-  V get(K key, V fallbackValue) {
-    final value = getOrNull(key);
-    return value ?? fallbackValue;
+  V get(K key, {V Function()? orElse}) {
+    final data = read();
+    if (data.containsKey(key)) return data[key] as V;
+    if (orElse != null) return orElse();
+    throw StateError('$this not has "$key" key');
   }
 }
 
@@ -62,8 +67,10 @@ extension BinIMap<K, V> on CachedBin<IMap<K, V>> {
     return data[key];
   }
 
-  V get(K key, V fallbackValue) {
-    final value = getOrNull(key);
-    return value ?? fallbackValue;
+  V get(K key, {V Function()? orElse}) {
+    final data = read();
+    if (data.containsKey(key)) return data[key] as V;
+    if (orElse != null) return orElse();
+    throw StateError('$this not has "$key" key');
   }
 }

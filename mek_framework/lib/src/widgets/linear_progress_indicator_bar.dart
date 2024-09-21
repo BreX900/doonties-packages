@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 
 class LinearProgressIndicatorBar extends StatefulWidget {
-  final bool isVisible;
+  final bool isHidden;
   final double? value;
+
+  bool get isVisible => !isHidden;
 
   const LinearProgressIndicatorBar({
     super.key,
-    this.isVisible = true,
+    @Deprecated('In favour of isHidden') bool? isVisible,
+    bool? isHidden = false,
     this.value,
-  });
+  }) : isHidden = isHidden ?? isVisible ?? false;
 
   @override
   State<LinearProgressIndicatorBar> createState() => _LinearProgressIndicatorBarState();

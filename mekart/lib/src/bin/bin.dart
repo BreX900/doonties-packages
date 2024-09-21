@@ -72,17 +72,15 @@ class Bin<T> implements BinBase<T> {
 
   @override
   Future<void> write(T data) async {
-    final rawData = _encoder.convert(_serializer(data));
-    final newData = data != null ? _deserializer(jsonDecode(rawData) as Object) : _fallbackData;
-    _controller.add(newData);
-
-    await _lock.synchronized(() async => await _engine.write(_name, rawData));
+    await _lock.synchronized(() async => await _write(data));
   }
 
   @override
   Future<void> update(T Function(T data) updater) async {
-    final data = await read();
-    await write(updater(data));
+    await _lock.synchronized(() async {
+      final data = await read();
+      await _write(updater(data));
+    });
   }
 
   Future<void> clear() async {
@@ -93,6 +91,14 @@ class Bin<T> implements BinBase<T> {
   Future<void> close() async {
     await _controller.close();
     _usedNames.remove(_name);
+  }
+
+  Future<void> _write(T data) async {
+    final rawData = _encoder.convert(_serializer(data));
+    final newData = data != null ? _deserializer(jsonDecode(rawData) as Object) : _fallbackData;
+    _controller.add(newData);
+
+    await _engine.write(_name, rawData);
   }
 
   @override
