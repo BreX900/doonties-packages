@@ -1,11 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // ignore: implementation_imports
 import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
-  void Function(T arg) handleSubmit<T>(Future<void> Function(T arg) submit) {
-    return (arg) async {
+  void Function(T arg) handleSubmit<T>(FutureOr<void> Function(T arg) submit) {
+    return (arg) {
       switch (status) {
         case ControlStatus.disabled:
           return;
@@ -14,12 +16,13 @@ extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
         case ControlStatus.invalid:
           markAllAsTouched();
         case ControlStatus.valid:
-          try {
-            markAsDisabled();
-            await submit(arg);
-          } finally {
-            markAsEnabled();
-          }
+          // ignore: discarded_futures
+          final result = submit(arg);
+          if (result is! Future<void>) return;
+
+          markAsDisabled();
+
+          unawaited(result.whenComplete(markAsEnabled));
       }
     };
   }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 typedef ProgressEmitter = void Function(double value);
@@ -33,12 +34,12 @@ abstract final class MekUtils {
     List<Future<void> Function(ProgressEmitter)> tasks,
   ) async {
     for (var i = 0; i < tasks.length; i++) {
-      progressEmitter(i / tasks.length);
       void emitTaskProgress(double value) {
         progressEmitter(i / tasks.length + 1 / tasks.length * value);
       }
 
       await tasks[i](emitTaskProgress);
+      emitTaskProgress(1.0);
     }
     progressEmitter(1.0);
   }
@@ -47,16 +48,15 @@ abstract final class MekUtils {
     ProgressEmitter progressEmitter,
     List<Future<void> Function(ProgressEmitter)> tasks,
   ) async {
-    var completedCount = 0;
+    final progresses = <Object, double>{};
     await Future.wait(tasks.map((task) async {
       void emitTaskProgress(double value) {
-        progressEmitter(completedCount / tasks.length + 1 / tasks.length * value);
+        progresses[task] = value;
+        progressEmitter(progresses.values.sum / tasks.length);
       }
 
       await task(emitTaskProgress);
-
-      completedCount++;
-      progressEmitter(completedCount / tasks.length);
+      emitTaskProgress(1.0);
     }));
   }
 }

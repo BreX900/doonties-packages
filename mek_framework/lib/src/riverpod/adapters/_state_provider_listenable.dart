@@ -12,7 +12,7 @@ abstract class StateListenable<T> {
 abstract class SourceProviderListenable<S, T> extends _StateProviderListenable<T> {
   final S source;
 
-  SourceProviderListenable(this.source);
+  const SourceProviderListenable(this.source);
 
   @override
   bool operator ==(Object other) =>
@@ -29,7 +29,7 @@ class _StateListenableProviderSelector<T, R> extends _StateProviderListenable<R>
   final StateListenable<T> _listenable;
   final R Function(T state) _selector;
 
-  _StateListenableProviderSelector(this._listenable, this._selector);
+  const _StateListenableProviderSelector(this._listenable, this._selector);
 
   @override
   void Function() listen(void Function(R state) listener) =>
@@ -51,6 +51,8 @@ class _StateListenableProviderSelector<T, R> extends _StateProviderListenable<R>
 }
 
 abstract class _StateProviderListenable<T> implements ProviderListenable<T>, StateListenable<T> {
+  const _StateProviderListenable();
+
   @override
   T read(Node node) => state;
 

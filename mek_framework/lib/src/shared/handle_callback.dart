@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/src/data/mutation_bloc.dart';
 import 'package:mek/src/data/mutation_state.dart';
 import 'package:mek/src/form/blocs/field_bloc.dart';
+import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
 import 'package:mek/src/riverpod/adapters/state_stremable_provider.dart';
 import 'package:mek/src/shared/skeleton_form.dart';
 import 'package:meta/meta.dart';
@@ -125,12 +127,12 @@ extension HandleWidgetRef on WidgetRef {
   }
 
   bool watchIdle({
+    @Deprecated('Not used any more...')
     Iterable<ProviderListenable<AsyncValue<Object?>>> providers = const [],
     Iterable<StateStreamableSource<MutationState<Object?>>> mutations = const [],
   }) {
     var val = _Val({
       for (final provider in providers) provider: read(provider).isLoading,
-      for (final mutationBloc in mutations) mutationBloc: mutationBloc.state.isMutating,
     });
 
     for (final provider in providers) {
@@ -139,13 +141,36 @@ extension HandleWidgetRef on WidgetRef {
         return val.isBusy;
       }));
     }
-    for (final mutationBloc in mutations) {
-      watch(mutationBloc.select((state) {
-        val = val.update(mutationBloc, state.isMutating);
-        return val.isBusy;
-      }));
-    }
-    return !val.isBusy;
+
+    final isMutationsBusy = watch(_BusyListenableProvider(mutations.toIList()));
+    return !(val.isBusy || isMutationsBusy);
+  }
+}
+
+class _BusyListenableProvider
+    extends SourceProviderListenable<IList<StateStreamableSource<MutationState<Object?>>>, bool> {
+  _BusyListenableProvider(super.source);
+
+  @override
+  bool get state => source.any((e) => e.state.isMutating);
+
+  @override
+  void Function() listen(void Function(bool state) listener) {
+    var prevState = state;
+    final subscriptions = source.map((mutation) {
+      return mutation.stream.listen((_) {
+        final currentState = state;
+        if (prevState == currentState) return;
+        prevState = currentState;
+        listener(currentState);
+      });
+    }).toList();
+
+    return () {
+      for (final subscription in subscriptions) {
+        unawaited(subscription.cancel());
+      }
+    };
   }
 }
 
