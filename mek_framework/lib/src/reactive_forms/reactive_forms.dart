@@ -3,8 +3,55 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
+extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
+  void Function(T arg) handleSubmit<T>(Future<void> Function(T arg) submit) {
+    return (arg) async {
+      switch (status) {
+        case ControlStatus.disabled:
+          return;
+        case ControlStatus.pending:
+          return;
+        case ControlStatus.invalid:
+          markAllAsTouched();
+        case ControlStatus.valid:
+          try {
+            markAsDisabled();
+            await submit(arg);
+          } finally {
+            markAsEnabled();
+          }
+      }
+    };
+  }
+}
+
+class _AbstractControlProviders<T> {
+  final AbstractControl<T> _control;
+
+  _AbstractControlProviders(this._control);
+
+  ProviderListenable<T?> get valueProvider => _AbstractControlValueProvider(_control);
+
+  ProviderListenable<ControlStatus> get statusProvider => _AbstractControlStatusProvider(_control);
+
+  ProviderListenable<bool> get statusIsDisabled => statusProvider.select(_isDisabled);
+
+  static bool _isDisabled(ControlStatus status) => status == ControlStatus.disabled;
+}
+
 extension AbstractControlProviders<T> on AbstractControl<T> {
+  // ignore: library_private_types_in_public_api
+  _AbstractControlProviders get providers => _AbstractControlProviders(this);
+
   ProviderListenable<T?> get valueProvider => _AbstractControlValueProvider(this);
+
+  ProviderListenable<ControlStatus> get statusProvider => _AbstractControlStatusProvider(this);
+}
+
+extension ProviderListenableControlStatusExtensions on ProviderListenable<ControlStatus> {
+  ProviderListenable<bool> get isEnabled => select(_isEnabled);
+
+  static bool _isEnabled(ControlStatus status) => status != ControlStatus.disabled;
 }
 
 extension FormArrayProviders<T> on FormArray<T> {
@@ -39,6 +86,19 @@ class _AbstractControlValueProvider<T> extends SourceProviderListenable<Abstract
   @override
   void Function() listen(void Function(T? value) listener) {
     return source.valueChanges.listen((value) => listener(value)).cancel;
+  }
+}
+
+class _AbstractControlStatusProvider<T>
+    extends SourceProviderListenable<AbstractControl<Object?>, ControlStatus> {
+  _AbstractControlStatusProvider(super.source);
+
+  @override
+  ControlStatus get state => source.status;
+
+  @override
+  void Function() listen(void Function(ControlStatus value) listener) {
+    return source.statusChanged.listen(listener).cancel;
   }
 }
 

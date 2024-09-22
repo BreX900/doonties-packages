@@ -73,6 +73,7 @@ class ListTileLayout extends StatelessWidget {
 class ParagraphTile extends StatelessWidget {
   final bool dense;
   final VoidCallback? onTap;
+  final Widget? leading;
   final Widget title;
   final Widget? subtitle;
   final Widget? trailing;
@@ -81,6 +82,7 @@ class ParagraphTile extends StatelessWidget {
     super.key,
     this.dense = false,
     this.onTap,
+    this.leading,
     required this.title,
     this.subtitle,
     this.trailing,
@@ -100,6 +102,15 @@ class ParagraphTile extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: ListTileLayout(
+            leading: leading != null
+                ? ConstrainedBox(
+                    constraints: const BoxConstraints.tightFor(
+                      width: kMinInteractiveDimension,
+                      height: kMinInteractiveDimension,
+                    ),
+                    child: leading,
+                  )
+                : null,
             title: DefaultTextStyle(
               style: textTheme.titleSmall!,
               child: title,
