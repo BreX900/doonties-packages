@@ -9,9 +9,10 @@ class LinearProgressIndicatorBar extends StatefulWidget {
   const LinearProgressIndicatorBar({
     super.key,
     @Deprecated('In favour of isHidden') bool? isVisible,
-    bool? isHidden = false,
+    bool? isHidden,
     this.value,
-  }) : isHidden = isHidden ?? isVisible ?? false;
+  })  : assert(isVisible == null || isHidden == null),
+        isHidden = isHidden ?? !(isVisible ?? false);
 
   @override
   State<LinearProgressIndicatorBar> createState() => _LinearProgressIndicatorBarState();

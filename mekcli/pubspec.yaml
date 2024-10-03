@@ -1,4 +1,4 @@
-name: mekart
+name: mekcli
 description: A starting point for Dart libraries or applications.
 version: 1.0.0
 # repository: https://github.com/my_org/my_repo
@@ -22,16 +22,12 @@ scripts:
   analyze: dart analyze
 
 dependencies:
-  web: '>=0.5.0 <2.0.0'
-  meta: ^1.12.0
-  fast_immutable_collections: ^10.2.2
-  synchronized: ^3.1.0
+#  meta: ^1.12.0
+#  fast_immutable_collections: ^10.2.2
+#  synchronized: ^3.1.0
   logging: ^1.2.0
-
-  collection: ^1.18.0
-
-dev_dependencies:
-  mek_lints: ^4.0.0
+#
+#  collection: ^1.18.0
 
 index_generator:
   exclude:
@@ -39,4 +35,3 @@ index_generator:
     - '{_,**/_}*.dart'
   indexes:
     - path: lib
-      exclude: [ '*.dart', '**/cli_**' ]

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:logging/logging.dart';
-import 'package:mekart/src/cli_utils.dart';
+import 'package:mekcli/src/cli_utils.dart';
 
 abstract class CliApp {
   FutureOr<void> run();

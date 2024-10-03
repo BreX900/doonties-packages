@@ -2,8 +2,6 @@
 
 library mek;
 
-export 'package:mekart/mekart.dart';
-
 export 'src/bloc/bloc_extensions.dart';
 export 'src/bloc/state_bloc.dart';
 export 'src/common/app_theme.dart';
@@ -49,6 +47,7 @@ export 'src/logs/observers.dart';
 export 'src/logs/report_log_records.dart';
 export 'src/material/cursor_data.dart';
 export 'src/material/navigation_baril.dart';
+export 'src/material/popup_menu_item_tile.dart';
 export 'src/material/table.dart';
 export 'src/reactive_forms/control_value_accessors.dart';
 export 'src/reactive_forms/fields/reactive_decorated_slider.dart';

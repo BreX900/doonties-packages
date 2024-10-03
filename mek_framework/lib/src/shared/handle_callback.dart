@@ -155,6 +155,7 @@ class _BusyListenableProvider
   bool get state => source.any((e) => e.state.isMutating);
 
   @override
+  // ignore: avoid_positional_boolean_parameters
   void Function() listen(void Function(bool state) listener) {
     var prevState = state;
     final subscriptions = source.map((mutation) {

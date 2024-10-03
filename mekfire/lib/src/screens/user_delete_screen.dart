@@ -91,12 +91,14 @@ class _UserDeleteScreenState extends ConsumerState<UserDeleteScreenBase> {
 
   @override
   Widget build(BuildContext context) {
+    final isIdle = ref.watchIdle(mutations: [_deleteUser]);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Delete user?'),
         flexibleSpace: Consumer(builder: (context, ref, _) {
           final progress = ref.watch(_deleteUser.select((state) => state.progressOrNull));
-          return LinearProgressIndicatorBar(isVisible: progress != null, value: progress ?? 1.0);
+          return LinearProgressIndicatorBar(isHidden: isIdle, value: progress);
         }),
       ),
       body: _buildBody(),

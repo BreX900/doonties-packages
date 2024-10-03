@@ -61,6 +61,11 @@ extension DateTimeExtensions on DateTime {
         month: months != null ? month + months : null,
       );
 
+  DateTime copySubtracting({int? years, int? months}) => copyWith(
+        year: years != null ? year - years : null,
+        month: months != null ? month - months : null,
+      );
+
   double differenceMonths(DateTime other) {
     final months = (year - other.year) * 12 + (month - other.month);
 
@@ -77,9 +82,10 @@ extension DateTimeExtensions on DateTime {
 }
 
 extension MapExtensions<K, V> on Map<K, V> {
-  V get(K key) {
+  V require(K key, {V Function()? orElse}) {
     if (containsKey(key)) return this[key] as V;
-    throw ArgumentError.notNull('$key');
+    if (orElse != null) return orElse();
+    throw StateError('Map<$K, $V> not contains "$key" key\n$this');
   }
 
   Iterable<R> mapEntries<R>(R Function(K key, V value) mapper) => entries.mapTo(mapper);

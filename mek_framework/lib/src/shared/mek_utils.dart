@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 
 typedef ProgressEmitter = void Function(double value);
@@ -12,99 +13,126 @@ abstract final class MekUtils {
   }) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     final backgroundColor = colors.errorContainer;
     final foregroundColor = colors.onErrorContainer;
 
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    final progressController = AnimationController(
+      vsync: scaffoldMessenger,
+      duration: const Duration(seconds: 5),
+    );
+
+    late final ScaffoldFeatureController<SnackBar, SnackBarClosedReason> controller;
+    controller = scaffoldMessenger.showSnackBar(SnackBar(
       padding: EdgeInsets.zero,
-      duration: const Duration(seconds: 5 * 60),
+      duration: const Duration(minutes: 5),
       showCloseIcon: false,
       closeIconColor: foregroundColor,
       backgroundColor: backgroundColor,
+      onVisible: () async => progressController.forward().whenComplete(controller.close),
       content: _ErrorSnackBarContent(
+        autoCloseController: progressController,
         foregroundColor: foregroundColor,
         description: description,
       ),
     ));
+
+    unawaited(controller.closed.whenComplete(progressController.dispose));
   }
 
-  static Future<void> process(
+  @Deprecated('In favour of process')
+  static Future<void> processAll(
     ProgressEmitter progressEmitter,
     List<Future<void> Function(ProgressEmitter)> tasks,
   ) async {
-    for (var i = 0; i < tasks.length; i++) {
+    return process(progressEmitter, tasks.toIList(), (task, emitProgress) => task(emitProgress));
+  }
+
+  static Future<void> process<T>(
+    ProgressEmitter progressEmitter,
+    IList<T> elements,
+    Future<void> Function(T element, ProgressEmitter emitProgress) tasker,
+  ) async {
+    for (var i = 0; i < elements.length; i++) {
       void emitTaskProgress(double value) {
-        progressEmitter(i / tasks.length + 1 / tasks.length * value);
+        progressEmitter(i / elements.length + 1 / elements.length * value);
       }
 
-      await tasks[i](emitTaskProgress);
+      await tasker(elements[i], emitTaskProgress);
       emitTaskProgress(1.0);
     }
     progressEmitter(1.0);
   }
 
-  static Future<void> processParallel(
+  @Deprecated('In favour of processParallel')
+  static Future<void> processAllParallel(
     ProgressEmitter progressEmitter,
-    List<Future<void> Function(ProgressEmitter)> tasks,
+    Iterable<Future<void> Function(ProgressEmitter)> tasks,
+  ) {
+    return processParallel(progressEmitter, tasks, (task, emitProgress) => task(emitProgress));
+  }
+
+  static Future<void> processParallel<T>(
+    ProgressEmitter progressEmitter,
+    Iterable<T> elements,
+    Future<void> Function(T element, ProgressEmitter emitProgress) tasker,
   ) async {
-    final progresses = <Object, double>{};
-    await Future.wait(tasks.map((task) async {
+    final progresses = <int, double>{};
+    var elementsCount = 0;
+    await Future.wait(elements.mapIndexed((index, element) async {
+      elementsCount += 1;
+
       void emitTaskProgress(double value) {
-        progresses[task] = value;
-        progressEmitter(progresses.values.sum / tasks.length);
+        progresses[index] = value;
+        progressEmitter(progresses.values.sum / elementsCount);
       }
 
-      await task(emitTaskProgress);
+      await tasker(element, emitTaskProgress);
       emitTaskProgress(1.0);
     }));
   }
+
+  static RelativeRect getMenuPosition(BuildContext context, Offset offset) {
+    final overlay = Navigator.of(context).overlay!.context.findRenderObject()! as RenderBox;
+    final renderBox = context.findRenderObject()! as RenderBox;
+
+    final startBoxOffset = renderBox.localToGlobal(offset, ancestor: overlay);
+    final endBoxOffset =
+        renderBox.localToGlobal(renderBox.size.bottomRight(Offset.zero), ancestor: overlay);
+
+    return RelativeRect.fromLTRB(
+      startBoxOffset.dx,
+      startBoxOffset.dy,
+      endBoxOffset.dx,
+      endBoxOffset.dy,
+    );
+  }
 }
 
-class _ErrorSnackBarContent extends StatefulWidget {
+class _ErrorSnackBarContent extends StatelessWidget {
+  final AnimationController autoCloseController;
   final Color foregroundColor;
   final Widget description;
 
   const _ErrorSnackBarContent({
+    required this.autoCloseController,
     required this.foregroundColor,
     required this.description,
   });
 
-  @override
-  State<_ErrorSnackBarContent> createState() => _ErrorSnackBarContentState();
-}
-
-class _ErrorSnackBarContentState extends State<_ErrorSnackBarContent>
-    with TickerProviderStateMixin {
-  late final _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(seconds: 5),
-  );
-
-  @override
-  void initState() {
-    super.initState();
-    unawaited(_controller.forward().whenComplete(_close));
+  void _stopAutoClose() {
+    autoCloseController.value = 0.0;
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _cancel() {
-    _controller.value = 0.0;
-  }
-
-  void _close() {
+  void _close(BuildContext context) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
   }
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: _cancel,
+    return GestureDetector(
+      onTap: _stopAutoClose,
       child: Stack(
         fit: StackFit.passthrough,
         children: [
@@ -114,18 +142,18 @@ class _ErrorSnackBarContentState extends State<_ErrorSnackBarContent>
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Icon(Icons.error_outline, color: widget.foregroundColor),
+                  child: Icon(Icons.error_outline, color: foregroundColor),
                 ),
                 Expanded(
                   child: DefaultTextStyle.merge(
-                    style: TextStyle(color: widget.foregroundColor),
+                    style: TextStyle(color: foregroundColor),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
-                    child: widget.description,
+                    child: description,
                   ),
                 ),
                 IconButton(
-                  onPressed: _close,
+                  onPressed: () => _close(context),
                   icon: const Icon(Icons.close),
                 ),
               ],
@@ -136,10 +164,10 @@ class _ErrorSnackBarContentState extends State<_ErrorSnackBarContent>
             left: 0.0,
             right: 0.0,
             child: AnimatedBuilder(
-              animation: _controller,
+              animation: autoCloseController,
               builder: (context, _) {
-                if (_controller.value == 0.0) return const SizedBox.shrink();
-                return LinearProgressIndicator(value: _controller.value);
+                if (autoCloseController.value == 0.0) return const SizedBox.shrink();
+                return LinearProgressIndicator(value: autoCloseController.value);
               },
             ),
           ),
