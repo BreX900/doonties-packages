@@ -1,8 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// ignore: implementation_imports
-import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 extension ReactiveFormConfigExtensions on ReactiveFormConfig? {
@@ -45,52 +43,14 @@ extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
   }
 }
 
-class _AbstractControlProviders<T> {
-  final AbstractControl<T> _control;
-
-  _AbstractControlProviders(this._control);
-
-  @Deprecated('In favour of [AbstractControl.provider.value]')
-  ProviderListenable<T?> get valueProvider => _AbstractControlValueProvider(_control);
-
-  @Deprecated('In favour of [AbstractControl.provider.status]')
-  ProviderListenable<ControlStatus> get statusProvider => _AbstractControlStatusProvider(_control);
-
-  @Deprecated('In favour of [AbstractControl.provider.status]')
-  ProviderListenable<bool> get statusIsDisabled => statusProvider.select(_isDisabled);
-
-  static bool _isDisabled(ControlStatus status) => status == ControlStatus.disabled;
-}
-
-extension AbstractControlProviders<T> on AbstractControl<T> {
-  @Deprecated('In favour of [AbstractControl.provider]')
-  // ignore: library_private_types_in_public_api
-  _AbstractControlProviders get providers => _AbstractControlProviders(this);
-
-  @Deprecated('In favour of [AbstractControl.provider.value]')
-  ProviderListenable<T?> get valueProvider => _AbstractControlValueProvider(this);
-
-  @Deprecated('In favour of [AbstractControl.provider.status]')
-  ProviderListenable<ControlStatus> get statusProvider => _AbstractControlStatusProvider(this);
-}
-
-extension ProviderListenableControlStatusExtensions on ProviderListenable<ControlStatus> {
-  ProviderListenable<bool> get isEnabled => select(_isEnabled);
-
-  static bool _isEnabled(ControlStatus status) => status != ControlStatus.disabled;
-}
-
-extension FormArrayProviders<T> on FormArray<T> {
-  ProviderListenable<List<AbstractControl<T>>> get controlsProvider =>
-      _FormArrayControlsProvider(this);
-}
-
-extension FormListProviders<C extends AbstractControl<V>, V> on FormList<C, V> {
-  ProviderListenable<List<C>> get controlsProvider => _FormListControlsProvider(this);
-}
-
 class FormList<C extends AbstractControl<V>, V> extends FormArray<V> {
-  FormList(List<C> super.controls);
+  FormList(
+    List<C> super.controls, {
+    super.validators,
+    super.asyncValidators,
+    super.asyncValidatorsDebounceTime,
+    super.disabled,
+  });
 
   @override
   List<C> get controls => super.controls.cast<C>();
@@ -103,53 +63,33 @@ class FormList<C extends AbstractControl<V>, V> extends FormArray<V> {
       super.removeAt(index, emitEvent: emitEvent, updateParent: updateParent) as C;
 }
 
-class _AbstractControlValueProvider<T> extends SourceProviderListenable<AbstractControl<T>, T?> {
-  _AbstractControlValueProvider(super.source);
+class FormMulti<C extends AbstractControl<V>, V> extends FormGroup {
+  FormMulti(
+    Map<String, C> super.controls, {
+    super.validators,
+    super.asyncValidators,
+    super.asyncValidatorsDebounceTime,
+    super.disabled,
+  });
 
   @override
-  T? get state => source.value;
+  Map<String, V?> get value => super.value.cast();
 
   @override
-  void Function() listen(void Function(T? value) listener) {
-    return source.valueChanges.listen((value) => listener(value)).cancel;
-  }
+  C control(String name) => super.control(name) as C;
+
+  @override
+  Map<String, C> get controls => super.controls.cast();
+
+  @override
+  late final Stream<List<C>> collectionChanges = super.collectionChanges.map((e) => e.cast());
+
+  @override
+  void addAll(covariant Map<String, C> controls) => super.addAll(controls);
 }
 
-class _AbstractControlStatusProvider
-    extends SourceProviderListenable<AbstractControl<Object?>, ControlStatus> {
-  _AbstractControlStatusProvider(super.source);
+extension ProviderListenableControlStatusExtensions on ProviderListenable<ControlStatus> {
+  ProviderListenable<bool> get isEnabled => select(_isEnabled);
 
-  @override
-  ControlStatus get state => source.status;
-
-  @override
-  void Function() listen(void Function(ControlStatus value) listener) {
-    return source.statusChanged.listen(listener).cancel;
-  }
-}
-
-class _FormArrayControlsProvider<T>
-    extends SourceProviderListenable<FormArray<T>, List<AbstractControl<T>>> {
-  _FormArrayControlsProvider(super.source);
-
-  @override
-  List<AbstractControl<T>> get state => source.controls;
-
-  @override
-  void Function() listen(void Function(List<AbstractControl<T>> controls) listener) {
-    return source.collectionChanges.listen((controls) => listener(controls.cast())).cancel;
-  }
-}
-
-class _FormListControlsProvider<C extends AbstractControl<V>, V>
-    extends SourceProviderListenable<FormList<C, V>, List<C>> {
-  _FormListControlsProvider(super.source);
-
-  @override
-  List<C> get state => source.controls;
-
-  @override
-  void Function() listen(void Function(List<C> controls) listener) {
-    return source.collectionChanges.listen(listener).cancel;
-  }
+  static bool _isEnabled(ControlStatus status) => status != ControlStatus.disabled;
 }
