@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:mekart/mekart.dart';
 // ignore: implementation_imports, depend_on_referenced_packages
 import 'package:riverpod/src/framework.dart';
 
@@ -68,6 +69,8 @@ abstract class _StateProviderListenable<T> implements ProviderListenable<T>, Sta
     final subscription = listen((next) {
       final prev = current;
       current = next;
+
+      if (iEquality.equals(prev, next)) return;
 
       listener(prev, next);
     });

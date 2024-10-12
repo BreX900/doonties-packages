@@ -1,14 +1,14 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
-mixin DataClassEquatable {
+mixin EquatableAndDescribable {
   @protected
   Map<String, Object?> get props;
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is DataClassEquatable &&
+        other is EquatableAndDescribable &&
             runtimeType == other.runtimeType &&
             _equality.equals(props.values, other.props.values);
   }
@@ -34,28 +34,29 @@ mixin DataClassEquatable {
   }
 }
 
-const _equality = IterableEquality(_Equality());
+const iEquality = _Equality();
+
+const _equality = IterableEquality(iEquality);
 
 class _Equality implements Equality<Object?> {
   const _Equality();
 
   @override
   bool equals(Object? e1, Object? e2) {
-    if (e1 is Set) {
-      return e2 is Set && SetEquality(this).equals(e1, e2);
-    }
-    if (e1 is Map) {
-      return e2 is Map && MapEquality(keys: this, values: this).equals(e1, e2);
-    }
-    if (e1 is List) {
-      return e2 is List && ListEquality(this).equals(e1, e2);
-    }
+    if (e1 is List) return e2 is List && ListEquality(this).equals(e1, e2);
+    if (e1 is Set) return e2 is Set && SetEquality(this).equals(e1, e2);
+    if (e1 is Map) return e2 is Map && MapEquality(keys: this, values: this).equals(e1, e2);
     return e1 == e2;
   }
 
   @override
-  int hash(Object? e) => throw UnimplementedError();
+  int hash(Object? e) {
+    if (e is List) return ListEquality(this).hash(e);
+    if (e is Set) return SetEquality(this).hash(e);
+    if (e is Map) return MapEquality(keys: this, values: this).hash(e);
+    return e.hashCode;
+  }
 
   @override
-  bool isValidKey(Object? o) => throw UnimplementedError();
+  bool isValidKey(Object? o) => true;
 }

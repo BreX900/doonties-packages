@@ -5,6 +5,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
+extension ReactiveFormConfigExtensions on ReactiveFormConfig? {
+  String? buildErrorText(
+    MapEntry<String, dynamic>? error, [
+    Map<String, ValidationMessageFunction>? validationMessages,
+  ]) {
+    if (error == null) return null;
+
+    if (validationMessages != null) {
+      final validationMessage = validationMessages[error.key];
+      if (validationMessage != null) return validationMessage(error.value);
+    }
+
+    final validationMessage = this?.validationMessages[error.key];
+    return validationMessage?.call(error.value) ?? error.key;
+  }
+}
+
 extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
   void Function(T arg) handleSubmit<T>(FutureOr<void> Function(T arg) submit) {
     return (arg) {
@@ -33,21 +50,27 @@ class _AbstractControlProviders<T> {
 
   _AbstractControlProviders(this._control);
 
+  @Deprecated('In favour of [AbstractControl.provider.value]')
   ProviderListenable<T?> get valueProvider => _AbstractControlValueProvider(_control);
 
+  @Deprecated('In favour of [AbstractControl.provider.status]')
   ProviderListenable<ControlStatus> get statusProvider => _AbstractControlStatusProvider(_control);
 
+  @Deprecated('In favour of [AbstractControl.provider.status]')
   ProviderListenable<bool> get statusIsDisabled => statusProvider.select(_isDisabled);
 
   static bool _isDisabled(ControlStatus status) => status == ControlStatus.disabled;
 }
 
 extension AbstractControlProviders<T> on AbstractControl<T> {
+  @Deprecated('In favour of [AbstractControl.provider]')
   // ignore: library_private_types_in_public_api
   _AbstractControlProviders get providers => _AbstractControlProviders(this);
 
+  @Deprecated('In favour of [AbstractControl.provider.value]')
   ProviderListenable<T?> get valueProvider => _AbstractControlValueProvider(this);
 
+  @Deprecated('In favour of [AbstractControl.provider.status]')
   ProviderListenable<ControlStatus> get statusProvider => _AbstractControlStatusProvider(this);
 }
 
@@ -84,7 +107,7 @@ class _AbstractControlValueProvider<T> extends SourceProviderListenable<Abstract
   _AbstractControlValueProvider(super.source);
 
   @override
-  T? get state => source.value!;
+  T? get state => source.value;
 
   @override
   void Function() listen(void Function(T? value) listener) {
@@ -92,7 +115,7 @@ class _AbstractControlValueProvider<T> extends SourceProviderListenable<Abstract
   }
 }
 
-class _AbstractControlStatusProvider<T>
+class _AbstractControlStatusProvider
     extends SourceProviderListenable<AbstractControl<Object?>, ControlStatus> {
   _AbstractControlStatusProvider(super.source);
 

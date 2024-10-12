@@ -53,7 +53,7 @@ class ListTileLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        if (leading != null) ...[leading!, const SizedBox(width: 4.0)],
+        if (leading != null) ...[leading!, const SizedBox(width: 8.0)],
         Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -72,6 +72,7 @@ class ListTileLayout extends StatelessWidget {
 
 class ParagraphTile extends StatelessWidget {
   final bool dense;
+  final Color? color;
   final VoidCallback? onTap;
   final Widget? leading;
   final Widget title;
@@ -81,6 +82,7 @@ class ParagraphTile extends StatelessWidget {
   const ParagraphTile({
     super.key,
     this.dense = false,
+    this.color,
     this.onTap,
     this.leading,
     required this.title,
@@ -104,24 +106,34 @@ class ParagraphTile extends StatelessWidget {
           child: ListTileLayout(
             leading: leading != null
                 ? ConstrainedBox(
-                    constraints: const BoxConstraints.tightFor(
-                      width: kMinInteractiveDimension,
-                      height: kMinInteractiveDimension,
+                    constraints: const BoxConstraints(
+                      minWidth: kMinInteractiveDimension,
+                      minHeight: kMinInteractiveDimension,
                     ),
-                    child: leading,
+                    child: Center(
+                      child: DefaultTextStyle(
+                        style: textTheme.bodyMedium!.copyWith(color: color),
+                        child: leading!,
+                      ),
+                    ),
                   )
                 : null,
             title: DefaultTextStyle(
-              style: textTheme.titleSmall!,
+              style: textTheme.titleSmall!.copyWith(color: color),
               child: title,
             ),
             subtitle: subtitle != null
                 ? DefaultTextStyle(
-                    style: textTheme.labelSmall!,
+                    style: textTheme.labelSmall!.copyWith(color: color),
                     child: subtitle!,
                   )
                 : null,
-            trailing: trailing,
+            trailing: trailing != null
+                ? DefaultTextStyle(
+                    style: textTheme.bodyMedium!.copyWith(color: color),
+                    child: trailing!,
+                  )
+                : null,
           ),
         ),
       ),

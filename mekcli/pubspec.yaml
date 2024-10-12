@@ -26,8 +26,10 @@ dependencies:
 #  fast_immutable_collections: ^10.2.2
 #  synchronized: ^3.1.0
   logging: ^1.2.0
-#
-#  collection: ^1.18.0
+  collection: ^1.18.0
+
+dev_dependencies:
+  mek_lints: ^4.0.0
 
 index_generator:
   exclude:

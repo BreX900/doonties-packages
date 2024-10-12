@@ -1,7 +1,7 @@
 import 'dart:async';
 
 abstract final class Comparators {
-  static Comparator<T> by<T, K extends Comparable<K>>(K Function(T element) keyOf) {
+  static Comparator<T> by<T, K extends Comparable<Object>>(K Function(T element) keyOf) {
     return (a, b) => keyOf(a).compareTo(keyOf(b));
   }
 
@@ -66,6 +66,7 @@ extension DateTimeExtensions on DateTime {
         month: months != null ? month - months : null,
       );
 
+  @Deprecated('In favour of inMonths')
   double differenceMonths(DateTime other) {
     final months = (year - other.year) * 12 + (month - other.month);
 
@@ -75,6 +76,19 @@ extension DateTimeExtensions on DateTime {
 
     return months - consumedMonthTime.inDays / monthTime.inDays;
   }
+
+  double get inMonths {
+    final firstMonthDate =
+        copyWith(day: 1, hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0);
+    final lastMonthDate = copyWith(
+        month: month + 1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: -1);
+    final distance = lastMonthDate.difference(firstMonthDate);
+    final gap = difference(firstMonthDate);
+
+    return year * 12 + (month - 1) + (gap.inMilliseconds / distance.inMilliseconds);
+  }
+
+  double get inYears => inMonths / 12;
 
   String toDateString() => '${_padNumber(year, 4)}-${_padNumber(month, 2)}-${_padNumber(day, 2)}';
 
