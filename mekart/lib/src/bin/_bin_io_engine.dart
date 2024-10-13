@@ -5,9 +5,9 @@ import 'package:mekart/src/bin/_bin_engine.dart' as rules_;
 class BinEngine implements rules_.BinEngine {
   static late BinEngine instance;
 
-  final String directoryPath;
+  final String _directoryPath;
 
-  BinEngine({required this.directoryPath});
+  BinEngine({required String? directoryPath}) : _directoryPath = directoryPath!;
 
   @override
   Future<String?> read(String name) async {
@@ -30,5 +30,5 @@ class BinEngine implements rules_.BinEngine {
     await file.delete();
   }
 
-  File _get(String name) => File('$directoryPath/$name');
+  File _get(String name) => File('$_directoryPath/$name');
 }

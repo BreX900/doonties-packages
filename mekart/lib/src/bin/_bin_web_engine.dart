@@ -7,16 +7,16 @@ class BinEngine implements rules_.BinEngine {
   // ignore: avoid_unused_constructor_parameters
   const BinEngine({required String? directoryPath});
 
-  Storage get localStorage => window.localStorage;
+  Storage get _localStorage => window.localStorage;
 
   @override
-  Future<String?> read(String name) async => localStorage.getItem(_getKey(name));
+  Future<String?> read(String name) async => _localStorage.getItem(_getKey(name));
 
   @override
-  Future<void> write(String name, String data) async => localStorage.setItem(_getKey(name), data);
+  Future<void> write(String name, String data) async => _localStorage.setItem(_getKey(name), data);
 
   @override
-  Future<void> delete(String name) async => localStorage.removeItem(_getKey(name));
+  Future<void> delete(String name) async => _localStorage.removeItem(_getKey(name));
 
   String _getKey(String name) => name;
 }
