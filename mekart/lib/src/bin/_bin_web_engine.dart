@@ -1,11 +1,11 @@
-import 'package:mekart/src/bin/_bin_engine.dart' as rules_;
+import 'package:mekart/src/bin/bin_engine.dart';
 import 'package:web/web.dart';
 
-class BinEngine implements rules_.BinEngine {
-  static late BinEngine instance;
+BinEngine createBinEngine({required String? directoryPath}) => const _BinWebEngine();
 
+class _BinWebEngine implements BinEngine {
   // ignore: avoid_unused_constructor_parameters
-  const BinEngine({required String? directoryPath});
+  const _BinWebEngine();
 
   Storage get _localStorage => window.localStorage;
 

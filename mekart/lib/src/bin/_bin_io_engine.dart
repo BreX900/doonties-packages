@@ -1,13 +1,14 @@
 import 'dart:io';
 
-import 'package:mekart/src/bin/_bin_engine.dart' as rules_;
+import 'package:mekart/src/bin/bin_engine.dart';
 
-class BinEngine implements rules_.BinEngine {
-  static late BinEngine instance;
+BinEngine createBinEngine({required String? directoryPath}) =>
+    _BinIoEngine(directoryPath: directoryPath);
 
+class _BinIoEngine implements BinEngine {
   final String _directoryPath;
 
-  BinEngine({required String? directoryPath}) : _directoryPath = directoryPath!;
+  _BinIoEngine({required String? directoryPath}) : _directoryPath = directoryPath!;
 
   @override
   Future<String?> read(String name) async {

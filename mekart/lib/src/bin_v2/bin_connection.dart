@@ -1,4 +1,4 @@
-import 'package:mekart/src/bin/_bin_engine.dart';
+import 'package:mekart/src/bin/bin_engine.dart';
 import 'package:mekart/src/bin_v2/bin_transaction.dart';
 import 'package:synchronized/synchronized.dart';
 
