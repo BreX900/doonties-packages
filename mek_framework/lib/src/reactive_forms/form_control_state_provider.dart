@@ -6,18 +6,30 @@ import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
 import 'package:mekart/mekart.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-extension FormControlStateProvider<V> on AbstractControl<V> {
-  ProviderListenable<FormControlState<V?>> get provider => _AbstractControlStateProvider(this);
+extension AbstractControlStateProvider<V> on AbstractControl<V> {
+  ProviderListenable<AbstractControlState<V?>> get provider => _AbstractControlStateProvider(this);
 }
 
-extension FormControlStateProviderExtensions<V> on ProviderListenable<FormControlState<V>> {
+extension AbstractControlStateProviderExtensions<V> on ProviderListenable<AbstractControlState<V>> {
   ProviderListenable<V> get value => select(_value);
-  ProviderListenable<MapEntry<String, dynamic>?> get error => select(_error);
+  ProviderListenable<bool> get touched => select(_touched);
   ProviderListenable<ControlStatus> get status => select(_status);
+  ProviderListenable<MapEntry<String, dynamic>?> get error => select(_error);
 
-  static T _value<T>(FormControlState<T> state) => state.value;
-  static MapEntry<String, dynamic>? _error<T>(FormControlState<T> state) => state.error;
-  static ControlStatus _status<T>(FormControlState<T> state) => state.status;
+  static V _value<V>(AbstractControlState<V> state) => state.value;
+  static bool _touched<V>(AbstractControlState<V> state) => state.touched;
+  static ControlStatus _status<V>(AbstractControlState<V> state) => state.status;
+  static MapEntry<String, dynamic>? _error<V>(AbstractControlState<V> state) => state.error;
+}
+
+extension FormControlStateProvider<V> on FormControl<V> {
+  ProviderListenable<FormControlState<V>> get provider => _FormControlStateProvider(this);
+}
+
+extension FormControlStateProviderExtensions<V> on ProviderListenable<FormControlState<V?>> {
+  ProviderListenable<bool> get hasFocus => select(_hasFocus);
+
+  static bool _hasFocus<V>(FormControlState<V?> state) => state.hasFocus;
 }
 
 extension FormArrayStateProvider<V> on FormArray<V> {
@@ -41,8 +53,8 @@ extension FormGroupStateProvider on FormGroup {
   ProviderListenable<FormGroupState> get provider => _FormGroupStateProvider(this);
 }
 
-extension FormMultiStateProvider<C extends AbstractControl<V>, V> on FormMulti<C, V> {
-  ProviderListenable<FormGroupState<C, V>> get provider => _FormMultiStateProvider(this);
+extension FormMapStateProvider<C extends AbstractControl<V>, V> on FormMap<C, V> {
+  ProviderListenable<FormGroupState<C, V>> get provider => _FormMapStateProvider(this);
 }
 
 extension FormGroupStateProviderExtensions<C extends AbstractControl<V>, V>
@@ -53,7 +65,7 @@ extension FormGroupStateProviderExtensions<C extends AbstractControl<V>, V>
       state.controls;
 }
 
-class FormControlState<V> with EquatableAndDescribable {
+class AbstractControlState<V> with EquatableAndDescribable {
   final V value;
   final bool touched;
   final Map<String, dynamic> errors;
@@ -68,7 +80,7 @@ class FormControlState<V> with EquatableAndDescribable {
 
   bool get _showErrors => status == ControlStatus.invalid && touched;
 
-  const FormControlState({
+  const AbstractControlState({
     required this.value,
     required this.touched,
     required this.errors,
@@ -80,11 +92,26 @@ class FormControlState<V> with EquatableAndDescribable {
       {'value': value, 'touched': touched, 'errors': errors, 'status': status};
 }
 
+class FormControlState<V> extends AbstractControlState<V?> {
+  final bool hasFocus;
+
+  const FormControlState({
+    required super.value,
+    required super.touched,
+    required super.errors,
+    required super.status,
+    required this.hasFocus,
+  });
+
+  @override
+  Map<String, Object?> get props => super.props..['hasFocus'] = hasFocus;
+}
+
 typedef FormArrayState<C extends AbstractControl<V>, V> = _FormCollectionState<List<C>, List<V?>>;
 typedef FormGroupState<C extends AbstractControl<V>, V>
     = _FormCollectionState<Map<String, C>, Map<String, V?>>;
 
-class _FormCollectionState<C, V> extends FormControlState<V> {
+class _FormCollectionState<C, V> extends AbstractControlState<V> {
   final C controls;
 
   const _FormCollectionState({
@@ -100,16 +127,35 @@ class _FormCollectionState<C, V> extends FormControlState<V> {
 }
 
 class _AbstractControlStateProvider<V>
-    extends _AbstractControlStateProviderBase<AbstractControl<V>, FormControlState<V?>> {
+    extends _AbstractControlStateProviderBase<AbstractControl<V>, AbstractControlState<V?>> {
   _AbstractControlStateProvider(super.source);
 
   @override
-  FormControlState<V?> get state {
+  AbstractControlState<V?> get state {
+    return AbstractControlState(
+      value: source.value,
+      touched: source.touched,
+      errors: source.errors,
+      status: source.status,
+    );
+  }
+}
+
+class _FormControlStateProvider<V>
+    extends _AbstractControlStateProviderBase<FormControl<V>, FormControlState<V>> {
+  _FormControlStateProvider(super.source);
+
+  @override
+  Stream<Object?>? get changes => source.focusChanges;
+
+  @override
+  FormControlState<V> get state {
     return FormControlState(
       value: source.value,
       touched: source.touched,
       errors: source.errors,
       status: source.status,
+      hasFocus: source.hasFocus,
     );
   }
 }
@@ -138,9 +184,9 @@ class _FormGroupStateProvider extends _FormCollectionStateProvider<FormGroup,
   Map<String, AbstractControl<Object?>> get controls => source.controls;
 }
 
-class _FormMultiStateProvider<C extends AbstractControl<V>, V>
-    extends _FormCollectionStateProvider<FormMulti<C, V>, Map<String, C>, Map<String, V>> {
-  _FormMultiStateProvider(super.source);
+class _FormMapStateProvider<C extends AbstractControl<V>, V>
+    extends _FormCollectionStateProvider<FormMap<C, V>, Map<String, C>, Map<String, V>> {
+  _FormMapStateProvider(super.source);
 
   @override
   Map<String, C> get controls => source.controls;
@@ -153,7 +199,7 @@ abstract class _FormCollectionStateProvider<S extends FormControlCollection, C, 
   C get controls;
 
   @override
-  Stream<List<AbstractControl<Object?>>>? get collectionChanges => source.collectionChanges;
+  Stream<List<AbstractControl<Object?>>>? get changes => source.collectionChanges;
 
   @override
   _FormCollectionState<C, V> get state {
@@ -168,24 +214,24 @@ abstract class _FormCollectionStateProvider<S extends FormControlCollection, C, 
 }
 
 abstract class _AbstractControlStateProviderBase<C extends AbstractControl<Object?>,
-    S extends FormControlState<Object?>> extends SourceProviderListenable<C, S> {
+    S extends AbstractControlState<Object?>> extends SourceProviderListenable<C, S> {
   _AbstractControlStateProviderBase(super.source);
 
   @override
   S get state;
 
-  Stream<List<AbstractControl<Object?>>>? get collectionChanges => null;
+  Stream<Object?>? get changes => null;
 
   @override
   void Function() listen(void Function(S state) listener) {
     void onChanges(_) => listener(state);
 
-    final collectionChanges = this.collectionChanges;
+    final changes = this.changes;
     final subscriptions = [
       source.statusChanged.listen(onChanges),
       source.valueChanges.listen(onChanges),
       source.touchChanges.listen(onChanges),
-      if (collectionChanges != null) collectionChanges.listen(onChanges),
+      if (changes != null) changes.listen(onChanges),
     ];
     return () {
       for (final subscription in subscriptions) {

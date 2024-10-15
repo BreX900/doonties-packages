@@ -53,18 +53,40 @@ class FormList<C extends AbstractControl<V>, V> extends FormArray<V> {
   });
 
   @override
+  late final Stream<List<C>> collectionChanges = super.collectionChanges.map((e) => e.cast());
+
+  @override
   List<C> get controls => super.controls.cast<C>();
 
   @override
-  late final Stream<List<C>> collectionChanges = super.collectionChanges.map((e) => e.cast());
+  void insert(int index, covariant C control, {bool updateParent = true, bool emitEvent = true}) =>
+      super.insert(index, control, updateParent: updateParent, emitEvent: emitEvent);
+
+  @override
+  void add(covariant C control, {bool updateParent = true, bool emitEvent = true}) =>
+      super.add(control, updateParent: updateParent, emitEvent: emitEvent);
+
+  @override
+  void addAll(covariant List<C> controls, {bool updateParent = true, bool emitEvent = true}) =>
+      super.addAll(controls, updateParent: updateParent, emitEvent: emitEvent);
 
   @override
   C removeAt(int index, {bool emitEvent = true, bool updateParent = true}) =>
       super.removeAt(index, emitEvent: emitEvent, updateParent: updateParent) as C;
+
+  @override
+  void remove(covariant C control, {bool emitEvent = true, bool updateParent = true}) =>
+      super.remove(control, emitEvent: emitEvent, updateParent: updateParent);
+
+  @override
+  C control(String name) => super.control(name) as C;
+
+  @override
+  C? findControl(String path) => super.findControl(path) as C?;
 }
 
-class FormMulti<C extends AbstractControl<V>, V> extends FormGroup {
-  FormMulti(
+class FormMap<C extends AbstractControl<V>, V> extends FormGroup {
+  FormMap(
     Map<String, C> super.controls, {
     super.validators,
     super.asyncValidators,
@@ -76,16 +98,32 @@ class FormMulti<C extends AbstractControl<V>, V> extends FormGroup {
   Map<String, V?> get value => super.value.cast();
 
   @override
-  C control(String name) => super.control(name) as C;
+  set value(covariant Map<String, V?>? value) => super.value = value;
 
   @override
-  Map<String, C> get controls => super.controls.cast();
+  void updateValue(covariant Map<String, V?>? value,
+          {bool updateParent = true, bool emitEvent = true}) =>
+      super.updateValue(value, updateParent: updateParent, emitEvent: emitEvent);
+
+  @override
+  void patchValue(covariant Map<String, V?>? value,
+          {bool updateParent = true, bool emitEvent = true}) =>
+      super.patchValue(value, updateParent: updateParent, emitEvent: emitEvent);
 
   @override
   late final Stream<List<C>> collectionChanges = super.collectionChanges.map((e) => e.cast());
 
   @override
+  Map<String, C> get controls => super.controls.cast();
+
+  @override
   void addAll(covariant Map<String, C> controls) => super.addAll(controls);
+
+  @override
+  C control(String name) => super.control(name) as C;
+
+  @override
+  C? findControl(String path) => super.findControl(path) as C?;
 }
 
 extension ProviderListenableControlStatusExtensions on ProviderListenable<ControlStatus> {

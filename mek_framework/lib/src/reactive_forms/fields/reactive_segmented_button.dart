@@ -34,19 +34,25 @@ class ReactiveSegmentedButton<T> extends ReactiveFormField<Object?, Set<T>> {
     super.key,
     required FormControl<Object?> super.formControl,
     super.valueAccessor,
+    required List<ButtonSegment<T>> segments,
     this.multiSelectionEnabled = false,
     this.emptySelectionAllowed = false,
+    EdgeInsets? expandedInsets,
     ButtonStyle? style,
-    required List<ButtonSegment<T>> segments,
+    bool showSelectedIcon = true,
+    Widget? selectedIcon,
   }) : super(
           builder: (field) {
             return SegmentedButton<T>(
               selected: field.value ?? <T>{},
+              onSelectionChanged: field.didChange,
+              segments: segments,
               multiSelectionEnabled: multiSelectionEnabled,
               emptySelectionAllowed: emptySelectionAllowed,
-              onSelectionChanged: field.didChange,
+              expandedInsets: expandedInsets,
               style: style,
-              segments: segments,
+              showSelectedIcon: showSelectedIcon,
+              selectedIcon: selectedIcon,
             );
           },
         );

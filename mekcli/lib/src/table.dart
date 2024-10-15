@@ -38,12 +38,13 @@ class Table {
 
   Table(this.columns);
 
-  String render(List<List<String>> rows) {
+  String render(List<List<Object?>> rows) {
     final columnWidths = <int, int>{};
     final columnCount = rows.first.length;
     for (var columnIndex = 0; columnIndex < columnCount; columnIndex++) {
       final column = columns[columnIndex] ?? Column.alignToLeft();
-      final columnWidth = column.width ?? rows.map((cells) => cells[columnIndex].length).max;
+      final columnWidth =
+          column.width ?? rows.map((cells) => '${cells[columnIndex] ?? ''}'.length).max;
 
       columnWidths[columnIndex] = columnWidth;
     }
@@ -51,7 +52,7 @@ class Table {
     return rows.map((cells) {
       final cellsLines = cells.mapIndexed((columnIndex, cell) {
         final column = columns[columnIndex] ?? Column.alignToLeft();
-        return column.renderLines(cell, width: columnWidths[columnIndex]!);
+        return column.renderLines('${cell ?? ''}', width: columnWidths[columnIndex]!);
       }).toList();
       final linesCount = cellsLines.map((e) => e.length).max;
 

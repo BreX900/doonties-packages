@@ -16,7 +16,7 @@ class JsonCodecWithIndent extends Codec<Object?, String> {
 }
 
 class BinStore<T> {
-  final BinSession session;
+  final BinSession _session;
   final String name;
   final Codec<Object?, String> _codec;
   final BinDeserializer<T> _deserializer;
@@ -24,19 +24,20 @@ class BinStore<T> {
   final T _fallbackData;
 
   BinStore({
-    required this.session,
+    required BinSession session,
     required this.name,
     Codec<Object?, String> codec = const JsonCodec(),
     required BinDeserializer<T> deserializer,
     BinSerializer<T> serializer = _serialize,
     required T fallbackData,
-  })  : _codec = codec,
+  })  : _session = session,
+        _codec = codec,
         _deserializer = deserializer,
         _serializer = serializer,
         _fallbackData = fallbackData;
 
   Future<T> read() async {
-    final data = await session.read(name);
+    final data = await _session.read(name);
     if (data == null) return _fallbackData;
     final decodedData = _codec.decode(data);
     if (decodedData == null) return _fallbackData;
@@ -44,11 +45,11 @@ class BinStore<T> {
   }
 
   Future<void> write(T data) async {
-    await session.write(name, _codec.encode(_serializer(data)));
+    await _session.write(name, _codec.encode(_serializer(data)));
   }
 
   Future<void> delete() async {
-    await session.delete(name);
+    await _session.delete(name);
   }
 
   static Object? _serialize(Object? data) => data;

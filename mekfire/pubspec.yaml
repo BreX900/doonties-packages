@@ -29,6 +29,7 @@ dependencies:
 
   flutter_riverpod: ^2.5.1
   mek: { path: ../mek_framework }
+  mekart: { path: ../mekart }
 
 dev_dependencies:
   mek_lints: ^4.0.0
