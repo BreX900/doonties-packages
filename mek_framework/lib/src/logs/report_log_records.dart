@@ -34,10 +34,22 @@ extension ReportRecordsExtension on Logger {
 
 class _LogReporter {
   final ErrorDetailsMapper onErrorDetails;
+  static const _reportDebounceTime = Duration(seconds: 3);
+  static var _lastReportAt = DateTime.now().subtract(_reportDebounceTime);
+  static bool _canReportAgain = false;
 
   _LogReporter(this.onErrorDetails);
 
   void reportToConsole(LogRecord record) {
+    if (record.time.isAfter(_lastReportAt)) {
+      _canReportAgain = true;
+    } else if (_canReportAgain) {
+      _canReportAgain = false;
+    } else {
+      return;
+    }
+    _lastReportAt = DateTime.now().add(_reportDebounceTime);
+
     final error = record.error;
 
     if (error == null) {

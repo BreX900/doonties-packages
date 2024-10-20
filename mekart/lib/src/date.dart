@@ -90,6 +90,9 @@ class Date implements Comparable<Date> {
 
   DateTime toDateTime() => _value.toLocal();
 
+  bool isBefore(Date other) => _value.isBefore(other._value);
+  bool isAfter(Date other) => _value.isAfter(other._value);
+
   String toJson() => '${_padNumber(year, 4)}-${_padNumber(month, 2)}-${_padNumber(day, 2)}';
 
   @override

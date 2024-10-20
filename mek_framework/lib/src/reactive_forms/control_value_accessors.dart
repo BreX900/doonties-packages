@@ -1,16 +1,30 @@
 import 'package:decimal/decimal.dart';
 import 'package:decimal/intl.dart';
-import 'package:equatable/equatable.dart';
 import 'package:intl/intl.dart';
+import 'package:meta/meta.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-class ControlDecimalAccessor extends ControlValueAccessor<Decimal, String> with EquatableMixin {
+abstract final class Accessors {
+  static ControlValueAccessor<Decimal, String> decimalToString(DecimalFormatter format) =>
+      _ControlDecimalAccessor(format);
+
+  static ControlValueAccessor<Decimal, String> decimalPercentToString(DecimalFormatter format) =>
+      _ControlDecimalAccessor.percent(format);
+
+  static ControlValueAccessor<double, String> doubleToString(NumberFormat format) =>
+      ControlDoubleAccessor(format);
+
+  static ControlValueAccessor<double, String> doublePercentToString(NumberFormat format) =>
+      ControlDoubleAccessor.percent(format);
+}
+
+class _ControlDecimalAccessor extends ControlValueAccessor<Decimal, String> {
   final DecimalFormatter format;
   final bool isPercent;
 
-  ControlDecimalAccessor(this.format) : isPercent = false;
+  _ControlDecimalAccessor(this.format) : isPercent = false;
 
-  ControlDecimalAccessor.percent(this.format) : isPercent = true;
+  _ControlDecimalAccessor.percent(this.format) : isPercent = true;
 
   @override
   String? modelToViewValue(Decimal? modelValue) {
@@ -25,17 +39,16 @@ class ControlDecimalAccessor extends ControlValueAccessor<Decimal, String> with 
         ? (format.parse(viewValue) / Decimal.fromInt(100)).toDecimal()
         : format.parse(viewValue);
   }
-
-  @override
-  List<Object?> get props => [format, isPercent];
 }
 
-class ControlDoubleAccessor extends ControlValueAccessor<double, String> with EquatableMixin {
+class ControlDoubleAccessor extends ControlValueAccessor<double, String> {
   final NumberFormat format;
   final bool isPercent;
 
+  @internal
   ControlDoubleAccessor(this.format) : isPercent = false;
 
+  @internal
   ControlDoubleAccessor.percent(this.format) : isPercent = true;
 
   @override
@@ -49,7 +62,4 @@ class ControlDoubleAccessor extends ControlValueAccessor<double, String> with Eq
     if (viewValue == null) return null;
     return isPercent ? (format.parse(viewValue) / 100.0) : format.parse(viewValue).toDouble();
   }
-
-  @override
-  List<Object?> get props => [format, isPercent];
 }

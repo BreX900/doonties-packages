@@ -68,12 +68,12 @@ abstract class MekTheme {
         errorMaxLines: 5,
       ),
       dialogBackgroundColor: colorScheme.surfaceContainer,
-      // pageTransitionsTheme: const PageTransitionsTheme(
-      //   builders: {
-      //     TargetPlatform.iOS:
-      //         kIsWeb ? _HorizontalPageTransitionsBuilder() : CupertinoPageTransitionsBuilder(),
-      //   },
-      // ),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.iOS:
+              kIsWeb ? _HorizontalPageTransitionsBuilder() : CupertinoPageTransitionsBuilder(),
+        },
+      ),
       snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
       ),
@@ -98,32 +98,33 @@ extension FloatingActionSpace on FloatingActionButtonThemeData {
       kFloatingActionButtonMargin * 2 + (sizeConstraints?.maxHeight ?? 56.0);
 }
 
-// class _HorizontalPageTransitionsBuilder extends PageTransitionsBuilder {
-//   const _HorizontalPageTransitionsBuilder();
-//
-//   @override
-//   Widget buildTransitions<T>(
-//     PageRoute<T> route,
-//     BuildContext context,
-//     Animation<double> animation,
-//     Animation<double> secondaryAnimation,
-//     Widget child,
-//   ) {
-//     if (!route.isCurrent && !route.isActive) return const SizedBox.shrink();
-//
-//     final primaryAnimation = CurvedAnimation(
-//       parent: animation,
-//       curve: Curves.fastEaseInToSlowEaseOut,
-//     ).drive(Tween<Offset>(
-//       begin: const Offset(1.0, 0.0),
-//       end: Offset.zero,
-//     ));
-//
-//     return SlideTransition(
-//       position: primaryAnimation,
-//       textDirection: Directionality.of(context),
-//       transformHitTests: false,
-//       child: child,
-//     );
-//   }
-// }
+// https://github.com/flutter/flutter/issues/114324#issuecomment-1725887254
+class _HorizontalPageTransitionsBuilder extends PageTransitionsBuilder {
+  const _HorizontalPageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    if (!route.isCurrent && !route.isActive) return const SizedBox.shrink();
+
+    final primaryAnimation = CurvedAnimation(
+      parent: animation,
+      curve: Curves.fastEaseInToSlowEaseOut,
+    ).drive(Tween<Offset>(
+      begin: const Offset(1.0, 0.0),
+      end: Offset.zero,
+    ));
+
+    return SlideTransition(
+      position: primaryAnimation,
+      textDirection: Directionality.of(context),
+      transformHitTests: false,
+      child: child,
+    );
+  }
+}

@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rxdart/rxdart.dart';
 
+abstract interface class Disposable {
+  void dispose();
+}
+
 abstract class DisposerProvider {
   Disposer get _disposer;
 }

@@ -5,10 +5,12 @@ import 'package:mekfire/src/providers/auth_providers.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
   final VoidCallback onSignUpPressed;
+  final Widget? footer;
 
   const SignInScreen({
     super.key,
     required this.onSignUpPressed,
+    this.footer,
   });
 
   @override
@@ -105,7 +107,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 ),
                 const SizedBox(height: 16.0),
               ],
-            )
+            ),
+            const Spacer(),
+            if (widget.footer != null) widget.footer!,
           ],
         ),
       ),

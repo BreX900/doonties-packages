@@ -20,7 +20,7 @@ class UserAuthRepository {
       Rx.merge([_auth.userChanges(), _usersChangesController.stream])
           .map((event) => event?.toDto());
 
-  static Future<void> initialize() async {
+  static void initialize() {
     WidgetsBinding.instance.removeObserver(_FirebaseAuthWidgetsBindingObserver.instance);
     unawaited(_FirebaseAuthWidgetsBindingObserver.instance
         .didChangeLocales(PlatformDispatcher.instance.locales));
