@@ -33,7 +33,10 @@ extension StringExtensions on String {
 }
 
 extension DateTimeExtensions on DateTime {
-  DateTime withoutTime() => (isUtc ? DateTime.utc : DateTime.new)(year, month, day);
+  DateTime withoutTime() => copyDateWith();
+
+  DateTime copyDateWith({int? year, int? month, int? day}) => (isUtc ? DateTime.utc : DateTime.new)(
+      year ?? this.year, month ?? this.month, day ?? this.day);
 
   /// The day of the week [monday]..[sunday].
   ///

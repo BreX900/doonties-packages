@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/widgets.dart';
@@ -129,7 +128,7 @@ extension HandleWidgetRef on WidgetRef {
   bool watchIdle({
     @Deprecated('Not used any more...')
     Iterable<ProviderListenable<AsyncValue<Object?>>> providers = const [],
-    Iterable<StateStreamableSource<MutationState<Object?>>> mutations = const [],
+    Iterable<StateNotifier<MutationState<Object?>>> mutations = const [],
   }) {
     var val = _Val({
       for (final provider in providers) provider: read(provider).isLoading,
@@ -148,10 +147,11 @@ extension HandleWidgetRef on WidgetRef {
 }
 
 class _BusyListenableProvider
-    extends SourceProviderListenable<IList<StateStreamableSource<MutationState<Object?>>>, bool> {
+    extends SourceProviderListenable<IList<StateNotifier<MutationState<Object?>>>, bool> {
   _BusyListenableProvider(super.source);
 
   @override
+  // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
   bool get state => source.any((e) => e.state.isMutating);
 
   @override

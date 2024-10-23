@@ -1,13 +1,13 @@
 import 'dart:async';
 
-import 'package:bloc/bloc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/src/core/_log.dart';
 import 'package:mek/src/core/typedefs.dart';
 import 'package:mek/src/data/mutation_state.dart';
 import 'package:mek/src/data/views.dart';
-import 'package:mek/src/riverpod/adapters/state_stremable_provider.dart';
+import 'package:mek/src/riverpod/adapters/state_notifier_provider.dart';
 import 'package:mek/src/riverpod/auto_dispose_extension.dart';
+import 'package:mek/src/riverpod/state_notifier_extensions.dart';
 import 'package:meta/meta.dart';
 
 typedef StartMutationListener<Arg> = FutureOr<void> Function(Arg arg);
@@ -36,7 +36,7 @@ extension MutationBlocExtension on WidgetRef {
       onData: onSuccess ?? onData,
       onFinish: onFinish,
     );
-    onDispose(mutation.close);
+    onDispose(mutation.dispose);
     return mutation;
   }
 
@@ -84,7 +84,7 @@ extension MutationBlocExtension on WidgetRef {
   void _listenError(void arg, Object error) => DataBuilders.listenError(context, error);
 }
 
-class MutationBloc<TArg, TResult> extends Cubit<MutationState<TResult>> {
+class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>> {
   final WidgetRef _ref;
   final FutureOr<TResult> Function(MutationRef<TResult> ref, TArg arg) _mutator;
   final StartMutationListener<TArg>? _onStart;
@@ -112,7 +112,7 @@ class MutationBloc<TArg, TResult> extends Cubit<MutationState<TResult>> {
   void call(TArg arg) => run(arg);
 
   Future<void> run(TArg arg) async {
-    if (isClosed) throw StateError("Can't mutate if bloc is closed!");
+    if (!mounted) throw StateError("Can't mutate if bloc is closed!");
 
     if (state.args.contains(arg)) {
       lg.info('Bloc is mutating! $this');
@@ -130,7 +130,7 @@ class MutationBloc<TArg, TResult> extends Cubit<MutationState<TResult>> {
       final result = await _mutator(ref, arg);
       ref._dispose();
 
-      if (isClosed) {
+      if (!mounted) {
         lg.info('Bloc is closed! Cant emit success state. $this');
         return;
       }
@@ -143,7 +143,7 @@ class MutationBloc<TArg, TResult> extends Cubit<MutationState<TResult>> {
       addError(error, stackTrace);
       ref._dispose();
 
-      if (isClosed) {
+      if (!mounted) {
         lg.info('Bloc is closed!  Cant emit failed state. $this');
         return;
       }
@@ -244,7 +244,7 @@ class MutationRef<R> implements Ref<MutationBloc<void, R>> {
   @internal
   @override
   ProviderSubscription<T> listen<T>(
-    AlwaysAliveProviderListenable<T> provider,
+    ProviderListenable<T> provider,
     void Function(T? previous, T next) listener, {
     void Function(Object error, StackTrace stackTrace)? onError,
     bool fireImmediately = false,

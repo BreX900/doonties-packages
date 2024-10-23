@@ -4,12 +4,12 @@ import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-abstract final class Accessors {
-  static ControlValueAccessor<Decimal, String> decimalToString(DecimalFormatter format) =>
-      _ControlDecimalAccessor(format);
+abstract final class MekAccessors {
+  static ControlValueAccessor<Decimal, String> decimalToString(NumberFormat format) =>
+      _ControlDecimalAccessor(DecimalFormatter(format));
 
-  static ControlValueAccessor<Decimal, String> decimalPercentToString(DecimalFormatter format) =>
-      _ControlDecimalAccessor.percent(format);
+  static ControlValueAccessor<Decimal, String> decimalPercentToString(NumberFormat format) =>
+      _ControlDecimalAccessor.percent(DecimalFormatter(format));
 
   static ControlValueAccessor<double, String> doubleToString(NumberFormat format) =>
       ControlDoubleAccessor(format);
@@ -59,7 +59,7 @@ class ControlDoubleAccessor extends ControlValueAccessor<double, String> {
 
   @override
   double? viewToModelValue(String? viewValue) {
-    if (viewValue == null) return null;
+    if (viewValue == null || viewValue.isEmpty) return null;
     return isPercent ? (format.parse(viewValue) / 100.0) : format.parse(viewValue).toDouble();
   }
 }

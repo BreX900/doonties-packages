@@ -223,6 +223,8 @@ abstract class FieldConvert<T> {
   static const FieldConvert<String> text = _TextFieldConverter();
   static const FieldConvert<int> integer = _IntFieldConvert();
   static FieldConvert<Decimal> decimal(DecimalFormatter format) => _DecimalFieldConvert(format);
+  static FieldConvert<Decimal> decimalV2(NumberFormat format) =>
+      _DecimalFieldConvert(DecimalFormatter(format));
   static FieldConvert<Decimal> decimalFrom(
           {required Locale locale, int minimumFractionDigits = 2}) =>
       _DecimalFieldConvert.from(locale: locale, minimumFractionDigits: minimumFractionDigits);

@@ -43,7 +43,7 @@ dependencies:
   fast_immutable_collections: ^10.2.4
 
   nested: ^1.0.0
-  flutter_riverpod: ^2.5.1
+  flutter_riverpod: 2.5.3
 
 #  chips_input: ^0.1.0
   flutter_typeahead: ^5.2.0

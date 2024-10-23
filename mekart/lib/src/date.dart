@@ -65,6 +65,12 @@ class Date implements Comparable<Date> {
   Date copyWith({int? year, int? month, int? day}) =>
       Date(year ?? _value.year, month ?? _value.month, day ?? _value.day);
 
+  Date copyAdding({int year = 0, int month = 0, int day = 0}) =>
+      Date(_value.year + year, _value.month + month, _value.day + day);
+
+  Date copySubtracting({int year = 0, int month = 0, int day = 0}) =>
+      Date(_value.year - year, _value.month - month, _value.day - day);
+
   /// The day of the week [DateTime.monday]..[DateTime.sunday].
   ///
   /// In accordance with ISO 8601
