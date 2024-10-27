@@ -16,5 +16,6 @@ export 'src/dart_extensions.dart';
 export 'src/date.dart';
 export 'src/decimal_extensions.dart';
 export 'src/equatable_and_describable.dart';
+export 'src/errors.dart';
 export 'src/i_collections_extensions.dart';
 export 'src/task_queue.dart';

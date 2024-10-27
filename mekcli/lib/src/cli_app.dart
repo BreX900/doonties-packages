@@ -4,6 +4,10 @@ import 'dart:io';
 import 'package:logging/logging.dart';
 import 'package:mekcli/src/cli_utils.dart';
 
+class NotExecutedError implements Error {
+  StackTrace? get stackTrace => null;
+}
+
 abstract class CliApp {
   FutureOr<void> run();
 }
@@ -31,6 +35,8 @@ void runCliApp(CliApp Function(ProviderRef ref) creator) {
     try {
       final app = creator(container);
       await app.run();
+    } on NotExecutedError {
+      exitCode = 2;
     } finally {
       container.dispose();
       await logSub.cancel();
@@ -45,6 +51,8 @@ void runWithRef(FutureOr<void> Function(ProviderRef ref) body) {
   Zone.current.runGuarded(() async {
     try {
       await body(container);
+    } on NotExecutedError {
+      exitCode = 2;
     } finally {
       container.dispose();
       await logSub.cancel();
@@ -53,6 +61,7 @@ void runWithRef(FutureOr<void> Function(ProviderRef ref) body) {
 }
 
 StreamSubscription<LogRecord> _listenLogRecords() {
+  if (kDebugMode) lg.level = Level.ALL;
   return lg.onRecord.listen((record) {
     if (record.level < Level.SEVERE) {
       stdout.writeln(record);
