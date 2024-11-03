@@ -108,6 +108,12 @@ extension DateTimeExtensions on DateTime {
   static String _padNumber(int value, int width) => value.toString().padLeft(width, '0');
 }
 
+extension DurationExtensions on Duration {
+  int get hours => inHours % Duration.hoursPerDay;
+  int get minutes => inMinutes % Duration.minutesPerHour;
+  int get seconds => inSeconds % Duration.secondsPerMinute;
+}
+
 extension MapExtensions<K, V> on Map<K, V> {
   V require(K key, {V Function()? orElse}) {
     if (containsKey(key)) return this[key] as V;

@@ -4,9 +4,7 @@ import 'dart:io';
 import 'package:logging/logging.dart';
 import 'package:mekcli/src/cli_utils.dart';
 
-class NotExecutedError implements Error {
-  StackTrace? get stackTrace => null;
-}
+class InterruptException implements Exception {}
 
 abstract class CliApp {
   FutureOr<void> run();
@@ -35,7 +33,7 @@ void runCliApp(CliApp Function(ProviderRef ref) creator) {
     try {
       final app = creator(container);
       await app.run();
-    } on NotExecutedError {
+    } on InterruptException {
       exitCode = 2;
     } finally {
       container.dispose();
@@ -51,7 +49,7 @@ void runWithRef(FutureOr<void> Function(ProviderRef ref) body) {
   Zone.current.runGuarded(() async {
     try {
       await body(container);
-    } on NotExecutedError {
+    } on InterruptException {
       exitCode = 2;
     } finally {
       container.dispose();

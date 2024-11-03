@@ -66,8 +66,9 @@ class Bin<T> implements BinBase<T> {
 
   @override
   Future<T> read() async {
-    final data = await _engine.read(_name);
-    return data != null ? _deserializer(jsonDecode(data) as Object) : _fallbackData;
+    final content = await _engine.read(_name);
+    final data = content != null ? jsonDecode(content) : null;
+    return data != null ? _deserializer(data) : _fallbackData;
   }
 
   @override

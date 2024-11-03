@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
 
-extension ListenableProviderExtension<T extends Listenable> on T {
-  ProviderListenable<R> select<R>(R Function(T listenable) selector) =>
+extension ListenableProviderExtension<T extends ChangeNotifier> on T {
+  ProviderListenable<R> pick<R>(R Function(T listenable) selector) =>
       _ListenableProvider(this, selector);
 }
 

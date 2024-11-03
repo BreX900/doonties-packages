@@ -197,7 +197,6 @@ class _FieldTextState<T> extends FieldBuilderState<FieldText<T>, T> {
     return theme.wrap(
       padding: widget.padding,
       child: TextFieldScope(
-        fieldBloc: widget.fieldBloc,
         decoration: widget.decoration,
         typeData: _typeData,
         child: field,
@@ -250,13 +249,11 @@ abstract class TextFieldType {
 }
 
 class TextFieldScope extends InheritedWidget {
-  final FieldBlocRule<Object?>? fieldBloc;
   final InputDecoration decoration;
   final TextFieldTypeData typeData;
 
   const TextFieldScope({
     super.key,
-    required this.fieldBloc,
     required this.decoration,
     required this.typeData,
     required super.child,
@@ -270,9 +267,7 @@ class TextFieldScope extends InheritedWidget {
 
   @override
   bool updateShouldNotify(TextFieldScope oldWidget) {
-    return fieldBloc != oldWidget.fieldBloc ||
-        decoration != oldWidget.decoration ||
-        typeData != oldWidget.typeData;
+    return decoration != oldWidget.decoration || typeData != oldWidget.typeData;
   }
 }
 
@@ -512,8 +507,8 @@ class EditFieldButton extends ConsumerWidget {
     final scope = TextFieldScope.of(context);
     final typeData = scope.typeData;
 
-    // ignore: deprecated_member_use_from_same_package
-    final isValid = ref.watchCanSubmit(scope.fieldBloc!);
+    // // ignore: deprecated_member_use_from_same_package
+    // final isValid = ref.watchCanSubmit(scope.fieldBloc!);
 
     return IconButton(
       onPressed: typeData.readOnly
@@ -523,7 +518,7 @@ class EditFieldButton extends ConsumerWidget {
                 readOnly: !typeData.readOnly,
                 obscureText: toggleableObscureText ? !typeData.obscureText : null,
               ))
-          : ((onSubmit != null && isValid)
+          : ((onSubmit != null && true)
               ? () async {
                   FieldText.update(
                       context,
@@ -576,10 +571,10 @@ class ClearFieldButton extends StatelessWidget {
 
   (FieldBlocRule?, bool) _of(BuildContext context) {
     final scope = TextFieldScope.maybeOf(context);
-    if (scope != null) {
-      return (scope.fieldBloc, scope.typeData.readOnly);
-    }
     final state = context.findAncestorStateOfType<FieldBuilderState>()!;
+    if (scope != null) {
+      return (state.fieldBloc, scope.typeData.readOnly);
+    }
     return (state.fieldBloc, false);
   }
 

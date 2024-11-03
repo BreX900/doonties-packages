@@ -3,6 +3,20 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
+extension ControlStatusExtensions on ControlStatus {
+  bool get isPending => this == ControlStatus.pending;
+  bool get isValid => this == ControlStatus.valid;
+  bool get isInvalid => this == ControlStatus.invalid;
+  bool get isDisabled => this == ControlStatus.disabled;
+}
+
+extension AbstractControlExtensions on AbstractControl {
+  void markAsClean() {
+    markAsPristine();
+    markAsUntouched();
+  }
+}
+
 extension ReactiveFormConfigExtensions on ReactiveFormConfig? {
   String? buildErrorText(
     MapEntry<String, dynamic>? error, [

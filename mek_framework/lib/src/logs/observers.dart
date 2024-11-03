@@ -39,8 +39,8 @@ class _ProviderObserver extends ProviderObserver {
 
     lg.severe(
       'Exception caught by $provider'
-      '\npreviousValue: ${previousValue.toString().split('\n').join(' ')}'
-      '\nnewValue: ${newValue.toString().split('\n').join(' ')}',
+      '\npreviousValue: ${_stringifyData(previousValue)}'
+      '\nnewValue: ${_stringifyData(newValue)}',
       newValue.error,
       newValue.stackTrace,
     );
@@ -56,6 +56,10 @@ class _ProviderObserver extends ProviderObserver {
     super.providerDidFail(provider, error, stackTrace, container);
 
     lg.severe('Exception caught by $provider', error, stackTrace);
+  }
+
+  String _stringifyData(Object? data) {
+    return data.toString().split('\n').take(32).join(' ');
   }
 }
 

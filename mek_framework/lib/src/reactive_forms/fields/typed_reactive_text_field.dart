@@ -7,6 +7,7 @@ class TypedReactiveTextField<T> extends StatefulWidget {
   final FormControl<T> formControl;
   final ControlValueAccessor<T, String>? valueAccessor;
   final TextFieldType type;
+  final bool? readOnly;
   final InputDecoration decoration;
 
   const TypedReactiveTextField({
@@ -14,14 +15,15 @@ class TypedReactiveTextField<T> extends StatefulWidget {
     required this.formControl,
     this.valueAccessor,
     this.type = TextFieldType.none,
+    this.readOnly,
     this.decoration = const InputDecoration(),
   });
 
   TextFieldTypeData get _data {
-    return const TextFieldTypeData(
-        // keyboardType: keyboardType,
-        // readOnly: readOnly ?? false,
-        );
+    return TextFieldTypeData(
+      // keyboardType: keyboardType,
+      readOnly: readOnly ?? false,
+    );
   }
 
   @override
@@ -60,7 +62,7 @@ class _TypedReactiveTextFieldState<T> extends State<TypedReactiveTextField<T>> {
     final typeData = widget.type.buildData(context, _typeData);
     final decoration = widget.type.buildDecoration(context, widget.decoration);
 
-    return ReactiveTextField(
+    final child = ReactiveTextField(
       formControl: widget.formControl,
       valueAccessor: widget.valueAccessor,
       controller: _controller,
@@ -72,6 +74,11 @@ class _TypedReactiveTextFieldState<T> extends State<TypedReactiveTextField<T>> {
       autocorrect: typeData.autocorrect,
       keyboardType: typeData.keyboardType,
       inputFormatters: typeData.inputFormatters,
+    );
+    return TextFieldScope(
+      decoration: decoration,
+      typeData: typeData,
+      child: child,
     );
   }
 }

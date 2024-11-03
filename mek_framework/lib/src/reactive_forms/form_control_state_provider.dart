@@ -12,11 +12,15 @@ extension AbstractControlStateProvider<V> on AbstractControl<V> {
 
 extension AbstractControlStateProviderExtensions<V> on ProviderListenable<AbstractControlState<V>> {
   ProviderListenable<V> get value => select(_value);
+  ProviderListenable<bool> get pristine => select(_pristine);
+  ProviderListenable<bool> get dirty => select(_dirty);
   ProviderListenable<bool> get touched => select(_touched);
   ProviderListenable<ControlStatus> get status => select(_status);
   ProviderListenable<MapEntry<String, dynamic>?> get error => select(_error);
 
   static V _value<V>(AbstractControlState<V> state) => state.value;
+  static bool _pristine<V>(AbstractControlState<V> state) => state.pristine;
+  static bool _dirty<V>(AbstractControlState<V> state) => state.dirty;
   static bool _touched<V>(AbstractControlState<V> state) => state.touched;
   static ControlStatus _status<V>(AbstractControlState<V> state) => state.status;
   static MapEntry<String, dynamic>? _error<V>(AbstractControlState<V> state) => state.error;
@@ -67,10 +71,12 @@ extension FormGroupStateProviderExtensions<C extends AbstractControl<V>, V>
 
 class AbstractControlState<V> with EquatableAndDescribable {
   final V value;
+  final bool pristine;
   final bool touched;
   final Map<String, dynamic> errors;
   final ControlStatus status;
 
+  bool get dirty => !pristine;
   bool get hasErrors => errors.isNotEmpty;
 
   MapEntry<String, dynamic>? get error {
@@ -82,14 +88,20 @@ class AbstractControlState<V> with EquatableAndDescribable {
 
   const AbstractControlState({
     required this.value,
+    required this.pristine,
     required this.touched,
     required this.errors,
     required this.status,
   });
 
   @override
-  Map<String, Object?> get props =>
-      {'value': value, 'touched': touched, 'errors': errors, 'status': status};
+  Map<String, Object?> get props => {
+        'value': value,
+        'pristine': pristine,
+        'touched': touched,
+        'errors': errors,
+        'status': status
+      };
 }
 
 class FormControlState<V> extends AbstractControlState<V?> {
@@ -97,6 +109,7 @@ class FormControlState<V> extends AbstractControlState<V?> {
 
   const FormControlState({
     required super.value,
+    required super.pristine,
     required super.touched,
     required super.errors,
     required super.status,
@@ -116,6 +129,7 @@ class _FormCollectionState<C, V> extends AbstractControlState<V> {
 
   const _FormCollectionState({
     required super.value,
+    required super.pristine,
     required super.touched,
     required super.errors,
     required super.status,
@@ -134,6 +148,7 @@ class _AbstractControlStateProvider<V>
   AbstractControlState<V?> get state {
     return AbstractControlState(
       value: source.value,
+      pristine: source.pristine,
       touched: source.touched,
       errors: source.errors,
       status: source.status,
@@ -152,6 +167,7 @@ class _FormControlStateProvider<V>
   FormControlState<V> get state {
     return FormControlState(
       value: source.value,
+      pristine: source.pristine,
       touched: source.touched,
       errors: source.errors,
       status: source.status,
@@ -205,6 +221,7 @@ abstract class _FormCollectionStateProvider<S extends FormControlCollection, C, 
   _FormCollectionState<C, V> get state {
     return _FormCollectionState(
       value: source.value,
+      pristine: source.pristine,
       touched: source.touched,
       errors: source.errors,
       status: source.status,
