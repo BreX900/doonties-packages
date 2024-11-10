@@ -3,19 +3,25 @@ import 'package:mek/src/form/fields/field_text.dart';
 import 'package:mek/src/form/shared/text_field_type_data.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-class TypedReactiveTextField<T> extends StatefulWidget {
+class ReactiveTypedTextField<T> extends StatefulWidget {
   final FormControl<T> formControl;
   final ControlValueAccessor<T, String>? valueAccessor;
   final TextFieldType type;
   final bool? readOnly;
+  final int? maxLines;
+  final int? maxLength;
+  final TextCapitalization textCapitalization;
   final InputDecoration decoration;
 
-  const TypedReactiveTextField({
+  const ReactiveTypedTextField({
     super.key,
     required this.formControl,
     this.valueAccessor,
     this.type = TextFieldType.none,
     this.readOnly,
+    this.maxLines = 1,
+    this.maxLength,
+    this.textCapitalization = TextCapitalization.none,
     this.decoration = const InputDecoration(),
   });
 
@@ -27,10 +33,10 @@ class TypedReactiveTextField<T> extends StatefulWidget {
   }
 
   @override
-  State<TypedReactiveTextField<T>> createState() => _TypedReactiveTextFieldState<T>();
+  State<ReactiveTypedTextField<T>> createState() => _ReactiveTypedTextFieldState<T>();
 }
 
-class _TypedReactiveTextFieldState<T> extends State<TypedReactiveTextField<T>> {
+class _ReactiveTypedTextFieldState<T> extends State<ReactiveTypedTextField<T>> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
   late TextFieldTypeData _typeData;
@@ -67,6 +73,9 @@ class _TypedReactiveTextFieldState<T> extends State<TypedReactiveTextField<T>> {
       valueAccessor: widget.valueAccessor,
       controller: _controller,
       focusNode: _focusNode,
+      maxLines: widget.maxLines,
+      maxLength: widget.maxLength,
+      textCapitalization: widget.textCapitalization,
       decoration: decoration,
       readOnly: typeData.readOnly,
       obscureText: typeData.obscureText,

@@ -14,7 +14,7 @@ class ReactiveDateTimeField extends ReactiveFocusableFormField<DateTime, DateTim
     DateTime? initialDate,
   }) : super(
           builder: (field) {
-            formControl.markAsDisabled();
+            final theme = Theme.of(field.context);
             format ??= DateFormat(null, Localizations.localeOf(field.context).languageCode);
 
             final isEnabled = field.control.enabled;
@@ -34,12 +34,15 @@ class ReactiveDateTimeField extends ReactiveFocusableFormField<DateTime, DateTim
 
             final child = InputDecorator(
               decoration: decoration.copyWith(
-                enabled: field.control.enabled,
+                enabled: isEnabled,
                 errorText: field.errorText,
               ),
               isEmpty: field.value == null,
               isFocused: field.focusNode?.hasFocus ?? false,
-              child: Text(field.value == null ? '' : format!.format(field.value!)),
+              child: Text(
+                field.value == null ? '' : format!.format(field.value!),
+                style: isEnabled ? null : TextStyle(color: theme.disabledColor),
+              ),
             );
             return InkWell(
               focusNode: field.focusNode,

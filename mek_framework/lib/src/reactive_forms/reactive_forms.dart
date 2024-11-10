@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reactive_forms/reactive_forms.dart';
+import 'package:rxdart/rxdart.dart';
 
 extension ControlStatusExtensions on ControlStatus {
   bool get isPending => this == ControlStatus.pending;
@@ -10,20 +10,45 @@ extension ControlStatusExtensions on ControlStatus {
   bool get isDisabled => this == ControlStatus.disabled;
 }
 
-extension AbstractControlExtensions on AbstractControl {
+extension AbstractControlExtensions<T> on AbstractControl<T> {
+  Stream<T?> get hotValueChanges => valueChanges.startWith(value);
+
   void markAsClean() {
     markAsPristine();
     markAsUntouched();
   }
 }
 
+extension FormArrayExtensions<T> on FormArray<T> {
+  void tryAddAll(Iterable<FormControl<T>> controls) {
+    for (final control in controls) {
+      final hasControl = this.controls.contains(control);
+      if (hasControl) continue;
+      add(control);
+    }
+  }
+
+  void tryRemoveAll(Iterable<FormControl<T>> controls) {
+    for (final control in controls) {
+      final index = this.controls.indexOf(control);
+      if (index == -1) continue;
+      removeAt(index);
+    }
+  }
+}
+
 extension ReactiveFormConfigExtensions on ReactiveFormConfig? {
-  String? buildErrorText(
+  String? maybeBuildErrorText(
     MapEntry<String, dynamic>? error, [
     Map<String, ValidationMessageFunction>? validationMessages,
   ]) {
-    if (error == null) return null;
+    return error != null ? buildErrorText(error, validationMessages) : null;
+  }
 
+  String buildErrorText(
+    MapEntry<String, dynamic> error, [
+    Map<String, ValidationMessageFunction>? validationMessages,
+  ]) {
     if (validationMessages != null) {
       final validationMessage = validationMessages[error.key];
       if (validationMessage != null) return validationMessage(error.value);
@@ -35,7 +60,10 @@ extension ReactiveFormConfigExtensions on ReactiveFormConfig? {
 }
 
 extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
-  void Function(T arg) handleSubmit<T>(FutureOr<void> Function(T arg) submit) {
+  void Function(T arg) handleSubmit<T>(
+    FutureOr<void> Function(T arg) submit, {
+    bool shouldKeepDisabled = false,
+  }) {
     return (arg) {
       switch (status) {
         case ControlStatus.disabled:
@@ -51,6 +79,7 @@ extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
 
           markAsDisabled();
 
+          if (shouldKeepDisabled) return;
           unawaited(result.whenComplete(markAsEnabled));
       }
     };
@@ -138,10 +167,4 @@ class FormMap<C extends AbstractControl<V>, V> extends FormGroup {
 
   @override
   C? findControl(String path) => super.findControl(path) as C?;
-}
-
-extension ProviderListenableControlStatusExtensions on ProviderListenable<ControlStatus> {
-  ProviderListenable<bool> get isEnabled => select(_isEnabled);
-
-  static bool _isEnabled(ControlStatus status) => status != ControlStatus.disabled;
 }

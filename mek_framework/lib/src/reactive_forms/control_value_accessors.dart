@@ -34,7 +34,7 @@ class _ControlDecimalAccessor extends ControlValueAccessor<Decimal, String> {
 
   @override
   Decimal? viewToModelValue(String? viewValue) {
-    if (viewValue == null) return null;
+    if (viewValue == null || viewValue.isEmpty) return null;
     return isPercent
         ? (format.parse(viewValue) / Decimal.fromInt(100)).toDecimal()
         : format.parse(viewValue);

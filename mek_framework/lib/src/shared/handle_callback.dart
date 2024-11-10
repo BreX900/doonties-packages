@@ -144,6 +144,16 @@ extension HandleWidgetRef on WidgetRef {
     final isMutationsBusy = watch(_BusyListenableProvider(mutations.toIList()));
     return !(val.isBusy || isMutationsBusy);
   }
+
+  bool watchIdleV2(
+    AsyncValue<Object?> state, [
+    Iterable<StateNotifier<MutationState<Object?>>> mutations = const [],
+  ]) {
+    if (state.isLoading) return false;
+
+    final isMutationsBusy = watch(_BusyListenableProvider(mutations.toIList()));
+    return !isMutationsBusy;
+  }
 }
 
 class _BusyListenableProvider

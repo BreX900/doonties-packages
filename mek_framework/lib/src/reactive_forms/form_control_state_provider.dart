@@ -16,14 +16,20 @@ extension AbstractControlStateProviderExtensions<V> on ProviderListenable<Abstra
   ProviderListenable<bool> get dirty => select(_dirty);
   ProviderListenable<bool> get touched => select(_touched);
   ProviderListenable<ControlStatus> get status => select(_status);
-  ProviderListenable<MapEntry<String, dynamic>?> get error => select(_error);
+  ProviderListenable<MapEntry<String, Object>?> get error => select(_error);
 
   static V _value<V>(AbstractControlState<V> state) => state.value;
   static bool _pristine<V>(AbstractControlState<V> state) => state.pristine;
   static bool _dirty<V>(AbstractControlState<V> state) => state.dirty;
   static bool _touched<V>(AbstractControlState<V> state) => state.touched;
   static ControlStatus _status<V>(AbstractControlState<V> state) => state.status;
-  static MapEntry<String, dynamic>? _error<V>(AbstractControlState<V> state) => state.error;
+  static MapEntry<String, Object>? _error<V>(AbstractControlState<V> state) => state.error;
+}
+
+extension ProviderListenableControlStatusExtensions on ProviderListenable<ControlStatus> {
+  ProviderListenable<bool> get isEnabled => select(_isEnabled);
+
+  static bool _isEnabled(ControlStatus status) => status != ControlStatus.disabled;
 }
 
 extension FormControlStateProvider<V> on FormControl<V> {
@@ -73,13 +79,13 @@ class AbstractControlState<V> with EquatableAndDescribable {
   final V value;
   final bool pristine;
   final bool touched;
-  final Map<String, dynamic> errors;
+  final Map<String, Object> errors;
   final ControlStatus status;
 
   bool get dirty => !pristine;
   bool get hasErrors => errors.isNotEmpty;
 
-  MapEntry<String, dynamic>? get error {
+  MapEntry<String, Object>? get error {
     if (!hasErrors || !_showErrors) return null;
     return errors.entries.first;
   }
@@ -177,7 +183,7 @@ class _FormControlStateProvider<V>
 }
 
 class _FormArrayStateProvider<V>
-    extends _FormCollectionStateProvider<FormArray<V>, List<AbstractControl<V>>, List<V>> {
+    extends _FormCollectionStateProvider<FormArray<V>, List<AbstractControl<V>>, List<V?>> {
   _FormArrayStateProvider(super.source);
 
   @override
