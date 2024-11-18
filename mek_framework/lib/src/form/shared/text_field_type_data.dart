@@ -7,7 +7,7 @@ part 'text_field_type_data.g.dart';
 class TextFieldTypeData with _$TextFieldTypeData {
   final TextInputType? keyboardType;
   final List<TextInputFormatter> inputFormatters;
-  final bool readOnly;
+  final bool? readOnly;
   final bool obscureText;
   final bool enableSuggestions;
   final bool autocorrect;
@@ -15,7 +15,7 @@ class TextFieldTypeData with _$TextFieldTypeData {
   const TextFieldTypeData({
     this.keyboardType,
     this.inputFormatters = const [],
-    this.readOnly = false,
+    this.readOnly,
     this.obscureText = false,
     this.enableSuggestions = true,
     this.autocorrect = true,

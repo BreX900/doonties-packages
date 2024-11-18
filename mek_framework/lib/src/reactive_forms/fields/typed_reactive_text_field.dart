@@ -28,7 +28,7 @@ class ReactiveTypedTextField<T> extends StatefulWidget {
   TextFieldTypeData get _data {
     return TextFieldTypeData(
       // keyboardType: keyboardType,
-      readOnly: readOnly ?? false,
+      readOnly: readOnly,
     );
   }
 
@@ -77,7 +77,7 @@ class _ReactiveTypedTextFieldState<T> extends State<ReactiveTypedTextField<T>> {
       maxLength: widget.maxLength,
       textCapitalization: widget.textCapitalization,
       decoration: decoration,
-      readOnly: typeData.readOnly,
+      readOnly: typeData.readOnly ?? false,
       obscureText: typeData.obscureText,
       enableSuggestions: typeData.enableSuggestions,
       autocorrect: typeData.autocorrect,
@@ -87,6 +87,9 @@ class _ReactiveTypedTextFieldState<T> extends State<ReactiveTypedTextField<T>> {
     return TextFieldScope(
       decoration: decoration,
       typeData: typeData,
+      changeData: (data) => setState(() {
+        _typeData = data;
+      }),
       child: child,
     );
   }

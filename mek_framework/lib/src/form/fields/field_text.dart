@@ -175,7 +175,7 @@ class _FieldTextState<T> extends FieldBuilderState<FieldText<T>, T> {
         controller: _controller,
         focusNode: focusNode,
         enabled: isEnabled,
-        readOnly: typeData.readOnly,
+        readOnly: typeData.readOnly ?? false,
         onChanged: _changeText,
         onEditingComplete: widget.onEditingComplete ?? completeEditing,
         maxLines: widget.maxLines,
@@ -199,6 +199,9 @@ class _FieldTextState<T> extends FieldBuilderState<FieldText<T>, T> {
       child: TextFieldScope(
         decoration: widget.decoration,
         typeData: _typeData,
+        changeData: (data) => setState(() {
+          _typeData = data;
+        }),
         child: field,
       ),
     );
@@ -251,11 +254,13 @@ abstract class TextFieldType {
 class TextFieldScope extends InheritedWidget {
   final InputDecoration decoration;
   final TextFieldTypeData typeData;
+  final void Function(TextFieldTypeData data) changeData;
 
   const TextFieldScope({
     super.key,
     required this.decoration,
     required this.typeData,
+    required this.changeData,
     required super.child,
   });
 
@@ -448,7 +453,7 @@ class _SecretTextFieldType extends TextFieldType {
   @override
   TextFieldTypeData initData(BuildContext context, TextFieldTypeData data) {
     return data.copyWith(
-      readOnly: true,
+      readOnly: data.readOnly ?? true,
       obscureText: true,
       enableSuggestions: false,
       autocorrect: false,
@@ -510,12 +515,14 @@ class EditFieldButton extends ConsumerWidget {
     // // ignore: deprecated_member_use_from_same_package
     // final isValid = ref.watchCanSubmit(scope.fieldBloc!);
 
+    final readOnly = typeData.readOnly ?? false;
+
     return IconButton(
-      onPressed: typeData.readOnly
+      onPressed: readOnly
           ? () => FieldText.update(
               context,
               typeData.copyWith(
-                readOnly: !typeData.readOnly,
+                readOnly: !readOnly,
                 obscureText: toggleableObscureText ? !typeData.obscureText : null,
               ))
           : ((onSubmit != null && true)
@@ -523,13 +530,13 @@ class EditFieldButton extends ConsumerWidget {
                   FieldText.update(
                       context,
                       typeData.copyWith(
-                        readOnly: !typeData.readOnly,
+                        readOnly: !readOnly,
                         obscureText: toggleableObscureText ? !typeData.obscureText : null,
                       ));
                   onSubmit();
                 }
               : null),
-      icon: typeData.readOnly ? const Icon(Icons.edit_outlined) : const Icon(Icons.check),
+      icon: readOnly ? const Icon(Icons.edit_outlined) : const Icon(Icons.check),
     );
   }
 }
@@ -573,7 +580,7 @@ class ClearFieldButton extends StatelessWidget {
     final scope = TextFieldScope.maybeOf(context);
     final state = context.findAncestorStateOfType<FieldBuilderState>()!;
     if (scope != null) {
-      return (state.fieldBloc, scope.typeData.readOnly);
+      return (state.fieldBloc, scope.typeData.readOnly ?? false);
     }
     return (state.fieldBloc, false);
   }

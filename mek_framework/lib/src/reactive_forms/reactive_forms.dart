@@ -17,6 +17,12 @@ extension AbstractControlExtensions<T> on AbstractControl<T> {
     markAsPristine();
     markAsUntouched();
   }
+
+  void markAs({bool? enabled, bool? pristine, bool? touched, bool? allTouched}) {
+    if (enabled != null) (enabled ? markAsEnabled : markAsDisabled)();
+    if (pristine != null) (pristine ? markAsPristine : markAsDirty)();
+    if (touched != null) (touched ? markAsTouched : markAsUntouched)();
+  }
 }
 
 extension FormArrayExtensions<T> on FormArray<T> {

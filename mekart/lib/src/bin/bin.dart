@@ -20,7 +20,7 @@ class Bin<T> implements BinBase<T> {
 
   factory Bin({
     BinEngine? engine,
-    String name = '_default.bin',
+    required String name,
     BinSerializer<T>? serializer,
     required BinDeserializer<T> deserializer,
     required T fallbackData,
