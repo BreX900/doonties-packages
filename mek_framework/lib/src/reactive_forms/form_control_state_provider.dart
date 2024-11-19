@@ -28,8 +28,10 @@ extension AbstractControlStateProviderExtensions<V> on ProviderListenable<Abstra
 
 extension ProviderListenableControlStatusExtensions on ProviderListenable<ControlStatus> {
   ProviderListenable<bool> get enabled => select(_isEnabled);
+  ProviderListenable<bool> get disabled => select(_isDisabled);
 
   static bool _isEnabled(ControlStatus status) => status != ControlStatus.disabled;
+  static bool _isDisabled(ControlStatus status) => status == ControlStatus.disabled;
 }
 
 extension FormControlStateProvider<V> on FormControl<V> {

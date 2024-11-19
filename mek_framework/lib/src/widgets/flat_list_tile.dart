@@ -119,12 +119,12 @@ class ParagraphTile extends StatelessWidget {
                   )
                 : null,
             title: DefaultTextStyle(
-              style: textTheme.titleSmall!.copyWith(color: color),
+              style: textTheme.titleLarge!.copyWith(color: color),
               child: title,
             ),
             subtitle: subtitle != null
                 ? DefaultTextStyle(
-                    style: textTheme.labelSmall!.copyWith(color: color),
+                    style: textTheme.titleMedium!.copyWith(color: color),
                     child: subtitle!,
                   )
                 : null,

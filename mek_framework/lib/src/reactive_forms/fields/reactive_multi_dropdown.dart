@@ -34,7 +34,7 @@ class ReactivePopupMenuButton<T> extends ReactiveFormField<ISet<T>, ISet<T>> {
               final child = InputDecorator(
                 isEmpty: values.isEmpty,
                 decoration: decoration.copyWith(errorText: field.errorText),
-                child: builder(field),
+                child: values.isEmpty ? null : builder(field),
               );
               return ConstrainedBox(
                 constraints: constraints ?? const BoxConstraints(minHeight: kToolbarHeight),

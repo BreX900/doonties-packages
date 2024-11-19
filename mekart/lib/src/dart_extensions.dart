@@ -109,6 +109,7 @@ extension DateTimeExtensions on DateTime {
 }
 
 extension DurationExtensions on Duration {
+  int get days => inDays;
   int get hours => inHours % Duration.hoursPerDay;
   int get minutes => inMinutes % Duration.minutesPerHour;
   int get seconds => inSeconds % Duration.secondsPerMinute;

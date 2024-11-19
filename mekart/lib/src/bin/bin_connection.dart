@@ -1,5 +1,5 @@
 import 'package:mekart/src/bin/bin_engine.dart';
-import 'package:mekart/src/bin_v2/bin_transaction.dart';
+import 'package:mekart/src/bin/bin_transaction.dart';
 import 'package:synchronized/synchronized.dart';
 
 abstract class BinSession {

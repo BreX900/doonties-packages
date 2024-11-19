@@ -1,15 +1,21 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
-import 'package:mekart/src/bin/bin_base.dart';
-import 'package:mekart/src/bin/cached_bin.dart';
+import 'package:mekart/src/bin/bin_store.dart';
+import 'package:mekart/src/bin/cached_bin_store.dart';
 
-abstract class CachedValueBin<T> {
-  const CachedValueBin();
+abstract class CachedValueBinStore<T> {
+  const CachedValueBinStore();
 
-  factory CachedValueBin.fromMap(CachedBin<Map<String, Object?>> bin, String key, T initialValue) =
-      _CachedMapValueBin<T>;
+  factory CachedValueBinStore.fromIMap(
+    CachedBinStore<IMap<String, Object?>> bin,
+    String key,
+    T initialValue,
+  ) = _CachedIMapValueBin<T>;
 
-  factory CachedValueBin.fromIMap(
-      CachedBin<IMap<String, Object?>> bin, String key, T initialValue) = _CachedIMapValueBin<T>;
+  factory CachedValueBinStore.fromMap(
+    CachedBinStore<Map<String, Object?>> bin,
+    String key,
+    T initialValue,
+  ) = _CachedMapValueBin<T>;
 
   Stream<T> get onChanges;
 
@@ -20,8 +26,8 @@ abstract class CachedValueBin<T> {
   Future<void> write(T value);
 }
 
-class _CachedMapValueBin<T> extends CachedValueBin<T> {
-  final CachedBin<Map<String, Object?>> _bin;
+class _CachedMapValueBin<T> extends CachedValueBinStore<T> {
+  final CachedBinStore<Map<String, Object?>> _bin;
   final String _key;
   final T _fallbackValue;
 
@@ -40,8 +46,8 @@ class _CachedMapValueBin<T> extends CachedValueBin<T> {
   Future<void> write(T value) async => await _bin.set(_key, value);
 }
 
-class _CachedIMapValueBin<T> extends CachedValueBin<T> {
-  final CachedBin<IMap<String, Object?>> _bin;
+class _CachedIMapValueBin<T> extends CachedValueBinStore<T> {
+  final CachedBinStore<IMap<String, Object?>> _bin;
   final String _key;
   final T _fallbackValue;
 

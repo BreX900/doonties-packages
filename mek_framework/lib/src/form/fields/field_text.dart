@@ -453,7 +453,6 @@ class _SecretTextFieldType extends TextFieldType {
   @override
   TextFieldTypeData initData(BuildContext context, TextFieldTypeData data) {
     return data.copyWith(
-      readOnly: data.readOnly ?? true,
       obscureText: true,
       enableSuggestions: false,
       autocorrect: false,

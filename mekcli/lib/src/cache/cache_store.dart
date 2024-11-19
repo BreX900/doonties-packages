@@ -46,7 +46,7 @@ abstract class CacheStore {
 }
 
 class BinCacheStore<T extends Object> implements CacheStore {
-  final BinEngine _engine;
+  final BinConnection _engine;
   final Codec<Object?, String> _codec;
 
   BinCacheStore(this._engine, this._codec);

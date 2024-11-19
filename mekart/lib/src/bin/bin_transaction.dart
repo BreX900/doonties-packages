@@ -1,6 +1,6 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
+import 'package:mekart/src/bin/bin_connection.dart';
 import 'package:mekart/src/bin/bin_engine.dart';
-import 'package:mekart/src/bin_v2/bin_connection.dart';
 
 class BinTransaction implements BinSession {
   final BinEngine engine;

@@ -13,9 +13,10 @@ extension ControlStatusExtensions on ControlStatus {
 extension AbstractControlExtensions<T> on AbstractControl<T> {
   Stream<T?> get hotValueChanges => valueChanges.startWith(value);
 
-  void markAsClean() {
+  void markAsClean({bool? enabled}) {
     markAsPristine();
     markAsUntouched();
+    if (enabled != null) (enabled ? markAsEnabled : markAsDisabled)();
   }
 
   void markAs({bool? enabled, bool? pristine, bool? touched, bool? allTouched}) {
@@ -89,6 +90,14 @@ extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
           unawaited(result.whenComplete(markAsEnabled));
       }
     };
+  }
+
+  void Function() handleVoidSubmit<T>(
+    FutureOr<void> Function() submit, {
+    bool shouldKeepDisabled = false,
+  }) {
+    // ignore: discarded_futures
+    return () => handleSubmit((_) => submit())(null);
   }
 }
 
