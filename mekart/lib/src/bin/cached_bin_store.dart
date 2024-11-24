@@ -35,7 +35,6 @@ class CachedBinStore<T> implements BinStore<T> {
   @override
   Future<void> delete() async => await _bin.delete();
 
-  @override
   void dispose() => unawaited(_subscription.cancel());
 
   @override

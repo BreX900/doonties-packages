@@ -3,6 +3,8 @@ include: package:mek_lints/flutter_package.yaml
 analyzer:
 #  exclude:
 #    - lib/core.dart
+  errors:
+    deprecated_member_use_from_same_package: ignore
 
 # https://dart.dev/tools/linter-rules
 # https://dart-lang.github.io/linter/lints/index.html.
@@ -11,6 +13,7 @@ linter:
     # Override
     prefer_asserts_with_message: false
     public_member_api_docs: false
+    deprecated_member_use_from_same_package: false
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

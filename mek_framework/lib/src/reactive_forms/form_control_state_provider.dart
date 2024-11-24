@@ -17,6 +17,7 @@ extension AbstractControlStateProviderExtensions<V> on ProviderListenable<Abstra
   ProviderListenable<bool> get touched => select(_touched);
   ProviderListenable<ControlStatus> get status => select(_status);
   ProviderListenable<MapEntry<String, Object>?> get error => select(_error);
+  ProviderListenable<bool> get hasInitialValue => select(_hasInitialValue);
 
   static V _value<V>(AbstractControlState<V> state) => state.value;
   static bool _pristine<V>(AbstractControlState<V> state) => state.pristine;
@@ -24,6 +25,7 @@ extension AbstractControlStateProviderExtensions<V> on ProviderListenable<Abstra
   static bool _touched<V>(AbstractControlState<V> state) => state.touched;
   static ControlStatus _status<V>(AbstractControlState<V> state) => state.status;
   static MapEntry<String, Object>? _error<V>(AbstractControlState<V> state) => state.error;
+  static bool _hasInitialValue<V>(AbstractControlState<V> state) => state.hasInitialValue;
 }
 
 extension ProviderListenableControlStatusExtensions on ProviderListenable<ControlStatus> {
@@ -45,7 +47,7 @@ extension FormControlStateProviderExtensions<V> on ProviderListenable<FormContro
 }
 
 extension FormArrayStateProvider<V> on FormArray<V> {
-  ProviderListenable<FormArrayState<AbstractControl<V>, V>> get provider =>
+  ProviderListenable<FormArrayState<AbstractControl<Object?>, V>> get provider =>
       _FormArrayStateProvider(this);
 }
 
@@ -53,11 +55,11 @@ extension FormListStateProvider<C extends AbstractControl<V>, V> on FormList<C, 
   ProviderListenable<FormArrayState<C, V>> get provider => _FormListStateProvider(this);
 }
 
-extension FormArrayStateProviderExtensions<C extends AbstractControl<V>, V>
+extension FormArrayStateProviderExtensions<C extends AbstractControl, V>
     on ProviderListenable<FormArrayState<C, V>> {
   ProviderListenable<List<C>> get controls => select(_controls);
 
-  static List<C> _controls<C extends AbstractControl<T>, T>(FormArrayState<C, T> state) =>
+  static List<C> _controls<C extends AbstractControl, T>(FormArrayState<C, T> state) =>
       state.controls;
 }
 
@@ -83,6 +85,7 @@ class AbstractControlState<V> with EquatableAndDescribable {
   final bool touched;
   final Map<String, Object> errors;
   final ControlStatus status;
+  final bool hasInitialValue;
 
   bool get dirty => !pristine;
   bool get hasErrors => errors.isNotEmpty;
@@ -100,6 +103,7 @@ class AbstractControlState<V> with EquatableAndDescribable {
     required this.touched,
     required this.errors,
     required this.status,
+    required this.hasInitialValue,
   });
 
   @override
@@ -108,7 +112,8 @@ class AbstractControlState<V> with EquatableAndDescribable {
         'pristine': pristine,
         'touched': touched,
         'errors': errors,
-        'status': status
+        'status': status,
+        'hasInitialValue': hasInitialValue,
       };
 }
 
@@ -121,6 +126,7 @@ class FormControlState<V> extends AbstractControlState<V?> {
     required super.touched,
     required super.errors,
     required super.status,
+    required super.hasInitialValue,
     required this.hasFocus,
   });
 
@@ -128,8 +134,8 @@ class FormControlState<V> extends AbstractControlState<V?> {
   Map<String, Object?> get props => super.props..['hasFocus'] = hasFocus;
 }
 
-typedef FormArrayState<C extends AbstractControl<V>, V> = _FormCollectionState<List<C>, List<V?>>;
-typedef FormGroupState<C extends AbstractControl<V>, V>
+typedef FormArrayState<C extends AbstractControl, V> = _FormCollectionState<List<C>, List<V?>>;
+typedef FormGroupState<C extends AbstractControl, V>
     = _FormCollectionState<Map<String, C>, Map<String, V?>>;
 
 class _FormCollectionState<C, V> extends AbstractControlState<V> {
@@ -141,11 +147,14 @@ class _FormCollectionState<C, V> extends AbstractControlState<V> {
     required super.touched,
     required super.errors,
     required super.status,
+    required super.hasInitialValue,
     required this.controls,
   });
 
   @override
-  Map<String, Object?> get props => super.props..['controls'] = controls;
+  Map<String, Object?> get props => super.props
+    ..['controls'] = controls
+    ..['hasInitialValues'] = hasInitialValue;
 }
 
 class _AbstractControlStateProvider<V>
@@ -160,6 +169,7 @@ class _AbstractControlStateProvider<V>
       touched: source.touched,
       errors: source.errors,
       status: source.status,
+      hasInitialValue: source.hasInitialValue,
     );
   }
 }
@@ -179,6 +189,7 @@ class _FormControlStateProvider<V>
       touched: source.touched,
       errors: source.errors,
       status: source.status,
+      hasInitialValue: source.hasInitialValue,
       hasFocus: source.hasFocus,
     );
   }
@@ -234,6 +245,7 @@ abstract class _FormCollectionStateProvider<S extends FormControlCollection, C, 
       errors: source.errors,
       status: source.status,
       controls: controls,
+      hasInitialValue: source.hasInitialValue,
     );
   }
 }
@@ -246,6 +258,9 @@ abstract class _AbstractControlStateProviderBase<C extends AbstractControl<Objec
   S get state;
 
   Stream<Object?>? get changes => null;
+
+  @override
+  bool updateShouldNotify(S prev, S next) => prev != next;
 
   @override
   void Function() listen(void Function(S state) listener) {

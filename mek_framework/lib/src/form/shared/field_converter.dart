@@ -74,7 +74,3 @@ class MapValueFieldConverter<K, V> extends FieldConverter<IMap<K, V>, V> {
   V convertForView(FieldBlocRule<IMap<K, V>> fieldBloc, IMap<K, V> blocValue) =>
       blocValue[key] ?? initialValue;
 }
-
-extension X<T> on FieldBlocRule<T> {
-  FieldConverter<T, R> transform<R>(FieldConverter<T, R> converter) => converter;
-}

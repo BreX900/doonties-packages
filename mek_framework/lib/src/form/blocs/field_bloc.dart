@@ -100,15 +100,16 @@ class FieldBlocState<TValue> extends FieldBlocStateBase<TValue> with _$FieldBloc
 }
 
 class FieldBloc<TValue> extends FieldBlocBase<FieldBlocState<TValue>, TValue> {
-  Validator<TValue>? _validator;
+  ValidatorCallback<TValue>? _validator;
   AsyncValidator<TValue>? _asyncValidator;
   final Duration debounceTime;
 
+  @Deprecated('In favour of reactive_forms')
   FieldBloc({
     bool isEnabled = true,
     bool isDirty = false,
     required TValue initialValue,
-    Validator<TValue>? validator,
+    ValidatorCallback<TValue>? validator,
     AsyncValidator<TValue>? asyncValidator,
     this.debounceTime = const Duration(seconds: 3),
   })  : _validator = validator,
@@ -175,7 +176,7 @@ class FieldBloc<TValue> extends FieldBlocBase<FieldBlocState<TValue>, TValue> {
       ..isValidating = false));
   }
 
-  void updateValidator(Validator<TValue> validator) {
+  void updateValidator(ValidatorCallback<TValue> validator) {
     _validator = validator;
 
     final error = _validate(value: state.value);

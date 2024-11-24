@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:mekart/src/bin/bin_connection.dart';
 import 'package:mekart/src/bin/bin_engine.dart';
@@ -15,6 +17,9 @@ class BinTransaction implements BinSession {
     await tx.flush();
     return result;
   }
+
+  @override
+  Stream<MapEntry<String, String?>> get onChanges => engine.onChanges;
 
   @override
   Future<String?> read(String name) async {

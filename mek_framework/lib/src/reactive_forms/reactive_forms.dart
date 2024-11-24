@@ -11,7 +11,7 @@ extension ControlStatusExtensions on ControlStatus {
 }
 
 extension AbstractControlExtensions<T> on AbstractControl<T> {
-  Stream<T?> get hotValueChanges => valueChanges.startWith(value);
+  Stream<T?> get valueHotChanges => valueChanges.startWith(value);
 
   void markAsClean({bool? enabled}) {
     markAsPristine();
@@ -69,7 +69,7 @@ extension ReactiveFormConfigExtensions on ReactiveFormConfig? {
 extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
   void Function(T arg) handleSubmit<T>(
     FutureOr<void> Function(T arg) submit, {
-    bool shouldKeepDisabled = false,
+    bool keepDisabled = false,
   }) {
     return (arg) {
       switch (status) {
@@ -86,7 +86,7 @@ extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
 
           markAsDisabled();
 
-          if (shouldKeepDisabled) return;
+          if (keepDisabled) return;
           unawaited(result.whenComplete(markAsEnabled));
       }
     };
@@ -122,7 +122,7 @@ class FormList<C extends AbstractControl<V>, V> extends FormArray<V> {
 
   @override
   void add(covariant C control, {bool updateParent = true, bool emitEvent = true}) =>
-      super.add(control, updateParent: updateParent, emitEvent: emitEvent);
+      addAll([control], updateParent: updateParent, emitEvent: emitEvent);
 
   @override
   void addAll(covariant List<C> controls, {bool updateParent = true, bool emitEvent = true}) =>

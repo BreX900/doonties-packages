@@ -40,21 +40,17 @@ class BinStore<T> {
         _serializer = serializer,
         _fallbackData = fallbackData;
 
-  final _controller = StreamController<T>.broadcast();
-
-  Stream<T> get onChanges => _controller.stream;
+  Stream<T> get onChanges =>
+      _session.onChanges.where((e) => e.key == name).map((e) => _deserialize(e.value));
 
   Stream<T> get stream async* {
     yield await read();
-    yield* _controller.stream;
+    yield* onChanges;
   }
 
   FutureOr<T> read() async {
     final data = await _session.read(name);
-    if (data == null) return _fallbackData;
-    final decodedData = _codec.decode(data);
-    if (decodedData == null) return _fallbackData;
-    return _deserializer(decodedData);
+    return _deserialize(data);
   }
 
   Future<void> write(T data) async {
@@ -65,8 +61,11 @@ class BinStore<T> {
     await _session.delete(name);
   }
 
-  void dispose() {
-    unawaited(_controller.close());
+  T _deserialize(String? data) {
+    if (data == null) return _fallbackData;
+    final decodedData = _codec.decode(data);
+    if (decodedData == null) return _fallbackData;
+    return _deserializer(decodedData);
   }
 
   static Object? _serialize(Object? data) => data;

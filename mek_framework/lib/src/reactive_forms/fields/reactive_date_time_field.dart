@@ -3,10 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:mek/src/form/fields/field_date_time.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-class ReactiveDateTimeField extends ReactiveFocusableFormField<DateTime, DateTime> {
+class ReactiveDateTimeField extends ReactiveFocusableFormField<DateTime?, DateTime> {
   ReactiveDateTimeField({
     super.key,
-    required FormControl<DateTime> super.formControl,
+    required FormControl<DateTime?> super.formControl,
     bool readOnly = false,
     DateFormat? format,
     Future<DateTime?> Function(BuildContext context, DateTime value)? picker,

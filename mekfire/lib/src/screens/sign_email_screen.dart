@@ -13,7 +13,7 @@ class EmailVerificationScreen extends ConsumerStatefulWidget {
 
 class _SignEmailScreenState extends ConsumerState<EmailVerificationScreen> {
   late final _sendEmailVerification = ref.mutation((ref, arg) async {
-    await UserAuthProviders.sendEmailVerification(ref);
+    await UserAuthProviders.sendEmailVerification();
   }, onSuccess: (_, __) {
     ScaffoldMessenger.of(context).showMaterialBanner(const MaterialBanner(
       content: Text('Verification email sent!'),
@@ -22,7 +22,7 @@ class _SignEmailScreenState extends ConsumerState<EmailVerificationScreen> {
   });
 
   late final _reload = ref.mutation((ref, arg) async {
-    await UserAuthProviders.checkEmailVerification(ref);
+    await UserAuthProviders.checkEmailVerification();
   });
 
   late final _signOut = ref.mutation((ref, arg) async {
@@ -31,7 +31,7 @@ class _SignEmailScreenState extends ConsumerState<EmailVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isIdle = ref.watchIdle(mutations: [_sendEmailVerification, _reload, _signOut]);
+    final isIdle = !ref.watchIsMutating([_sendEmailVerification, _reload, _signOut]);
 
     return Scaffold(
       appBar: AppBar(

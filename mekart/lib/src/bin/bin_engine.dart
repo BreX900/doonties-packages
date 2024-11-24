@@ -7,6 +7,8 @@ abstract interface class BinEngine {
   factory BinEngine({required String? directoryPath}) =>
       platform.createBinEngine(directoryPath: directoryPath);
 
+  Stream<MapEntry<String, String?>> get onChanges;
+
   Future<String?> read(String name);
 
   Future<void> write(String name, String data);

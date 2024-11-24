@@ -8,14 +8,14 @@ abstract class ValidationBase<T> extends Validation<T> {
 }
 
 class CompositeValidation<T> extends Validation<T> {
-  final List<Validator<T>> validators;
+  final List<ValidatorCallback<T>> validators;
   final bool _isEvery;
 
   const CompositeValidation.every(this.validators) : _isEvery = true;
 
   const CompositeValidation.any(this.validators) : _isEvery = false;
 
-  static Object? validateEvery<T>(List<Validator<T>> validators, T value) {
+  static Object? validateEvery<T>(List<ValidatorCallback<T>> validators, T value) {
     for (final validator in validators) {
       final error = validator(value);
       if (error != null) return error;
@@ -23,7 +23,7 @@ class CompositeValidation<T> extends Validation<T> {
     return null;
   }
 
-  static Object? validateAny<T>(List<Validator<T>> validators, T value) {
+  static Object? validateAny<T>(List<ValidatorCallback<T>> validators, T value) {
     Object? firstError;
     for (final validator in validators) {
       final error = validator(value);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/mek.dart';
 import 'package:mekfire/src/providers/auth_providers.dart';
+import 'package:reactive_forms/reactive_forms.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
   final VoidCallback onSignUpPressed;
@@ -18,57 +19,54 @@ class SignInScreen extends ConsumerStatefulWidget {
 }
 
 class _SignInScreenState extends ConsumerState<SignInScreen> {
-  final _emailFb = FieldBloc(
+  final _emailFb = FormControlTyped<String>(
     initialValue: UserAuthProviders.debug.email,
-    validator: Validation.email,
+    validators: [ValidatorsTyped.required(), ValidatorsTyped.email()],
   );
-  final _passwordFb = FieldBloc(
+  final _passwordFb = FormControlTyped<String>(
     initialValue: UserAuthProviders.debug.password,
-    validator: const TextValidation(minLength: 1),
+    validators: [ValidatorsTyped.required()],
   );
 
-  final _form = ListFieldBloc<void>();
+  late final _form = FormArray([_emailFb, _passwordFb]);
 
   late final _signIn = ref.mutation((ref, Nil _) async {
     await UserAuthProviders.signIn(
-      ref,
-      email: _emailFb.state.value,
-      password: _passwordFb.state.value,
+      email: _emailFb.value,
+      password: _passwordFb.value,
     );
   });
 
   late final _sendPasswordResetEmail = ref.mutation((ref, Nil _) async {
-    await UserAuthProviders.sendPasswordResetEmail(ref, _emailFb.state.value);
+    await UserAuthProviders.sendPasswordResetEmail(_emailFb.value);
   }, onSuccess: (_, __) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('Sent password reset email to ${_emailFb.state.value}!'),
+      content: Text('Sent password reset email to ${_emailFb.value}!'),
     ));
   });
 
   @override
-  void initState() {
-    super.initState();
-    _form.addFieldBlocs([_emailFb, _passwordFb]);
+  void dispose() {
+    _form.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final isIdle = ref.watchIdle(mutations: [_signIn, _sendPasswordResetEmail]);
+    final isIdle = !ref.watchIsMutating([_signIn, _sendPasswordResetEmail]);
 
-    final signIn = context.handleMutation(_form, _signIn);
-    final sendPasswordResetEmail = context.handleMutation(_emailFb, _sendPasswordResetEmail);
+    final signIn = _form.handleSubmit(_signIn.run, keepDisabled: true);
+    final sendPasswordResetEmail = _emailFb.handleSubmit(_sendPasswordResetEmail.run);
 
     List<Widget> buildFields() {
       return [
-        FieldText(
-          fieldBloc: _emailFb,
-          converter: FieldConvert.text,
+        ReactiveTypedTextField(
+          formControl: _emailFb,
           type: const TextFieldType.email(),
           decoration: const InputDecoration(labelText: 'Email'),
         ),
-        FieldText(
-          fieldBloc: _passwordFb,
-          converter: FieldConvert.text,
+        ReactiveTypedTextField(
+          formControl: _passwordFb,
           type: const TextFieldType.password(),
           decoration: const InputDecoration(labelText: 'Password'),
         ),

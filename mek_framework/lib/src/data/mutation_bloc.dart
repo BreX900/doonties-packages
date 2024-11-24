@@ -5,6 +5,7 @@ import 'package:mek/src/core/_log.dart';
 import 'package:mek/src/core/typedefs.dart';
 import 'package:mek/src/data/mutation_state.dart';
 import 'package:mek/src/data/views.dart';
+import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
 import 'package:mek/src/riverpod/adapters/state_notifier_provider.dart';
 import 'package:mek/src/riverpod/auto_dispose_extension.dart';
 import 'package:mek/src/riverpod/state_notifier_extensions.dart';
@@ -84,7 +85,8 @@ extension MutationBlocExtension on WidgetRef {
   void _listenError(void arg, Object error) => DataBuilders.listenError(context, error);
 }
 
-class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>> {
+class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>>
+    implements StateListenable<MutationState<TResult>> {
   final WidgetRef _ref;
   final FutureOr<TResult> Function(MutationRef<TResult> ref, TArg arg) _mutator;
   final StartMutationListener<TArg>? _onStart;
@@ -202,7 +204,7 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>> 
 }
 
 @optionalTypeArgs
-class MutationRef<R> implements Ref<MutationBloc<void, R>> {
+class MutationRef<R> {
   WidgetRef? _ref;
   MutationBloc<void, R>? _bloc;
 
@@ -210,19 +212,14 @@ class MutationRef<R> implements Ref<MutationBloc<void, R>> {
 
   MutationBloc<void, R> get bloc => _get(_bloc);
 
-  @override
   ProviderContainer get container => ProviderScope.containerOf(_get(_ref).context, listen: false);
 
-  @override
   bool exists(ProviderBase<Object?> provider) => _get(_ref).exists(provider);
 
-  @override
   void invalidate(ProviderOrFamily provider) => _get(_ref).invalidate(provider);
 
-  @override
   T read<T>(ProviderListenable<T> provider) => _get(_ref).read(provider);
 
-  @override
   T refresh<T>(Refreshable<T> provider) => _get(_ref).refresh(provider);
 
   void updateProgress(double value) => _get(_bloc).updateProgress(value);
@@ -236,55 +233,4 @@ class MutationRef<R> implements Ref<MutationBloc<void, R>> {
     _ref = null;
     _bloc = null;
   }
-
-  @internal
-  @override
-  void invalidateSelf() => throw UnsupportedError('invalidateSelf');
-
-  @internal
-  @override
-  ProviderSubscription<T> listen<T>(
-    ProviderListenable<T> provider,
-    void Function(T? previous, T next) listener, {
-    void Function(Object error, StackTrace stackTrace)? onError,
-    bool fireImmediately = false,
-  }) =>
-      throw UnsupportedError('listen<T>');
-
-  @internal
-  @override
-  void listenSelf(
-    void Function(MutationBloc<void, R>? previous, MutationBloc<void, R> next) listener, {
-    void Function(Object error, StackTrace stackTrace)? onError,
-  }) {
-    throw UnsupportedError('listenSelf');
-  }
-
-  @internal
-  @override
-  void notifyListeners() => throw UnsupportedError('notifyListeners');
-
-  @internal
-  @override
-  void onAddListener(void Function() cb) => throw UnsupportedError('onAddListener');
-
-  @internal
-  @override
-  void onCancel(void Function() cb) => throw UnsupportedError('onCancel');
-
-  @internal
-  @override
-  void onDispose(void Function() cb) => throw UnsupportedError('onDispose');
-
-  @internal
-  @override
-  void onRemoveListener(void Function() cb) => throw UnsupportedError('onRemoveListener');
-
-  @internal
-  @override
-  void onResume(void Function() cb) => throw UnsupportedError('onResume');
-
-  @internal
-  @override
-  T watch<T>(AlwaysAliveProviderListenable<T> provider) => throw UnsupportedError('watch<T>');
 }

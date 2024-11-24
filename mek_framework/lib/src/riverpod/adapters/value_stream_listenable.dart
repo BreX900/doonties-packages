@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
+import 'package:mekart/mekart.dart';
 import 'package:rxdart/rxdart.dart';
 
 extension ValueStreamProviderExtension<T> on ValueStream<T> {
@@ -13,6 +14,9 @@ class _ValueStreamProvider<T> extends SourceProviderListenable<ValueStream<T>, T
 
   @override
   T get state => source.value;
+
+  @override
+  bool updateShouldNotify(T prev, T next) => !iEquality.equals(prev, next);
 
   @override
   void Function() listen(void Function(T state) listener) => source.listen(listener).cancel;

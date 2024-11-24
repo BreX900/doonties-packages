@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/mek.dart';
 import 'package:mekfire/src/widgets/_confirmable_dialog.dart';
+import 'package:reactive_forms/reactive_forms.dart';
 
 abstract class UserDeleteScreenBase extends ConsumerStatefulWidget {
   const UserDeleteScreenBase({super.key});
@@ -13,19 +14,19 @@ abstract class UserDeleteScreenBase extends ConsumerStatefulWidget {
 }
 
 class _UserDeleteScreenState extends ConsumerState<UserDeleteScreenBase> {
-  final _emailFieldBloc = FieldBloc(
+  final _emailFieldBloc = FormControlTyped<String>(
     initialValue: '',
-    validator: const TextValidation(minLength: 1),
+    validators: [ValidatorsTyped.required(), ValidatorsTyped.email()],
   );
-  final _passwordFieldBloc = FieldBloc(
+  final _passwordFieldBloc = FormControlTyped<String>(
     initialValue: '',
-    validator: const TextValidation(minLength: 1),
+    validators: [ValidatorsTyped.required()],
   );
 
-  final _form = ListFieldBloc<void>();
+  late final _form = FormArray([_emailFieldBloc, _passwordFieldBloc]);
 
   late final _deleteUser = ref.mutation((ref, Nil _) async {
-    await widget.onDelete(ref, _emailFieldBloc.state.value, _passwordFieldBloc.state.value);
+    await widget.onDelete(ref, _emailFieldBloc.value, _passwordFieldBloc.value);
   }, onWillMutate: (_) async {
     return await showTypedDialog(
       context: context,
@@ -40,26 +41,27 @@ class _UserDeleteScreenState extends ConsumerState<UserDeleteScreenBase> {
   @override
   void initState() {
     super.initState();
-    _form.addFieldBlocs([_emailFieldBloc, _passwordFieldBloc]);
     // if (Env.debugPassword.isNotEmpty) _passwordFb.changeValue(Env.debugPassword);
   }
 
-  Widget _buildBody() {
-    final isIdle = ref.watchIdle(mutations: [_deleteUser]);
+  @override
+  void dispose() {
+    _form.dispose();
+    super.dispose();
+  }
 
-    final deleteUser = context.handleMutation(_form, _deleteUser);
+  Widget _buildBody({required bool isIdle}) {
+    final deleteUser = _form.handleSubmit(_deleteUser.run);
 
     List<Widget> buildFields() {
       return [
-        FieldText(
-          fieldBloc: _emailFieldBloc,
-          converter: FieldConvert.text,
+        ReactiveTypedTextField(
+          formControl: _emailFieldBloc,
           type: const TextFieldType.email(),
           decoration: const InputDecoration(labelText: 'Email'),
         ),
-        FieldText(
-          fieldBloc: _passwordFieldBloc,
-          converter: FieldConvert.text,
+        ReactiveTypedTextField(
+          formControl: _passwordFieldBloc,
           type: const TextFieldType.password(),
           decoration: const InputDecoration(labelText: 'Password'),
         ),
@@ -91,7 +93,7 @@ class _UserDeleteScreenState extends ConsumerState<UserDeleteScreenBase> {
 
   @override
   Widget build(BuildContext context) {
-    final isIdle = ref.watchIdle(mutations: [_deleteUser]);
+    final isIdle = !ref.watchIsMutating([_deleteUser]);
 
     return Scaffold(
       appBar: AppBar(
@@ -101,7 +103,7 @@ class _UserDeleteScreenState extends ConsumerState<UserDeleteScreenBase> {
           return LinearProgressIndicatorBar(isHidden: isIdle, value: progress);
         }),
       ),
-      body: _buildBody(),
+      body: _buildBody(isIdle: isIdle),
     );
   }
 }

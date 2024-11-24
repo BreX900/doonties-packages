@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mekfire/src/dto/user_auth_dto.dart';
 import 'package:mekfire/src/failures.dart';
 import 'package:mekfire/src/repositories/auth_repository.dart';
@@ -12,20 +11,18 @@ final class UserAuthProviders {
 
   static Stream<UserAuthDto?> get onCurrentChange => UserAuthRepository.instance.onChange;
 
-  static Future<void> signIn(
-    Ref ref, {
+  static Future<void> signIn({
     required String email,
     required String password,
   }) async {
     await UserAuthRepository.instance.signIn(email: email, password: password);
   }
 
-  static Future<void> sendPasswordResetEmail(Ref ref, String email) async {
+  static Future<void> sendPasswordResetEmail(String email) async {
     await UserAuthRepository.instance.sendPasswordResetEmail(email: email);
   }
 
-  static Future<void> signUp(
-    Ref ref, {
+  static Future<void> signUp({
     required String email,
     required String password,
     required String passwordConfirmation,
@@ -36,11 +33,11 @@ final class UserAuthProviders {
     await UserAuthRepository.instance.sendEmailVerification();
   }
 
-  static Future<void> sendEmailVerification(Ref ref) async {
+  static Future<void> sendEmailVerification() async {
     await UserAuthRepository.instance.sendEmailVerification();
   }
 
-  static Future<void> checkEmailVerification(Ref ref) async {
+  static Future<void> checkEmailVerification() async {
     await UserAuthRepository.instance.checkEmailVerification();
   }
 

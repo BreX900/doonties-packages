@@ -23,11 +23,12 @@ scripts:
 dependencies:
   flutter: { sdk: flutter }
 
-  firebase_auth: ^5.1.0
+  firebase_auth: ^5.3.3
 
   rxdart: ^0.28.0
 
-  flutter_riverpod: ^2.5.1
+  flutter_riverpod: ^2.6.1
+  reactive_forms: ^17.0.1
   mek: { path: ../mek_framework }
   mekart: { path: ../mekart }
 

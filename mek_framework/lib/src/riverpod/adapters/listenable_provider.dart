@@ -3,21 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
 
 extension ListenableProviderExtension<T extends ChangeNotifier> on T {
-  ProviderListenable<R> pick<R>(R Function(T listenable) selector) =>
-      _ListenableProvider(this, selector);
+  ProviderListenable<T> get provider => _ListenableProvider(this);
 }
 
-class _ListenableProvider<T extends Listenable, R> extends SourceProviderListenable<T, R> {
-  final R Function(T listenable) selector;
-
-  _ListenableProvider(super.source, this.selector);
+class _ListenableProvider<T extends Listenable> extends SourceProviderListenable<T, T> {
+  const _ListenableProvider(super.source);
 
   @override
-  R get state => selector(source);
+  T get state => source;
 
   @override
-  void Function() listen(void Function(R state) listener) {
-    void onChange() => listener(selector(source));
+  void Function() listen(void Function(T state) listener) {
+    void onChange() => listener(source);
     source.addListener(onChange);
     return () => source.removeListener(onChange);
   }

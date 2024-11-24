@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:mekart/src/bin/bin_engine.dart';
 import 'package:mekart/src/bin/bin_transaction.dart';
 import 'package:synchronized/synchronized.dart';
 
 abstract class BinSession {
+  Stream<MapEntry<String, String?>> get onChanges;
+
   Future<String?> read(String name);
 
   Future<void> write(String name, String data);
@@ -15,6 +19,9 @@ class BinConnection implements BinSession {
   final _lock = Lock();
 
   BinConnection(this.engine);
+
+  @override
+  Stream<MapEntry<String, String?>> get onChanges => engine.onChanges;
 
   Future<R> runTransaction<R>(Future<R> Function(BinSession tx) body) async {
     return await _lock.synchronized(() async {

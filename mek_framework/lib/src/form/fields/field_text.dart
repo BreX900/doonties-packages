@@ -11,7 +11,6 @@ import 'package:mek/src/form/fields/field_builder.dart';
 import 'package:mek/src/form/shared/built_form_theme.dart';
 import 'package:mek/src/form/shared/text_field_type_data.dart';
 import 'package:mek/src/riverpod/adapters/state_stremable_provider.dart';
-import 'package:mek/src/shared/handle_callback.dart';
 
 class FieldText<T> extends FieldBuilder<T> {
   final FieldConvert<T?> converter;
@@ -557,11 +556,8 @@ class SaveFieldButton extends ConsumerWidget {
     final hasUpdatedValue = ref.watch(fieldBloc.select((state) => state.hasUpdatedValue));
     if (hasUpdatedValue) return const SizedBox.shrink();
 
-    // ignore: deprecated_member_use_from_same_package
-    final isValid = ref.watchCanSubmit(shouldHasNotUpdatedValue: false, fieldBloc);
-
     return IconButton(
-      onPressed: isValid ? onSubmit : null,
+      onPressed: onSubmit,
       icon: const Icon(Icons.save),
     );
   }

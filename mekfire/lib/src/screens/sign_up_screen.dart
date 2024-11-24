@@ -1,9 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/mek.dart';
 import 'package:mekfire/src/providers/auth_providers.dart';
+import 'package:reactive_forms/reactive_forms.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
@@ -13,42 +12,39 @@ class SignUpScreen extends ConsumerStatefulWidget {
 }
 
 class _SignUpScreenState extends ConsumerState<SignUpScreen> {
-  final _emailFb = FieldBloc(
+  final _emailFb = FormControlTyped<String>(
     initialValue: UserAuthProviders.debug.email,
-    validator: Validation.email,
+    validators: [ValidatorsTyped.required(), ValidatorsTyped.email()],
   );
-  final _passwordFb = FieldBloc(
+  final _passwordFb = FormControlTyped<String>(
     initialValue: UserAuthProviders.debug.password,
-    validator: Validation.password,
+    validators: [ValidatorsTyped.required(), ValidatorsTyped.password()],
   );
-  final _passwordConfirmationFb = FieldBloc(
+  final _passwordConfirmationFb = FormControlTyped<String>(
     initialValue: UserAuthProviders.debug.password,
-    validator: Validation.password,
+    validators: [ValidatorsTyped.required(), ValidatorsTyped.password()],
   );
 
-  late final _form = ListFieldBloc<void>(
-    fieldBlocs: [_emailFb, _passwordFb, _passwordConfirmationFb],
-  );
+  late final _form = FormArray([_emailFb, _passwordFb, _passwordConfirmationFb]);
 
   @override
   void dispose() {
-    unawaited(_form.close());
+    _form.dispose();
     super.dispose();
   }
 
   late final _signUp = ref.mutation((ref, Nil _) async {
     await UserAuthProviders.signUp(
-      ref,
-      email: _emailFb.state.value,
-      password: _passwordFb.state.value,
-      passwordConfirmation: _passwordConfirmationFb.state.value,
+      email: _emailFb.value,
+      password: _passwordFb.value,
+      passwordConfirmation: _passwordConfirmationFb.value,
     );
   });
 
   @override
   Widget build(BuildContext context) {
-    final isIdle = ref.watchIdle(mutations: [_signUp]);
-    final signUp = context.handleMutation(_form, _signUp);
+    final isIdle = !ref.watchIsMutating([_signUp]);
+    final signUp = _form.handleSubmit(_signUp.run, keepDisabled: true);
 
     return Scaffold(
       appBar: AppBar(
@@ -68,25 +64,22 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         minimum: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            FieldText(
-              fieldBloc: _emailFb,
-              converter: FieldConvert.text,
+            ReactiveTypedTextField(
+              formControl: _emailFb,
               type: const TextFieldType.email(),
               decoration: const InputDecoration(
                 labelText: 'Email',
               ),
             ),
-            FieldText(
-              fieldBloc: _passwordFb,
-              converter: FieldConvert.text,
+            ReactiveTypedTextField(
+              formControl: _passwordFb,
               type: const TextFieldType.password(),
               decoration: const InputDecoration(
                 labelText: 'Password',
               ),
             ),
-            FieldText(
-              fieldBloc: _passwordConfirmationFb,
-              converter: FieldConvert.text,
+            ReactiveTypedTextField(
+              formControl: _passwordConfirmationFb,
               type: const TextFieldType.password(),
               decoration: const InputDecoration(
                 labelText: 'Password Confirmation',

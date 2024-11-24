@@ -7,12 +7,12 @@ import 'dart:core';
 import 'package:mek/src/form/validation/validation_base.dart';
 import 'package:mek/src/form/validation/validation_errors.dart';
 
-typedef Validator<T> = Object? Function(T value);
+typedef ValidatorCallback<T> = Object? Function(T value);
 
 abstract class Validation<T> {
   const Validation();
 
-  const factory Validation.from(Validator<T> validator) = _InlineValidation;
+  const factory Validation.from(ValidatorCallback<T> validator) = _InlineValidation;
 
   /// If validation is not necessary
   static const Validation<dynamic> none = ValidationNone();
@@ -20,12 +20,12 @@ abstract class Validation<T> {
   /// It combines the validators into a single validation
   ///
   /// All validators must be valid
-  const factory Validation.every(List<Validator<T>> validators) = CompositeValidation.every;
+  const factory Validation.every(List<ValidatorCallback<T>> validators) = CompositeValidation.every;
 
   /// It combines the validators into a single validation
   ///
   /// A validator just needs to be valid
-  const factory Validation.any(List<Validator<T>> validators) = CompositeValidation.any;
+  const factory Validation.any(List<ValidatorCallback<T>> validators) = CompositeValidation.any;
 
   static final TextValidation email = TextValidation(
     errorCode: TextValidationError.emailCode,
@@ -47,7 +47,7 @@ abstract class Validation<T> {
 }
 
 class _InlineValidation<T> extends Validation<T> {
-  final Validator<T> validator;
+  final ValidatorCallback<T> validator;
 
   const _InlineValidation(this.validator);
 
@@ -57,7 +57,7 @@ class _InlineValidation<T> extends Validation<T> {
 
 ///  It allows you to convert a field from null to non-null
 class RequiredValidation<T extends Object> extends ValidationBase<T?> {
-  final List<Validator<T>> validators;
+  final List<ValidatorCallback<T>> validators;
 
   const RequiredValidation({
     String? errorCode,
@@ -88,7 +88,7 @@ class RequiredValidation<T extends Object> extends ValidationBase<T?> {
 /// * doubleToInt
 class ValidationParser<I, O> extends ValidationBase<I> {
   final O Function(I value) converter;
-  final List<Validator<O>> validators;
+  final List<ValidatorCallback<O>> validators;
 
   const ValidationParser(
     this.converter, {
@@ -378,7 +378,7 @@ class OptionsValidation<T> extends ValidationBase<Iterable<T>> {
 // }
 
 class ValidationDelegate<T> extends Validation<T> {
-  final Validator<T> Function(T value) validator;
+  final ValidatorCallback<T> Function(T value) validator;
 
   const ValidationDelegate(this.validator);
 

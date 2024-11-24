@@ -6,6 +6,12 @@ abstract class BinEngineBase implements BinEngine {
   Future<String?> getDirectoryPath();
 
   @override
+  Stream<MapEntry<String, String?>> get onChanges async* {
+    final instance = _instance ??= await _createInstance();
+    yield* instance.onChanges;
+  }
+
+  @override
   Future<String?> read(String name) async {
     final instance = _instance ??= await _createInstance();
     return instance.read(name);

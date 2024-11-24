@@ -35,10 +35,16 @@ class Column {
 
 class Table {
   final Map<int, Column> columns;
+  final String verticalDivisor;
 
-  Table(this.columns);
+  const Table({
+    this.columns = const <int, Column>{},
+    this.verticalDivisor = ' ',
+  });
 
   String render(List<List<Object?>> rows) {
+    final verticalDivisor = this.verticalDivisor;
+
     final columnWidths = <int, int>{};
     final columnCount = rows.first.length;
     for (var columnIndex = 0; columnIndex < columnCount; columnIndex++) {
@@ -64,7 +70,7 @@ class Table {
           final columnWidth = columnWidths[columnIndex]!;
           rowLine.add(lineIndex < cellLines.length ? cellLines[lineIndex] : ' ' * columnWidth);
         }
-        rowLines.add(rowLine.join(' '));
+        rowLines.add(rowLine.join(verticalDivisor));
       }
 
       return rowLines.join('\n');
