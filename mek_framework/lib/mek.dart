@@ -81,6 +81,8 @@ export 'src/shared/mek_utils.dart';
 export 'src/shared/nav.dart';
 export 'src/shared/skeleton_form.dart';
 export 'src/widgets/bottom_button_bar.dart';
+export 'src/widgets/bottom_sheet/sheet_bar.dart';
+export 'src/widgets/common/text_icon.dart';
 export 'src/widgets/deferred_library_builder.dart';
 export 'src/widgets/dots_text.dart';
 export 'src/widgets/draggable_with_size.dart';

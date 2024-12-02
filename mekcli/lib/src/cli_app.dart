@@ -7,11 +7,16 @@ import 'package:mekcli/src/cli_utils.dart';
 enum CliExceptionType { executionSkipped, executionEmpty }
 
 class CliException implements Exception {
+  final int exitCode;
   final CliExceptionType type;
 
-  CliException.executionSkipped() : type = CliExceptionType.executionSkipped;
+  CliException.executionSkipped()
+      : exitCode = 2,
+        type = CliExceptionType.executionSkipped;
 
-  CliException.executionEmpty() : type = CliExceptionType.executionEmpty;
+  CliException.executionEmpty()
+      : exitCode = 3,
+        type = CliExceptionType.executionEmpty;
 }
 
 abstract class CliApp {
@@ -26,42 +31,31 @@ abstract class App {
 }
 
 void runApp(App app) {
-  runWithRef((ref) async {
-    app._ref = ref;
+  _runWithRef((container) async {
+    app._ref = container;
     await app.run();
     app._ref = null;
   });
 }
 
 void runCliApp(CliApp Function(ProviderRef ref) creator) {
-  final logSub = _listenLogRecords();
-  final container = ProviderContainer();
-
-  Zone.current.runGuarded(() async {
-    try {
-      final app = creator(container);
-      await app.run();
-    } on CliException catch (exception) {
-      exitCode = switch (exception.type) {
-        CliExceptionType.executionSkipped => 2,
-        CliExceptionType.executionEmpty => 3,
-      };
-    } finally {
-      container.dispose();
-      await logSub.cancel();
-    }
+  _runWithRef((container) async {
+    final app = creator(container);
+    await app.run();
   });
 }
 
-void runWithRef(FutureOr<void> Function(ProviderRef ref) body) {
+void runWithRef(FutureOr<void> Function(ProviderRef ref) body) => _runWithRef(body);
+
+void _runWithRef(FutureOr<void> Function(ProviderContainer container) body) {
   final logSub = _listenLogRecords();
   final container = ProviderContainer();
 
   Zone.current.runGuarded(() async {
     try {
       await body(container);
-    } on CliException {
-      exitCode = 2;
+    } on CliException catch (exception) {
+      exitCode = exception.exitCode;
     } finally {
       container.dispose();
       await logSub.cancel();

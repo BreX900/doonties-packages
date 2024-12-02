@@ -7,17 +7,17 @@ abstract final class Observers {
   static const ProviderObserver provider = _ProviderObserver();
 
   static void attachAll() {
-    PlatformDispatcher.instance.onError = _onPlatformError;
-    FlutterError.presentError = _onFlutterError;
+    PlatformDispatcher.instance.onError = _handlePlatformError;
+    FlutterError.presentError = _handleFlutterError;
     Bloc.observer = const _BlocObserver();
   }
 
-  static bool _onPlatformError(Object error, StackTrace stackTrace) {
+  static bool _handlePlatformError(Object error, StackTrace stackTrace) {
     lg.severe('Platform error', error, stackTrace);
     return true;
   }
 
-  static bool _onFlutterError(FlutterErrorDetails details) {
+  static bool _handleFlutterError(FlutterErrorDetails details) {
     lg.severe('Flutter error', details);
     return true;
   }

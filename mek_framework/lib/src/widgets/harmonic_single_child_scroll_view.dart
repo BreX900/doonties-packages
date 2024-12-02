@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
 class HarmonicSingleChildScrollView extends StatelessWidget {
+  final bool resizeToAvoidBottomInset;
   final Axis scrollDirection;
   final Clip clipBehavior;
 
@@ -17,6 +18,7 @@ class HarmonicSingleChildScrollView extends StatelessWidget {
 
   const HarmonicSingleChildScrollView({
     super.key,
+    this.resizeToAvoidBottomInset = true,
     this.scrollDirection = Axis.vertical,
     this.clipBehavior = Clip.none,
     this.reverse = false,
@@ -32,6 +34,12 @@ class HarmonicSingleChildScrollView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var padding = this.padding;
+    if (resizeToAvoidBottomInset) {
+      final viewInsets = MediaQuery.viewInsetsOf(context);
+      padding = padding?.add(viewInsets) ?? viewInsets;
+    }
+
     final child = IntrinsicHeight(
       child: this.child,
     );

@@ -113,6 +113,18 @@ extension DurationExtensions on Duration {
   int get hours => inHours % Duration.hoursPerDay;
   int get minutes => inMinutes % Duration.minutesPerHour;
   int get seconds => inSeconds % Duration.secondsPerMinute;
+  int get milliseconds => inMilliseconds % Duration.millisecondsPerSecond;
+
+  String toShortString(
+      {bool? days, bool? hours, bool? minutes, bool? seconds, bool? milliseconds}) {
+    return [
+      if (days ?? this.days > 0) '${this.days}d',
+      if (hours ?? this.hours > 0) '${this.hours}h',
+      if (minutes ?? this.minutes > 0) '${this.minutes}m',
+      if (seconds ?? this.seconds > 0) '${this.seconds}s',
+      if (milliseconds ?? this.milliseconds > 0) '${this.milliseconds}ms',
+    ].join(' ');
+  }
 }
 
 extension MapExtensions<K, V> on Map<K, V> {

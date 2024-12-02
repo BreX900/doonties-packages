@@ -4,8 +4,6 @@ import 'package:mek/src/data/mutation_state.dart';
 import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
 
 extension HandleWidgetRef on WidgetRef {
-  static bool shouldFormValid = true;
-
   bool watchIsMutating(Iterable<StateNotifier<MutationState<Object?>>> mutations) {
     return watch(mutations.provider.isMutating);
   }

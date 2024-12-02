@@ -20,11 +20,11 @@ class SignInScreen extends ConsumerStatefulWidget {
 
 class _SignInScreenState extends ConsumerState<SignInScreen> {
   final _emailFb = FormControlTyped<String>(
-    initialValue: UserAuthProviders.debug.email,
+    initialValue: const String.fromEnvironment('_DEBUG_EMAIL'),
     validators: [ValidatorsTyped.required(), ValidatorsTyped.email()],
   );
   final _passwordFb = FormControlTyped<String>(
-    initialValue: UserAuthProviders.debug.password,
+    initialValue: const String.fromEnvironment('_DEBUG_PASSWORD'),
     validators: [ValidatorsTyped.required()],
   );
 

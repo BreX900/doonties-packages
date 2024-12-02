@@ -6,7 +6,7 @@ import 'package:mekfire/src/repositories/auth_repository.dart';
 
 enum SignStatus { none, unverified, verified }
 
-final class UserAuthProviders {
+abstract final class UserAuthProviders {
   static UserAuthDto? get current => UserAuthRepository.instance.currentUser;
 
   static Stream<UserAuthDto?> get onCurrentChange => UserAuthRepository.instance.onChange;
@@ -44,11 +44,4 @@ final class UserAuthProviders {
   static Future<void> signOut() async {
     await UserAuthRepository.instance.signOut();
   }
-
-  String email = '';
-  String password = '';
-
-  UserAuthProviders._();
-
-  static final UserAuthProviders debug = UserAuthProviders._();
 }
