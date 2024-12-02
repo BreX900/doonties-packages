@@ -29,6 +29,8 @@ dependencies:
   collection: ^1.18.0
   uuid: ^4.5.1
   mekart: { path: ../mekart }
+  io: ^1.0.4
+  path: ^1.9.1
 
 dev_dependencies:
   mek_lints: ^4.0.0

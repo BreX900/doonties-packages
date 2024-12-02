@@ -56,21 +56,21 @@ abstract final class ValidatorsTyped {
     // ]);
   }
 
-  static Validator<R> iterable<R extends Iterable<T>, T>({
+  static Validator<R> iterable<R extends Iterable>({
     String code = ValidationCodes.options,
     Set<int>? lengths,
     int? minLength,
     int? maxLength,
-    List<T>? whereIn,
-    List<T>? whereNotIn,
+    R? whereIn,
+    R? whereNotIn,
   }) {
     return _TypeAdapter(_ValidationAdapter(OptionsValidation(
       errorCode: code,
       lengths: lengths,
       minLength: minLength,
       maxLength: maxLength,
-      whereIn: whereIn,
-      whereNotIn: whereNotIn,
+      whereIn: whereIn?.toList(),
+      whereNotIn: whereNotIn?.toList(),
     )));
   }
 

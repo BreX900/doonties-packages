@@ -4,37 +4,14 @@ import 'package:mekart/mekart.dart';
 // ignore: implementation_imports, depend_on_referenced_packages
 import 'package:riverpod/src/framework.dart';
 
-abstract class StateListenable<T> {
-  T get state;
-
-  void Function() addListener(void Function(T state) listener);
-}
-
-abstract class SourceProviderListenable<S, T> extends _StateProviderListenable<T> {
+abstract class SourceProviderListenable<S, T> extends _ProviderListenableBase<T> {
   final S source;
 
   const SourceProviderListenable(this.source);
 
-  @override
-  bool updateShouldNotify(T prev, T next) => true;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is SourceProviderListenable &&
-          runtimeType == other.runtimeType &&
-          source == other.source;
-
-  @override
-  int get hashCode => Object.hash(runtimeType, source);
-}
-
-abstract class _StateProviderListenable<T> implements ProviderListenable<T> {
-  const _StateProviderListenable();
-
   T get state;
 
-  bool updateShouldNotify(T prev, T next);
+  bool updateShouldNotify(T prev, T next) => true;
 
   void Function() listen(void Function(T state) listener);
 
@@ -63,20 +40,24 @@ abstract class _StateProviderListenable<T> implements ProviderListenable<T> {
   }
 
   @override
-  ProviderListenable<R> select<R>(R Function(T value) selector) =>
-      _ProviderListenableSelector(this, selector);
-}
-
-class _ProviderListenableSelector<T, R> implements ProviderListenable<R> {
-  final ProviderListenable<T> _listenable;
-  final R Function(T state) _selector;
-
-  const _ProviderListenableSelector(this._listenable, this._selector);
-
-  bool updateShouldNotify(R prev, R next) => !iEquality.equals(prev, next);
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SourceProviderListenable &&
+          runtimeType == other.runtimeType &&
+          source == other.source;
 
   @override
-  R read(Node node) => _selector(_listenable.read(node));
+  int get hashCode => Object.hash(runtimeType, source);
+}
+
+class _ProviderListenableSelector<T, R> extends _ProviderListenableBase<R> {
+  final ProviderListenable<T> listenable;
+  final R Function(T state) selector;
+
+  const _ProviderListenableSelector(this.listenable, this.selector);
+
+  @override
+  R read(Node node) => selector(listenable.read(node));
 
   @override
   ProviderSubscription<R> addListener(
@@ -87,38 +68,42 @@ class _ProviderListenableSelector<T, R> implements ProviderListenable<R> {
     required bool fireImmediately,
   }) {
     late R current;
-    final subscription = _listenable.addListener(
+    final subscription = listenable.addListener(
       node,
       (_, next) {
         final prev = current;
-        current = _selector(next);
+        current = selector(next);
 
-        if (updateShouldNotify(prev, current)) listener(prev, current);
+        if (!iEquality.equals(prev, next)) listener(prev, current);
       },
       onError: onError,
       onDependencyMayHaveChanged: onDependencyMayHaveChanged,
       fireImmediately: false,
     );
-    current = _selector(subscription.read());
+    current = selector(subscription.read());
     if (fireImmediately) Zone.current.runBinaryGuarded(listener, null, current);
 
     return _Subscription(node, this, subscription.close);
   }
 
   @override
-  ProviderListenable<S> select<S>(S Function(R value) selector) =>
-      _ProviderListenableSelector(this, selector);
-
-  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is _ProviderListenableSelector<T, R> &&
           runtimeType == other.runtimeType &&
-          _listenable == other._listenable &&
-          _selector == other._selector;
+          listenable == other.listenable &&
+          selector == other.selector;
 
   @override
-  int get hashCode => Object.hash(runtimeType, _listenable, _selector);
+  int get hashCode => Object.hash(runtimeType, listenable, selector);
+}
+
+abstract class _ProviderListenableBase<T> implements ProviderListenable<T> {
+  const _ProviderListenableBase();
+
+  @override
+  ProviderListenable<R> select<R>(R Function(T value) selector) =>
+      _ProviderListenableSelector(this, selector);
 }
 
 class _Subscription<T> extends ProviderSubscription<T> {

@@ -4,7 +4,15 @@ import 'dart:io';
 import 'package:logging/logging.dart';
 import 'package:mekcli/src/cli_utils.dart';
 
-class InterruptException implements Exception {}
+enum CliExceptionType { executionSkipped, executionEmpty }
+
+class CliException implements Exception {
+  final CliExceptionType type;
+
+  CliException.executionSkipped() : type = CliExceptionType.executionSkipped;
+
+  CliException.executionEmpty() : type = CliExceptionType.executionEmpty;
+}
 
 abstract class CliApp {
   FutureOr<void> run();
@@ -33,8 +41,11 @@ void runCliApp(CliApp Function(ProviderRef ref) creator) {
     try {
       final app = creator(container);
       await app.run();
-    } on InterruptException {
-      exitCode = 2;
+    } on CliException catch (exception) {
+      exitCode = switch (exception.type) {
+        CliExceptionType.executionSkipped => 2,
+        CliExceptionType.executionEmpty => 3,
+      };
     } finally {
       container.dispose();
       await logSub.cancel();
@@ -49,7 +60,7 @@ void runWithRef(FutureOr<void> Function(ProviderRef ref) body) {
   Zone.current.runGuarded(() async {
     try {
       await body(container);
-    } on InterruptException {
+    } on CliException {
       exitCode = 2;
     } finally {
       container.dispose();

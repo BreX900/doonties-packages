@@ -6,16 +6,17 @@ import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
 extension HandleWidgetRef on WidgetRef {
   static bool shouldFormValid = true;
 
-  bool watchIsMutating(Iterable<StateListenable<MutationState<Object?>>> mutations) {
+  bool watchIsMutating(Iterable<StateNotifier<MutationState<Object?>>> mutations) {
     return watch(mutations.provider.isMutating);
   }
 }
 
 class _GroupListenableProvider<T>
-    extends SourceProviderListenable<ISet<StateListenable<T>>, IList<T>> {
+    extends SourceProviderListenable<ISet<StateNotifier<T>>, IList<T>> {
   _GroupListenableProvider(super.source);
 
   @override
+  // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
   IList<T> get state => source.map((e) => e.state).toIList();
 
   @override
@@ -35,7 +36,7 @@ class _GroupListenableProvider<T>
   }
 }
 
-extension ProviderGroupStateListenableExtension<T> on Iterable<StateListenable<T>> {
+extension ProviderGroupStateListenableExtension<T> on Iterable<StateNotifier<T>> {
   ProviderListenable<IList<T>> get provider => _GroupListenableProvider(toISet());
 }
 

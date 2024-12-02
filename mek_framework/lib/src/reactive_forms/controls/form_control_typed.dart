@@ -18,10 +18,10 @@ class FormControlTyped<T extends Object> extends FormControl<T> {
   T? reduceValue() => super.reduceValue() ?? initialValue;
 }
 
-class FormControlOptionalTyped<T extends Object> extends FormControl<T> {
+class FormControlTypedOptional<T extends Object> extends FormControl<T> {
   final T? initialValue;
 
-  FormControlOptionalTyped({
+  FormControlTypedOptional({
     this.initialValue,
     List<Validator<T>> super.validators = const [],
     T? value,
@@ -41,7 +41,7 @@ extension AbstractControlX on AbstractControl {
     final control = this;
     return switch (control) {
       FormControlTyped() => control.hasInitialValue,
-      FormControlOptionalTyped() => control.hasInitialValue,
+      FormControlTypedOptional() => control.hasInitialValue,
       // _FormControlTyped() => control.hasInitialValue,
       FormArray() => control.controls.every((e) => e.hasInitialValue),
       FormGroup() => control.controls.values.every((e) => e.hasInitialValue),
