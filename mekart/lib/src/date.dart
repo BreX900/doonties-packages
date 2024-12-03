@@ -10,6 +10,8 @@ class DateRange {
     required this.end,
   });
 
+  bool contains(Date dateTime) => dateTime.isAfter(start) && dateTime.isBefore(end);
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

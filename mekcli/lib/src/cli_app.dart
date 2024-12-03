@@ -52,6 +52,8 @@ void _runWithRef(FutureOr<void> Function(ProviderContainer container) body) {
   final container = ProviderContainer();
 
   Zone.current.runGuarded(() async {
+    lg.config('Build version: $kBuildName${kBuildNumber != -1 ? '+$kBuildNumber' : ''}');
+
     try {
       await body(container);
     } on CliException catch (exception) {

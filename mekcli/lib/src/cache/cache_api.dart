@@ -28,13 +28,13 @@ class CacheApi {
 
     final document = await store.read(uri);
     if (document == null) {
-      lg.info('$uri: Cache missed. Validity: $validity');
+      lg.finer('$uri: Cache missed. Validity: $validity');
       return null;
     }
 
     final createdAt = document.updatedAt ?? document.createdAt;
     if (createdAt.isBefore(validity)) {
-      lg.info('$uri: Cache invalid. Validity: $validity cache: $createdAt');
+      lg.finer('$uri: Cache invalid. Validity: $validity cache: $createdAt');
       return null;
     }
 
@@ -52,7 +52,7 @@ class CacheApi {
     final isFromCache = extra[_isFromExtraKey] as bool? ?? false;
 
     if (validity != null && !isFromCache) {
-      lg.info('$uri: Fill cache.');
+      lg.finer('$uri: Fill cache.');
       await store.write(uri, data);
     }
   }
