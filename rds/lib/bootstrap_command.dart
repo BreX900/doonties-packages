@@ -56,7 +56,9 @@ class BootstrapCommand extends Command<void> {
       <excludeFolder url="file://\$MODULE_DIR\$/ios/.symlinks" />
       <excludeFolder url="file://\$MODULE_DIR\$/macos/Flutter" />
       <excludeFolder url="file://\$MODULE_DIR\$/macos/Pods" />
-      <excludeFolder url="file://\$MODULE_DIR\$/macos/.symlinks" />''' : ''}
+      <excludeFolder url="file://\$MODULE_DIR\$/macos/.symlinks" />
+      <excludeFolder url="file://\$MODULE_DIR\$/.firebase" />
+      ''' : ''}
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Dart SDK" level="project" />${project.hasFlutterDependency ? '''

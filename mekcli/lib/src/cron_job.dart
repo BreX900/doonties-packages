@@ -21,7 +21,7 @@ class CronJob {
     final startedAt = DateTime.now();
     final lastExecutionAt = await _lastExecutionAtBin.read();
 
-    await _ensureCanExecute(startedAt, lastExecutionAt);
+    if (!checkCanExecute(startedAt, lastExecutionAt)) throw CliException.executionSkipped();
 
     try {
       await _lastExecutionAtBin.write(startedAt);
@@ -32,11 +32,13 @@ class CronJob {
     }
   }
 
-  Future<void> _ensureCanExecute(DateTime startedAt, DateTime? lastExecutionAt) async {
-    if (lastExecutionAt == null) throw CliException.executionSkipped();
+  // 05-15:01->05-14:00 05-14:01 -> executionStartAt isAfter lastExecutionAt -> false throw
+  // 05-15:01->05-14:00 04-14:01 -> executionStartAt isAfter lastExecutionAt -> true execute
+  bool checkCanExecute(DateTime startedAt, DateTime? lastExecutionAt) {
+    if (lastExecutionAt == null) return true;
 
     final executionStartAt = startedAt.subtract(Duration(hours: hour)).copyDateWith(hour: hour);
 
-    if (lastExecutionAt.isAfter(executionStartAt)) throw CliException.executionSkipped();
+    return executionStartAt.isAfter(lastExecutionAt);
   }
 }

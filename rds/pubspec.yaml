@@ -4,7 +4,7 @@ version: 0.0.1
 # repository: https://github.com/my_org/my_repo
 
 environment:
-  sdk: '>=3.2.0 <3.4.0'
+  sdk: '>=3.5.0 <3.6.0'
 
 scripts:
   activate: dart pub global activate --source=path .
