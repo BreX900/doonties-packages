@@ -4,8 +4,9 @@ version: 0.0.1
 publish_to: 'none'
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
-  flutter: '>=3.24.0 <4.0.0'
+  sdk: ^3.6.0
+  flutter: ^3.27.0
+resolution: workspace
 
 scripts:
   bootstrap: dart pub global activate rps 0.7.0

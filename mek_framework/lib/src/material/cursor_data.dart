@@ -53,7 +53,7 @@ class CursorState with _$CursorState {
             (lastPagesOffsets ?? const IMapConst({})).withConfig(const ConfigMap(sort: true)),
         assert(size > 1),
         assert(page >= 0),
-        assert((lastPagesOffsets ?? const IMapConst({})).keys.every((e) => e >= 0));
+        assert(lastPagesOffsets?.keys.every((e) => e >= 0) ?? true);
 
   Cursor cursorAt(int index) =>
       Cursor(size: size, page: index, prevPageLastOffset: lastPagesOffsets[index - 1]);

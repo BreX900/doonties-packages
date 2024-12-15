@@ -4,7 +4,8 @@ version: 1.0.0
 publish_to: 'none'
 
 environment:
-  sdk: ^3.4.4
+  sdk: ^3.6.0
+resolution: workspace
 
 scripts:
   bootstrap: dart pub global activate rps 0.7.0
@@ -35,7 +36,7 @@ dependencies:
 dev_dependencies:
   mek_lints: ^4.0.0
 
-  test: ^1.25.11
+  test: ^1.25.0
   mocktail: ^1.0.4
 
 index_generator:
