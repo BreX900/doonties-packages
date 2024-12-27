@@ -3,6 +3,7 @@ import 'package:mek/src/form/validation/validation_errors.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 abstract final class ValidationCodes {
+  static const String invalid = 'invalid';
   static const String required = 'required';
   static const String comparable = 'comparable';
   static const String text = 'text';
@@ -14,9 +15,17 @@ abstract final class ValidationCodes {
 }
 
 abstract final class ValidatorsTyped {
+  static Validator<T> from<T>(Object? Function(AbstractControl<T> control) validator,
+      {String code = ValidationCodes.invalid}) {
+    return _ReactiveErrorAdapter(InvalidValidationError(code: code), (control) {
+      final error = validator(control);
+      if (error == null) return null;
+      return {'': error};
+    });
+  }
+
   static Validator<T> required<T>({String code = ValidationCodes.required}) {
-    return _ReactiveAdapter(code, const RequiredValidator(), RequiredValidationError(code: code));
-    // return _ValidatorTyped(message, [const RequiredValidator()]);
+    return _ReactiveErrorAdapter(RequiredValidationError(code: code), const RequiredValidator());
   }
 
   static Validator<T> comparable<T extends Comparable<Object>>({
@@ -33,7 +42,6 @@ abstract final class ValidatorsTyped {
       greaterOrEqualThan: greaterOrEqualThan,
       greaterThan: greaterThan,
     ));
-    // return _ComparableValidator(lessThan: lessThan, greaterThan: greaterThan, message: message);
   }
 
   static Validator<String> text({
@@ -50,10 +58,6 @@ abstract final class ValidatorsTyped {
       match: match,
       notMatch: notMatch,
     ));
-    // return _ValidatorTyped(message, [
-    //   if (minLength != null) MinLengthValidator(minLength),
-    //   if (mustMatch != null) Validators.pattern(mustMatch)
-    // ]);
   }
 
   static Validator<R> iterable<R extends Iterable>({
@@ -64,7 +68,7 @@ abstract final class ValidatorsTyped {
     R? whereIn,
     R? whereNotIn,
   }) {
-    return _TypeAdapter(_ValidationAdapter(OptionsValidation(
+    return _ReactiveTypeAdapter(_ValidationAdapter(OptionsValidation(
       errorCode: code,
       lengths: lengths,
       minLength: minLength,
@@ -75,7 +79,8 @@ abstract final class ValidatorsTyped {
   }
 
   static Validator<String> email({String message = ValidationCodes.email}) {
-    return _ReactiveAdapter(message, const EmailValidator(), InvalidValidationError(code: message));
+    return _ReactiveErrorAdapter(
+        message, const EmailValidator(), InvalidValidationError(code: message));
   }
 
   static Validator<String> password() {
@@ -90,10 +95,19 @@ abstract final class ValidatorsTyped {
   }
 
   static Validator<T> compose<T>(List<Validator<T>> validators) =>
-      _TypeAdapter(Validators.compose(validators));
+      _ReactiveTypeAdapter(Validators.compose(validators));
 
   static Validator<T> composeOR<T>(List<Validator<T>> validators) =>
-      _TypeAdapter(Validators.composeOR(validators));
+      _ReactiveTypeAdapter(Validators.composeOR(validators));
+}
+
+class _ReactiveTypeAdapter<T> extends Validator<T> {
+  final Validator<dynamic> validator;
+
+  const _ReactiveTypeAdapter(this.validator);
+
+  @override
+  Map<String, dynamic>? validate(AbstractControl<T> control) => validator.validate(control);
 }
 
 class _ValidationAdapter<T> extends Validator<T> {
@@ -113,30 +127,18 @@ class _ValidationAdapter<T> extends Validator<T> {
   }
 }
 
-class _ReactiveAdapter<T> extends Validator<T> {
-  final String message;
-  final Validator<dynamic> validator;
+class _ReactiveErrorAdapter<T> extends Validator<T> {
   final ValidationError error;
+  final Map<String, dynamic>? Function(AbstractControl<T> control) validator;
 
-  _ReactiveAdapter(this.message, this.validator, this.error);
-
-  @override
-  Map<String, dynamic>? validate(AbstractControl<T> control) {
-    final error = validator(control);
-    if (error == null) return null;
-
-    return {message: error};
-  }
-}
-
-class _TypeAdapter<T> extends Validator<T> {
-  final Validator<dynamic> validator;
-
-  const _TypeAdapter(this.validator);
+  _ReactiveErrorAdapter(this.error, this.validator) : assert(error.code != null);
 
   @override
   Map<String, dynamic>? validate(AbstractControl<T> control) {
-    return validator.validate(control);
+    final errors = validator(control);
+    if (errors == null) return null;
+
+    return {error.code!: errors.values.single};
   }
 }
 

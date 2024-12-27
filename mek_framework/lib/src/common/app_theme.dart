@@ -27,7 +27,7 @@ abstract class MekTheme {
     colorScheme ??= buildColorScheme(context);
 
     final platform = defaultTargetPlatform;
-    const buttonSize = Size(kMinInteractiveDimension * 3, kMinInteractiveDimension);
+    const buttonSize = Size(kMinInteractiveDimension * 2, kMinInteractiveDimension);
 
     return ThemeData.from(
       useMaterial3: true,

@@ -3,12 +3,28 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/src/core/_log.dart';
 import 'package:mek/src/core/typedefs.dart';
-import 'package:mek/src/data/mutation_state.dart';
 import 'package:mek/src/data/views.dart';
+import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
 import 'package:mek/src/riverpod/adapters/state_notifier_provider.dart';
 import 'package:mek/src/riverpod/auto_dispose_extension.dart';
+import 'package:mek/src/riverpod/notifiers/mutation_state.dart';
 import 'package:mek/src/riverpod/state_notifier_extensions.dart';
 import 'package:meta/meta.dart';
+
+extension MutationProviderListenableExtensions on ProviderListenable<MutationState<Object?>> {
+  ProviderListenable<MutationState<Object?>?> of(Object? arg) => selectWith(arg, _of);
+
+  static MutationState<Object?>? _of(Object? arg, MutationState<Object?> state) =>
+      state.args.contains(arg) ? state : null;
+}
+
+extension MutationProviderListenableExtensions2 on ProviderListenable<MutationState<Object?>?> {
+  ProviderListenable<bool> get isIdle => select(_isIdle);
+  ProviderListenable<bool> get isMutating => select(_isMutating);
+
+  static bool _isIdle(MutationState<Object?>? state) => state?.isIdle ?? true;
+  static bool _isMutating(MutationState<Object?>? state) => state?.isMutating ?? false;
+}
 
 typedef StartMutationListener<Arg> = FutureOr<void> Function(Arg arg);
 typedef WillStartMutationListener<Arg> = FutureOr<bool?> Function(Arg arg);

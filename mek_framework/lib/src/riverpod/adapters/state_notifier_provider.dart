@@ -15,5 +15,6 @@ class _StateNotifierProvider<T> extends SourceProviderListenable<StateNotifier<T
   T get state => source.state;
 
   @override
-  void Function() listen(void Function(T state) listener) => source.addListener(listener);
+  void Function() listen(void Function(T state) listener) =>
+      source.addListener(listener, fireImmediately: false);
 }

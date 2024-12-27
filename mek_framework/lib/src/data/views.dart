@@ -78,8 +78,12 @@ class DataBuilders extends ThemeExtension<DataBuilders> with EquatableMixin {
   }
 
   static Widget _buildLoading(BuildContext context, LoadingData data) {
-    const child = Center(
-      child: CircularProgressIndicator(),
+    const child = LimitedBox(
+      maxWidth: 256.0,
+      maxHeight: 256.0,
+      child: Center(
+        child: CircularProgressIndicator(),
+      ),
     );
     return buildWithMaterial(context, child);
   }

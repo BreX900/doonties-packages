@@ -1,7 +1,7 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mek/src/data/mutation_state.dart';
 import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
+import 'package:mek/src/riverpod/notifiers/mutation_state.dart';
 
 extension HandleWidgetRef on WidgetRef {
   bool watchIsMutating(Iterable<StateNotifier<MutationState<Object?>>> mutations) {

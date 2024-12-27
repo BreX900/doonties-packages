@@ -4,6 +4,11 @@ import 'package:mekart/mekart.dart';
 // ignore: implementation_imports, depend_on_referenced_packages
 import 'package:riverpod/src/framework.dart';
 
+extension SelectWithProviderListenableExtension<T> on ProviderListenable<T> {
+  ProviderListenable<R> selectWith<A, R>(A arg, R Function(A arg, T value) selector) =>
+      _ProviderListenableSelectorWith(this, arg, selector);
+}
+
 abstract class SourceProviderListenable<S, T> extends _ProviderListenableBase<T> {
   final S source;
 
@@ -36,7 +41,7 @@ abstract class SourceProviderListenable<S, T> extends _ProviderListenableBase<T>
 
     if (fireImmediately) Zone.current.runBinaryGuarded(listener, null, current);
 
-    return _Subscription(node, this, subscription);
+    return _Subscription(node, () => current, subscription);
   }
 
   @override
@@ -83,7 +88,7 @@ class _ProviderListenableSelector<T, R> extends _ProviderListenableBase<R> {
     current = selector(subscription.read());
     if (fireImmediately) Zone.current.runBinaryGuarded(listener, null, current);
 
-    return _Subscription(node, this, subscription.close);
+    return _Subscription(node, () => current, subscription.close);
   }
 
   @override
@@ -98,6 +103,56 @@ class _ProviderListenableSelector<T, R> extends _ProviderListenableBase<R> {
   int get hashCode => Object.hash(runtimeType, listenable, selector);
 }
 
+class _ProviderListenableSelectorWith<T, A, R> extends _ProviderListenableBase<R> {
+  final ProviderListenable<T> listenable;
+  final A arg;
+  final R Function(A arg, T state) selector;
+
+  _ProviderListenableSelectorWith(this.listenable, this.arg, this.selector);
+
+  @override
+  R read(Node node) => selector(arg, listenable.read(node));
+
+  @override
+  ProviderSubscription<R> addListener(
+    Node node,
+    void Function(R? previous, R next) listener, {
+    required void Function(Object error, StackTrace stackTrace)? onError,
+    required void Function()? onDependencyMayHaveChanged,
+    required bool fireImmediately,
+  }) {
+    late R current;
+    final subscription = listenable.addListener(
+      node,
+      (_, next) {
+        final prev = current;
+        current = selector(arg, next);
+
+        if (prev != next) listener(prev, current);
+      },
+      onError: onError,
+      onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+      fireImmediately: false,
+    );
+    current = selector(arg, subscription.read());
+    if (fireImmediately) Zone.current.runBinaryGuarded(listener, null, current);
+
+    return _Subscription(node, () => current, subscription.close);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is _ProviderListenableSelectorWith<T, A, R> &&
+          runtimeType == other.runtimeType &&
+          listenable == other.listenable &&
+          arg == other.arg &&
+          selector == other.selector;
+
+  @override
+  int get hashCode => Object.hash(runtimeType, listenable, arg, selector);
+}
+
 abstract class _ProviderListenableBase<T> implements ProviderListenable<T> {
   const _ProviderListenableBase();
 
@@ -107,13 +162,13 @@ abstract class _ProviderListenableBase<T> implements ProviderListenable<T> {
 }
 
 class _Subscription<T> extends ProviderSubscription<T> {
-  final ProviderListenable<T> provider;
+  final T Function() reader;
   final void Function() listenerRemover;
 
-  _Subscription(super.source, this.provider, this.listenerRemover);
+  _Subscription(super.source, this.reader, this.listenerRemover);
 
   @override
-  T read() => provider.read(source);
+  T read() => reader();
 
   @override
   void close() {
