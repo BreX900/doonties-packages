@@ -79,8 +79,7 @@ abstract final class ValidatorsTyped {
   }
 
   static Validator<String> email({String message = ValidationCodes.email}) {
-    return _ReactiveErrorAdapter(
-        message, const EmailValidator(), InvalidValidationError(code: message));
+    return _ReactiveErrorAdapter(InvalidValidationError(code: message), const EmailValidator());
   }
 
   static Validator<String> password() {

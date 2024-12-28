@@ -9,6 +9,7 @@ export 'src/bin/bin_store.dart';
 export 'src/bin/bin_transaction.dart';
 export 'src/bin/cached_bin_store.dart';
 export 'src/bin/value_bin_store.dart';
+export 'src/codec.dart';
 export 'src/converter.dart';
 export 'src/dart_extensions.dart';
 export 'src/date.dart';

@@ -7,18 +7,6 @@ import 'package:mekart/src/bin/bin_connection.dart';
 typedef BinSerializer<T> = Object? Function(T data);
 typedef BinDeserializer<T> = T Function(Object data);
 
-class JsonCodecWithIndent extends Codec<Object?, String> {
-  final String? indent;
-
-  const JsonCodecWithIndent(this.indent);
-
-  @override
-  Converter<String, Object?> get decoder => const JsonDecoder();
-
-  @override
-  Converter<Object?, String> get encoder => JsonEncoder.withIndent(indent);
-}
-
 class BinStore<T> {
   final BinSession _session;
   final String name;
