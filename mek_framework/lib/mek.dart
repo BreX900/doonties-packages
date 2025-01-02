@@ -9,6 +9,7 @@ export 'src/core/either.dart';
 export 'src/core/typedefs.dart';
 export 'src/data/mek_failure.dart';
 export 'src/data/nil.dart';
+export 'src/data/optional.dart';
 export 'src/data/views.dart';
 export 'src/form/blocs/field_bloc.dart';
 export 'src/form/blocs/list_field_bloc.dart';
