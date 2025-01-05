@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-library mekart;
+library;
 
 export 'src/bin/bin_connection.dart';
 export 'src/bin/bin_engine.dart';

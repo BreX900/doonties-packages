@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-library mekfire;
+library;
 
 export 'src/dto/user_auth_dto.dart';
 export 'src/failures.dart';

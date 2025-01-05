@@ -10,8 +10,8 @@ resolution: workspace
 
 scripts:
   # To generate library barrel file: https://pub.dev/packages/index_generator
-  generate:library: >-
-    dart pub global activate index_generator 3.4.1 &&
+  generate-library: >-
+    dart pub global activate index_generator 4.0.0 &&
     dart pub global run index_generator
 
   # Integration tools
@@ -77,5 +77,5 @@ index_generator:
   exclude:
     - '**.g.dart'
     - '{_,**/_}*.dart'
-  indexes:
-    - path: lib
+  libraries:
+    - directory_path: lib

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-library mek;
+library;
 
 export 'src/bloc/bloc_extensions.dart';
 export 'src/bloc/state_bloc.dart';

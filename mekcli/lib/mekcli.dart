@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-library mekcli;
+library;
 
 export 'src/cache/cache_api.dart';
 export 'src/cache/cache_store.dart';
