@@ -1,12 +1,16 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:mek/src/form/fields/field_text.dart';
-import 'package:mek/src/form/shared/text_field_type_data.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mek/src/reactive_forms/text_field_variant.dart';
+import 'package:mek/src/reactive_forms/utils/field_config.dart';
+import 'package:mek/src/riverpod/adapters/value_listenable_provider.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-class ReactiveTypedTextField<T> extends StatefulWidget {
+class ReactiveTypedTextField<T> extends ConsumerStatefulWidget {
   final FormControl<T> formControl;
   final ControlValueAccessor<T, String>? valueAccessor;
-  final TextFieldType type;
+  final TextFieldVariant variant;
+  final ValueListenable<TextConfig> config;
   final bool? readOnly;
   final int? maxLines;
   final int? maxLength;
@@ -17,7 +21,8 @@ class ReactiveTypedTextField<T> extends StatefulWidget {
     super.key,
     required this.formControl,
     this.valueAccessor,
-    this.type = TextFieldType.none,
+    this.variant = TextFieldVariant.none,
+    this.config = const TextConfig(),
     this.readOnly,
     this.maxLines = 1,
     this.maxLength,
@@ -25,27 +30,18 @@ class ReactiveTypedTextField<T> extends StatefulWidget {
     this.decoration = const InputDecoration(),
   });
 
-  TextFieldTypeData get _data {
-    return TextFieldTypeData(
-      // keyboardType: keyboardType,
-      readOnly: readOnly,
-    );
-  }
-
   @override
-  State<ReactiveTypedTextField<T>> createState() => _ReactiveTypedTextFieldState<T>();
+  ConsumerState<ReactiveTypedTextField<T>> createState() => _ReactiveTypedTextFieldState<T>();
 }
 
-class _ReactiveTypedTextFieldState<T> extends State<ReactiveTypedTextField<T>> {
+class _ReactiveTypedTextFieldState<T> extends ConsumerState<ReactiveTypedTextField<T>> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
-  late TextFieldTypeData _typeData;
 
   @override
   void initState() {
     super.initState();
     _focusNode.addListener(_onFocusChange);
-    _typeData = widget.type.initData(context, widget._data);
   }
 
   @override
@@ -65,10 +61,11 @@ class _ReactiveTypedTextFieldState<T> extends State<ReactiveTypedTextField<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final typeData = widget.type.buildData(context, _typeData);
-    final decoration = widget.type.buildDecoration(context, widget.decoration);
+    final rawConfig = ref.watch(widget.config.provider);
+    final config = widget.variant.buildConfig(context, rawConfig);
+    final decoration = widget.variant.buildDecoration(context, widget.decoration);
 
-    final child = ReactiveTextField(
+    return ReactiveTextField(
       formControl: widget.formControl,
       valueAccessor: widget.valueAccessor,
       controller: _controller,
@@ -77,20 +74,13 @@ class _ReactiveTypedTextFieldState<T> extends State<ReactiveTypedTextField<T>> {
       maxLength: widget.maxLength,
       textCapitalization: widget.textCapitalization,
       decoration: decoration,
-      readOnly: typeData.readOnly ?? false,
-      obscureText: typeData.obscureText,
-      enableSuggestions: typeData.enableSuggestions,
-      autocorrect: typeData.autocorrect,
-      keyboardType: typeData.keyboardType,
-      inputFormatters: typeData.inputFormatters,
-    );
-    return TextFieldScope(
-      decoration: decoration,
-      typeData: typeData,
-      changeData: (data) => setState(() {
-        _typeData = data;
-      }),
-      child: child,
+      // config
+      readOnly: config.readOnly,
+      obscureText: config.obscureText,
+      enableSuggestions: config.enableSuggestions,
+      autocorrect: config.autocorrect,
+      keyboardType: config.keyboardType,
+      inputFormatters: config.inputFormatters,
     );
   }
 }

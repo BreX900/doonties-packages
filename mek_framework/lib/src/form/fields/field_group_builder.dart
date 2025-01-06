@@ -6,6 +6,7 @@ class FieldGroupBuilder<T> extends FieldBuilder<T> with InlineFieldBuilder<T> {
   final InputDecoration? decoration;
   final Widget Function(BuildContext context, FieldBuilderState<FieldBuilder<T>, T> state) builder;
 
+  @Deprecated('In favour of reactive_forms')
   const FieldGroupBuilder({
     super.key,
     required super.fieldBloc,

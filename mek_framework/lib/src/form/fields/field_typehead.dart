@@ -21,6 +21,7 @@ class FieldTypehead<T> extends FieldBuilder<T> {
   /// [SuggestionsList.itemBuilder]
   final SuggestionsItemBuilder<T> itemBuilder;
 
+  @Deprecated('In favour of reactive_forms')
   const FieldTypehead({
     super.key,
     required super.fieldBloc,

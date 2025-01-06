@@ -2,9 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mek/src/form/fields/field_text.dart';
-import 'package:mek/src/reactive_forms/form_control_state_provider.dart';
-import 'package:mek/src/reactive_forms/reactive_forms.dart';
+import 'package:mek/mek.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 class ReactiveSaveButton extends ConsumerWidget {
@@ -33,12 +31,7 @@ class ReactiveSaveButton extends ConsumerWidget {
 }
 
 class ReactiveClearButton extends ConsumerWidget {
-  final bool disableOnReadOnly;
-
-  const ReactiveClearButton({
-    super.key,
-    this.disableOnReadOnly = true,
-  });
+  const ReactiveClearButton({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -53,11 +46,13 @@ class ReactiveClearButton extends ConsumerWidget {
 }
 
 class ReactiveEditButton extends ConsumerWidget {
+  final ValueNotifier<FieldConfig> controller;
   final bool toggleableObscureText;
   final FutureOr<void> Function()? onSubmit;
 
   const ReactiveEditButton({
     super.key,
+    required this.controller,
     this.toggleableObscureText = false,
     required this.onSubmit,
   });
@@ -67,19 +62,34 @@ class ReactiveEditButton extends ConsumerWidget {
     final onSubmit = this.onSubmit;
 
     final field = context.findAncestorStateOfType<ReactiveFormFieldState>()!;
-    final scope = TextFieldScope.of(context);
+    final config = ref.watch(controller.provider);
 
-    final readOnly = scope.typeData.readOnly ?? false;
+    final readOnly = config.readOnly;
     final submit = field.control.handleSubmit<FutureOr<void> Function()>((submit) async {
       await submit();
-      scope.changeData(scope.typeData.copyWith(readOnly: true));
+      controller.value = config.copyWith(readOnly: true);
     });
 
     return IconButton(
       onPressed: readOnly
-          ? () => scope.changeData(scope.typeData.copyWith(readOnly: false))
+          ? () => controller.value = config.copyWith(readOnly: false)
           : (onSubmit != null ? () => submit(onSubmit) : null),
       icon: readOnly ? const Icon(Icons.edit_outlined) : const Icon(Icons.check),
+    );
+  }
+}
+
+class ReactiveVisibilityButton extends ConsumerWidget {
+  final ValueNotifier<TextConfig> controller;
+
+  const ReactiveVisibilityButton({super.key, required this.controller});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final config = ref.watch(controller.provider);
+    return IconButton(
+      onPressed: () => controller.value = config.copyWith(obscureText: !config.obscureText),
+      icon: config.obscureText ? const Icon(Icons.visibility) : const Icon(Icons.visibility_off),
     );
   }
 }

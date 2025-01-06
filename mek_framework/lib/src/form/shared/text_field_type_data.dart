@@ -12,6 +12,7 @@ class TextFieldTypeData with _$TextFieldTypeData {
   final bool enableSuggestions;
   final bool autocorrect;
 
+  @Deprecated('In favour of reactive_forms')
   const TextFieldTypeData({
     this.keyboardType,
     this.inputFormatters = const [],

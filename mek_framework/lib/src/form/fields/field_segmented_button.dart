@@ -11,6 +11,7 @@ class FieldSegmentedButton<T> extends FieldBuilder<dynamic> with InlineFieldBuil
   final InputDecoration decoration;
   final List<ButtonSegment<T>> segments;
 
+  @Deprecated('In favour of reactive_forms')
   const FieldSegmentedButton({
     super.key,
     required super.fieldBloc,

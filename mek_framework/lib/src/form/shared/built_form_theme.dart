@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class BuiltFormTheme extends ThemeExtension<BuiltFormTheme> with EquatableMixin {
   final EdgeInsetsGeometry? fieldPadding;
 
+  @Deprecated('In favour of reactive_forms')
   const BuiltFormTheme({
     this.fieldPadding,
   });

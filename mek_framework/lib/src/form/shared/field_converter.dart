@@ -21,6 +21,7 @@ abstract class FieldConverter<TBlocValue, TVIewValue> {
 // }
 
 class DefaultFieldConverter<T> extends FieldConverter<T, T> {
+  @Deprecated('In favour of reactive_forms')
   const DefaultFieldConverter();
 
   @override
@@ -33,6 +34,7 @@ class DefaultFieldConverter<T> extends FieldConverter<T, T> {
 class SetFieldConverter<T> extends FieldConverter<T, Set<T>> {
   final bool emptyIfNull;
 
+  @Deprecated('In favour of reactive_forms')
   const SetFieldConverter({this.emptyIfNull = false});
 
   @override
@@ -46,6 +48,7 @@ class SetFieldConverter<T> extends FieldConverter<T, Set<T>> {
 class MapKeysFieldConverter<K, V> extends FieldConverter<IMap<K, V>, ISet<K>> {
   final V initialValue;
 
+  @Deprecated('In favour of reactive_forms')
   const MapKeysFieldConverter(this.initialValue);
 
   @override
@@ -64,6 +67,7 @@ class MapValueFieldConverter<K, V> extends FieldConverter<IMap<K, V>, V> {
   final K key;
   final V initialValue;
 
+  @Deprecated('In favour of reactive_forms')
   const MapValueFieldConverter(this.key, this.initialValue);
 
   @override

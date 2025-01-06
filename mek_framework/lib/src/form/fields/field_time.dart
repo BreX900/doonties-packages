@@ -8,6 +8,7 @@ class FieldTime<T extends TimeOfDay?> extends FieldBuilder<T> with InlineFieldBu
   /// Default: [TimeOfDay.now]
   final TimeOfDay? initialTime;
 
+  @Deprecated('In favour of reactive_forms')
   const FieldTime({
     super.key,
     required super.fieldBloc,

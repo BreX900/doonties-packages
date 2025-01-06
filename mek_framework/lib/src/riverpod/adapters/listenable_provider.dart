@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
 
-extension ListenableProviderExtension<T extends ChangeNotifier> on T {
-  ProviderListenable<T> get provider => _ListenableProvider(this);
+extension ListenableProviderExtension on TabController {
+  ProviderListenable<TabController> get provider => _ListenableProvider(this);
 }
 
 extension TabControllerProviderExtension on ProviderListenable<TabController> {

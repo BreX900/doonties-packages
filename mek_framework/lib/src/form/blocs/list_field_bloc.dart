@@ -40,6 +40,7 @@ typedef ListFieldBloc<TValue> = ListFieldsBloc<FieldBlocRule<TValue>, TValue>;
 
 class ListFieldsBloc<TFieldBloc extends FieldBlocRule<TValue>, TValue>
     extends GroupFieldBloc<ListFieldBlocState<TFieldBloc, TValue>, List<TValue>> {
+  @Deprecated('In favour of reactive_forms')
   ListFieldsBloc({
     List<TFieldBloc> fieldBlocs = const [],
   }) : super(ListFieldBlocState(

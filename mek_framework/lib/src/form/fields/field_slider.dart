@@ -12,6 +12,7 @@ class FieldSlider<T> extends FieldBuilder<T> with InlineFieldBuilder {
   final InputDecoration decoration;
   final String Function(double value)? labelBuilder;
 
+  @Deprecated('In favour of reactive_forms')
   const FieldSlider({
     super.key,
     required super.fieldBloc,

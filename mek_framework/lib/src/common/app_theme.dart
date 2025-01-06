@@ -86,7 +86,7 @@ abstract class MekTheme {
   }
 }
 
-extension CardThemeBorderRadiusExtension on CardTheme {
+extension CardThemeBorderRadiusExtension on CardThemeData {
   BorderRadius get borderRadius {
     assert(shape == null);
     return const BorderRadius.all(Radius.circular(12.0));

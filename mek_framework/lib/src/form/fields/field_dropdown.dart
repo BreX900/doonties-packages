@@ -8,6 +8,7 @@ class FieldDropdown<T> extends FieldBuilder<T> with InlineFieldBuilder {
   final ValueChanged<T>? onChanged;
   final List<DropdownMenuItem<T>> items;
 
+  @Deprecated('In favour of reactive_forms')
   const FieldDropdown({
     super.key,
     required super.fieldBloc,

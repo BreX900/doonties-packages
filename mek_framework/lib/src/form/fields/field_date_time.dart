@@ -13,6 +13,7 @@ class FieldDateTime<T extends DateTime?> extends FieldBuilder<T> with InlineFiel
   /// Default: [DateTime.now]
   final DateTime? initialDate;
 
+  @Deprecated('In favour of reactive_forms')
   const FieldDateTime({
     super.key,
     required super.fieldBloc,
@@ -26,6 +27,7 @@ class FieldDateTime<T extends DateTime?> extends FieldBuilder<T> with InlineFiel
     this.initialDate,
   });
 
+  @Deprecated('In favour of reactive_forms')
   const FieldDateTime.from({
     super.key,
     required super.value,

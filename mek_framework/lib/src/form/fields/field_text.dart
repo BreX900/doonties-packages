@@ -32,6 +32,7 @@ class FieldText<T> extends FieldBuilder<T> {
 
   final EdgeInsetsGeometry? padding;
 
+  @Deprecated('In favour of reactive_forms')
   const FieldText({
     super.key,
     required super.fieldBloc,
@@ -441,7 +442,7 @@ class _PasswordTextFieldType extends TextFieldType {
   @override
   InputDecoration buildDecoration(BuildContext context, InputDecoration decoration) {
     return decoration.copyWith(
-      suffixIcon: const ShowFieldButton(),
+      suffixIcon: decoration.suffixIcon ?? const ShowFieldButton(),
     );
   }
 }
@@ -498,6 +499,7 @@ class EditFieldButton extends ConsumerWidget {
   final bool toggleableObscureText;
   final VoidCallback? onSubmit;
 
+  @Deprecated('In favour of reactive_forms')
   const EditFieldButton({
     super.key,
     this.toggleableObscureText = false,
@@ -543,6 +545,7 @@ class SaveFieldButton extends ConsumerWidget {
   final FieldBloc<Object?> fieldBloc;
   final VoidCallback? onSubmit;
 
+  @Deprecated('In favour of reactive_forms')
   const SaveFieldButton({
     super.key,
     required this.fieldBloc,
@@ -566,6 +569,7 @@ class SaveFieldButton extends ConsumerWidget {
 class ClearFieldButton extends StatelessWidget {
   final bool disableOnReadOnly;
 
+  @Deprecated('In favour of reactive_forms')
   const ClearFieldButton({
     super.key,
     this.disableOnReadOnly = true,

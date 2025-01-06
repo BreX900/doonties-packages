@@ -57,12 +57,12 @@ class _UserDeleteScreenState extends ConsumerState<UserDeleteScreenBase> {
       return [
         ReactiveTypedTextField(
           formControl: _emailFieldBloc,
-          type: const TextFieldType.email(),
+          variant: const TextFieldVariant.email(),
           decoration: const InputDecoration(labelText: 'Email'),
         ),
         ReactiveTypedTextField(
           formControl: _passwordFieldBloc,
-          type: const TextFieldType.password(),
+          variant: const TextFieldVariant.password(),
           decoration: const InputDecoration(labelText: 'Password'),
         ),
       ];

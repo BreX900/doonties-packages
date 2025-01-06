@@ -43,6 +43,7 @@ class MapFieldBlocState<TKey, TValue> extends GroupFieldBlocState<IMap<TKey, TVa
 
 class MapFieldBloc<TKey, TValue>
     extends GroupFieldBloc<MapFieldBlocState<TKey, TValue>, IMap<TKey, TValue>> {
+  @Deprecated('In favour of reactive_forms')
   MapFieldBloc()
       : super(MapFieldBlocState(
           fieldBlocs: const IMapConst({}),

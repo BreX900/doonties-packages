@@ -16,6 +16,7 @@ class FieldMultiDropdown<TBlocValue, TViewValue> extends FieldBuilder<TBlocValue
   final Widget Function(BuildContext context, ISet<TViewValue> selection)? builder;
   final Widget? icon;
 
+  @Deprecated('In favour of reactive_forms')
   const FieldMultiDropdown({
     super.key,
     required super.fieldBloc,
@@ -31,6 +32,7 @@ class FieldMultiDropdown<TBlocValue, TViewValue> extends FieldBuilder<TBlocValue
     this.icon,
   }) : assert(builder == null || icon == null);
 
+  @Deprecated('In favour of reactive_forms')
   FieldMultiDropdown.withChip({
     super.key,
     required super.fieldBloc,

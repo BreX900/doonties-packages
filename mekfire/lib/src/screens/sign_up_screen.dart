@@ -20,10 +20,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     initialValue: const String.fromEnvironment('_DEBUG_PASSWORD'),
     validators: [ValidatorsTyped.required(), ValidatorsTyped.password()],
   );
+  final _passwordConfigController = ValueNotifier(TextConfig.password);
   final _passwordConfirmationFb = FormControlTyped<String>(
     initialValue: const String.fromEnvironment('_DEBUG_PASSWORD'),
     validators: [ValidatorsTyped.required(), ValidatorsTyped.password()],
   );
+  final _passwordConfirmationConfigController = ValueNotifier(TextConfig.password);
 
   late final _form = FormArray([_emailFb, _passwordFb, _passwordConfirmationFb]);
 
@@ -66,23 +68,28 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           children: [
             ReactiveTypedTextField(
               formControl: _emailFb,
-              type: const TextFieldType.email(),
+              variant: const TextFieldVariant.email(),
               decoration: const InputDecoration(
                 labelText: 'Email',
               ),
             ),
             ReactiveTypedTextField(
               formControl: _passwordFb,
-              type: const TextFieldType.password(),
-              decoration: const InputDecoration(
+              variant: const TextFieldVariant.password(),
+              config: _passwordConfigController,
+              decoration: InputDecoration(
                 labelText: 'Password',
+                suffixIcon: ReactiveVisibilityButton(controller: _passwordConfigController),
               ),
             ),
             ReactiveTypedTextField(
               formControl: _passwordConfirmationFb,
-              type: const TextFieldType.password(),
-              decoration: const InputDecoration(
+              variant: const TextFieldVariant.password(),
+              config: _passwordConfirmationConfigController,
+              decoration: InputDecoration(
                 labelText: 'Password Confirmation',
+                suffixIcon:
+                    ReactiveVisibilityButton(controller: _passwordConfirmationConfigController),
               ),
             ),
           ],

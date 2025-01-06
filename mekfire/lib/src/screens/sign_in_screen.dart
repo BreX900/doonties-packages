@@ -27,6 +27,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     initialValue: const String.fromEnvironment('_DEBUG_PASSWORD'),
     validators: [ValidatorsTyped.required()],
   );
+  final _passwordConfigController = ValueNotifier(TextConfig.password);
 
   late final _form = FormArray([_emailFb, _passwordFb]);
 
@@ -62,13 +63,17 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       return [
         ReactiveTypedTextField(
           formControl: _emailFb,
-          type: const TextFieldType.email(),
+          variant: const TextFieldVariant.email(),
           decoration: const InputDecoration(labelText: 'Email'),
         ),
         ReactiveTypedTextField(
           formControl: _passwordFb,
-          type: const TextFieldType.password(),
-          decoration: const InputDecoration(labelText: 'Password'),
+          variant: const TextFieldVariant.password(),
+          config: _passwordConfigController,
+          decoration: InputDecoration(
+            labelText: 'Password',
+            suffixIcon: ReactiveVisibilityButton(controller: _passwordConfigController),
+          ),
         ),
         TextButton.icon(
           onPressed: isIdle ? () => sendPasswordResetEmail(nil) : null,

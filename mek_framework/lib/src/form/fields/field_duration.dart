@@ -9,6 +9,7 @@ class FieldDuration<T extends Duration?> extends FieldBuilder<T> with InlineFiel
   /// Default: [TimeOfDay.now]
   final Duration? initialTime;
 
+  @Deprecated('In favour of reactive_forms')
   const FieldDuration({
     super.key,
     required super.fieldBloc,

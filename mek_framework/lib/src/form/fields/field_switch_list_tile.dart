@@ -7,6 +7,7 @@ class FieldSwitchListTile extends FieldBuilder<bool> with InlineFieldBuilder {
   final Widget? title;
   final Widget? subtitle;
 
+  @Deprecated('In favour of reactive_forms')
   const FieldSwitchListTile({
     super.key,
     required super.fieldBloc,
