@@ -1,64 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+extension RefreshAndInvalidateAncestorsWidgetRefExtension on WidgetRef {
+  void refreshAndInvalidateAncestors(ProviderBase<Object?> provider) =>
+      ProviderScope.containerOf(context, listen: false).refreshAndInvalidateAncestors(provider);
+}
+
 extension InvalidateFromProviderContainerExtension on ProviderContainer {
-  /// Invalidate all ancestors providers from [provider] and flush it
-  void invalidateAncestors(ProviderBase<Object?> provider) {
-    if (!exists(provider)) return;
-
-    final element = readProviderElement(provider);
-
-    final dirtyParents = <ProviderElementBase<Object?>>{};
-    final dirtyChildren = <ProviderElementBase<Object?>>{};
-
-    bool visitor(ProviderElementBase<Object?> element) {
-      if (element is! ProviderElementBase<AsyncValue>) return false;
-      if (!_checkCanInvalidate(element)) return false;
-
-      var isInvalidated = false;
-      element.visitAncestors((element) {
-        final isParentInvalidated = visitor(element);
-        if (isParentInvalidated) isInvalidated = true;
-      });
-
-      if (isInvalidated) {
-        dirtyParents.remove(element);
-        dirtyChildren.add(element);
-      }
-      if (!dirtyChildren.contains(element)) dirtyParents.add(element);
-
-      return true;
-    }
-
-    visitor(element);
-
-    for (final element in dirtyParents) {
-      element.invalidateSelf();
-    }
-
-    // ignore: invalid_use_of_internal_member
-    element.flush();
-  }
-
-  void invalidateFrom(ProviderBase<Object?> provider) {
-    if (!exists(provider)) return;
-
+  void refreshAndInvalidateAncestors<T>(ProviderBase<Object?> provider) {
     final element = readProviderElement(provider);
     final visitor = _createVisitor((element) => element.invalidateSelf());
     visitor(element);
 
-    // ignore: invalid_use_of_internal_member
+    // ignore: invalid_use_of_protected_member, invalid_use_of_internal_member
     element.flush();
-  }
-
-  bool shouldInvalidate(ProviderBase<Object?> provider) {
-    final element = readProviderElement(provider);
-
-    var shouldInvalidate = false;
-    final visitor = _createVisitor((element) {
-      shouldInvalidate = true;
-    });
-    visitor(element);
-    return shouldInvalidate;
   }
 
   void Function(ProviderElementBase<Object?> element) _createVisitor(

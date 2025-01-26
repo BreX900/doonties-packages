@@ -34,7 +34,7 @@ abstract final class MekUtils {
       content: _ErrorSnackBarContent(
         autoCloseController: progressController,
         foregroundColor: foregroundColor,
-        description: description,
+        child: description,
       ),
     ));
 
@@ -113,12 +113,12 @@ abstract final class MekUtils {
 class _ErrorSnackBarContent extends StatelessWidget {
   final AnimationController autoCloseController;
   final Color foregroundColor;
-  final Widget description;
+  final Widget child;
 
   const _ErrorSnackBarContent({
     required this.autoCloseController,
     required this.foregroundColor,
-    required this.description,
+    required this.child,
   });
 
   void _stopAutoClose() {
@@ -149,7 +149,7 @@ class _ErrorSnackBarContent extends StatelessWidget {
                     style: TextStyle(color: foregroundColor),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
-                    child: description,
+                    child: child,
                   ),
                 ),
                 IconButton(

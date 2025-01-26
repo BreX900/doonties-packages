@@ -34,36 +34,59 @@ class ErrorData {
   });
 }
 
-// extension BuildAsyncValue<T> on AsyncValue<T> {
-//   // buildView
-//   Widget buildScene({required Widget Function(T data) data}) {
-//     return when(
-//       skipLoadingOnReload: true,
-//       skipLoadingOnRefresh: true,
-//       loading: _buildLoadingView,
-//       error: _buildErrorView,
-//       data: data,
-//     );
-//   }
+typedef DataBuilders = DefaultWidgets;
+
+/// Version 1.1.0
+// extension BuildViewAsyncValue<T> on AsyncValue<T> {
+// Widget buildView({
+//   required void Function() onRefresh,
+//   Widget Function()? loading,
+//   required Widget Function(T data) data,
+// }) {
+//   return when(
+//     skipLoadingOnRefresh: true,
+//     skipLoadingOnReload: true,
+//     skipError: false,
+//     loading: loading ?? _buildLoadingView,
+//     error: (error, _) {
+//       if (isLoading) return _buildLoadingView();
+//       return Builder(builder: (context) {
+//         return DefaultWidgets.buildError(context, error, onTap: onRefresh);
+//       });
+//     },
+//     data: data,
+//   );
+// }
 //
-//   static Widget _buildLoadingView() => const Builder(builder: DataBuilders.buildLoading);
-//   static Widget _buildErrorView(Object error, StackTrace _) =>
-//       Builder(builder: (context) => DataBuilders.buildError(context, error));
+// String buildString({required String Function(T data) data}) {
+//   return when(
+//     skipLoadingOnReload: true,
+//     skipLoadingOnRefresh: true,
+//     skipError: false,
+//     loading: () => '...',
+//     error: (_, __) => ' 🤕 ',
+//     data: data,
+//   );
+// }
+//
+// static Widget _buildLoadingView() => const Builder(builder: DefaultWidgets.buildLoading);
 // }
 
-class DataBuilders extends ThemeExtension<DataBuilders> with EquatableMixin {
+class DefaultWidgets extends ThemeExtension<DataBuilders> with EquatableMixin {
+  static DefaultWidgets instance = const DefaultWidgets();
+
   final LoadingDataBuilder loadingBuilder;
   final ErrorDataBuilder errorBuilder;
   final ErrorDataListener errorListener;
 
-  const DataBuilders({
+  const DefaultWidgets({
     this.loadingBuilder = _buildLoading,
     this.errorBuilder = _buildError,
     this.errorListener = _showError,
   });
 
-  static DataBuilders of(BuildContext context) =>
-      Theme.of(context).extension<DataBuilders>() ?? const DataBuilders();
+  static DefaultWidgets of(BuildContext context) =>
+      Theme.of(context).extension<DefaultWidgets>() ?? const DefaultWidgets();
 
   static Widget buildLoading(BuildContext context) {
     return of(context).loadingBuilder(context, const LoadingData());

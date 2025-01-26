@@ -1,4 +1,3 @@
-import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/src/core/_log.dart';
@@ -9,7 +8,7 @@ abstract final class Observers {
   static void attachAll() {
     PlatformDispatcher.instance.onError = _handlePlatformError;
     FlutterError.presentError = _handleFlutterError;
-    Bloc.observer = const _BlocObserver();
+    // Bloc.observer = const _BlocObserver();
   }
 
   static bool _handlePlatformError(Object error, StackTrace stackTrace) {
@@ -63,13 +62,13 @@ class _ProviderObserver extends ProviderObserver {
   }
 }
 
-class _BlocObserver extends BlocObserver {
-  const _BlocObserver();
-
-  @override
-  void onError(BlocBase<Object?> bloc, Object error, StackTrace stackTrace) {
-    super.onError(bloc, error, stackTrace);
-
-    lg.severe('Exception caught by ${bloc.runtimeType}#$bloc', error, stackTrace);
-  }
-}
+// class _BlocObserver extends BlocObserver {
+//   const _BlocObserver();
+//
+//   @override
+//   void onError(BlocBase<Object?> bloc, Object error, StackTrace stackTrace) {
+//     super.onError(bloc, error, stackTrace);
+//
+//     lg.severe('Exception caught by ${bloc.runtimeType}#$bloc', error, stackTrace);
+//   }
+// }

@@ -1,11 +1,19 @@
+import 'dart:ui';
+
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mek/mek.dart';
 import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
-import 'package:mek/src/riverpod/notifiers/mutation_state.dart';
 
 extension HandleWidgetRef on WidgetRef {
   bool watchIsMutating(Iterable<StateNotifier<MutationState<Object?>>> mutations) {
     return watch(mutations.provider.isMutating);
+  }
+
+  VoidCallback? handle<T>(MutationBloc<T, Object?> mutation, T arg) {
+    final isMutating = watch(mutation.provider.isMutating);
+    if (isMutating) return null;
+    return () => mutation(arg);
   }
 }
 

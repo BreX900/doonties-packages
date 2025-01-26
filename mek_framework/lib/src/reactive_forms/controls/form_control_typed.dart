@@ -7,12 +7,16 @@ class FormControlTyped<T extends Object> extends FormControl<T> {
     required this.initialValue,
     List<Validator<T>> super.validators = const [],
     T? value,
+    super.disabled,
   }) : super(value: value ?? initialValue);
+
+  @override
+  late final Stream<T> valueChanges = super.valueChanges.cast<T>();
 
   @override
   T get value => super.value ?? initialValue;
 
-  bool get hasInitialValue => value == initialValue;
+  bool get isValueInitial => value == initialValue;
 
   @override
   T? reduceValue() => super.reduceValue() ?? initialValue;
@@ -37,14 +41,14 @@ class FormControlTypedOptional<T extends Object> extends FormControl<T> {
 }
 
 extension AbstractControlX on AbstractControl {
-  bool get hasInitialValue {
+  bool get isValueInitial {
     final control = this;
     return switch (control) {
-      FormControlTyped() => control.hasInitialValue,
+      FormControlTyped() => control.isValueInitial,
       FormControlTypedOptional() => control.hasInitialValue,
       // _FormControlTyped() => control.hasInitialValue,
-      FormArray() => control.controls.every((e) => e.hasInitialValue),
-      FormGroup() => control.controls.values.every((e) => e.hasInitialValue),
+      FormArray() => control.controls.every((e) => e.isValueInitial),
+      FormGroup() => control.controls.values.every((e) => e.isValueInitial),
       _ => value == null,
     };
   }

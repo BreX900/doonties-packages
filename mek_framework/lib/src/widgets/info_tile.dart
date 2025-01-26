@@ -1,12 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-@Deprecated('In favour of InfoView')
-typedef InfoBodyTile = InfoTile;
-
-@Deprecated('In favour of InfoView')
-typedef InfoTile = InfoView;
-
 class InfoView extends StatelessWidget {
   final VoidCallback? onTap;
   final Widget? icon;

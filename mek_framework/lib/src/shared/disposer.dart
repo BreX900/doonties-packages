@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rxdart/rxdart.dart';
@@ -70,16 +69,16 @@ mixin ValueNotifierDisposer on ValueNotifier implements DisposerProvider {
   }
 }
 
-mixin BlocDisposer<T> on BlocBase<T> implements DisposerProvider {
-  @override
-  final _disposer = Disposer();
-
-  @override
-  Future<void> close() {
-    _disposer.dispose();
-    return super.close();
-  }
-}
+// mixin BlocDisposer<T> on BlocBase<T> implements DisposerProvider {
+//   @override
+//   final _disposer = Disposer();
+//
+//   @override
+//   Future<void> close() {
+//     _disposer.dispose();
+//     return super.close();
+//   }
+// }
 
 mixin StateNotifierDisposer<T> on StateNotifier<T> implements DisposerProvider {
   @override
@@ -108,9 +107,9 @@ extension DisposableValueNotifierExtension<T> on ValueNotifier<T> {
   void disposeBy(DisposerProvider disposer) => disposer._add(dispose);
 }
 
-extension DisposableBlocExtension<State> on BlocBase<State> {
-  void disposeBy(DisposerProvider disposer) => disposer._add(close);
-}
+// extension DisposableBlocExtension<State> on BlocBase<State> {
+//   void disposeBy(DisposerProvider disposer) => disposer._add(close);
+// }
 
 extension DisposableStateNotifierExtension<State> on StateNotifier<State> {
   void disposeBy(DisposerProvider disposer) => disposer._add(dispose);

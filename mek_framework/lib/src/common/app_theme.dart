@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:mek/mek.dart';
 
 abstract class MekTheme {
   static ColorScheme buildColorScheme(BuildContext context) {
@@ -77,11 +76,6 @@ abstract class MekTheme {
       snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
       ),
-      extensions: {
-        const BuiltFormTheme(
-          fieldPadding: EdgeInsets.symmetric(horizontal: 16.0),
-        ),
-      },
     );
   }
 }

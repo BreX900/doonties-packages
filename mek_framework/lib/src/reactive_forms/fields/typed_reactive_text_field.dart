@@ -15,7 +15,12 @@ class ReactiveTypedTextField<T> extends ConsumerStatefulWidget {
   final int? maxLines;
   final int? maxLength;
   final TextCapitalization textCapitalization;
+  final TextInputAction? textInputAction;
   final InputDecoration decoration;
+  final ReactiveFormFieldCallback<T>? onTap;
+  final ReactiveFormFieldCallback<T>? onEditingComplete;
+  final ReactiveFormFieldCallback<T>? onSubmitted;
+  final ReactiveFormFieldCallback<T>? onChanged;
 
   const ReactiveTypedTextField({
     super.key,
@@ -27,7 +32,12 @@ class ReactiveTypedTextField<T> extends ConsumerStatefulWidget {
     this.maxLines = 1,
     this.maxLength,
     this.textCapitalization = TextCapitalization.none,
+    this.textInputAction,
     this.decoration = const InputDecoration(),
+    this.onTap,
+    this.onEditingComplete,
+    this.onSubmitted,
+    this.onChanged,
   });
 
   @override
@@ -73,7 +83,12 @@ class _ReactiveTypedTextFieldState<T> extends ConsumerState<ReactiveTypedTextFie
       maxLines: widget.maxLines,
       maxLength: widget.maxLength,
       textCapitalization: widget.textCapitalization,
+      textInputAction: widget.textInputAction,
       decoration: decoration,
+      onTap: widget.onTap,
+      onEditingComplete: widget.onEditingComplete,
+      onSubmitted: widget.onSubmitted,
+      onChanged: widget.onChanged,
       // config
       readOnly: config.readOnly,
       obscureText: config.obscureText,

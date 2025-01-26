@@ -30,6 +30,34 @@ class ReactiveSaveButton extends ConsumerWidget {
   }
 }
 
+class ReactiveAddButton extends ConsumerWidget {
+  final FutureOr<void> Function()? onSubmit;
+
+  const ReactiveAddButton({
+    super.key,
+    required this.onSubmit,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final onSubmit = this.onSubmit;
+
+    final field = context.findAncestorStateOfType<ReactiveFormFieldState>()!;
+
+    final isPristine = ref.watch(field.control.provider.pristine);
+    if (isPristine) return const SizedBox.shrink();
+
+    final submit = field.control.handleSubmit<FutureOr<void> Function()>((submit) async {
+      await submit();
+      field.control.reset();
+    });
+    return IconButton(
+      onPressed: onSubmit != null ? () => submit(onSubmit) : null,
+      icon: const Icon(Icons.save),
+    );
+  }
+}
+
 class ReactiveClearButton extends ConsumerWidget {
   const ReactiveClearButton({super.key});
 
@@ -90,6 +118,21 @@ class ReactiveVisibilityButton extends ConsumerWidget {
     return IconButton(
       onPressed: () => controller.value = config.copyWith(obscureText: !config.obscureText),
       icon: config.obscureText ? const Icon(Icons.visibility) : const Icon(Icons.visibility_off),
+    );
+  }
+}
+
+class VisibilityButton extends ConsumerWidget {
+  final bool value;
+  final ValueChanged<bool> onChange;
+
+  const VisibilityButton({super.key, required this.value, required this.onChange});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return IconButton(
+      onPressed: () => onChange(!value),
+      icon: value ? const Icon(Icons.visibility) : const Icon(Icons.visibility_off),
     );
   }
 }

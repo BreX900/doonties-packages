@@ -2,10 +2,10 @@ import 'package:flutter/widgets.dart';
 import 'package:nested/nested.dart';
 
 extension InheritedValueBuildContextExtension on BuildContext {
-  T watch<T extends Object>() => InheritedValue.of<T>(this);
+  T watch<T>() => InheritedValue.of<T>(this);
 }
 
-class InheritedValue<T extends Object> extends InheritedWidget implements SingleChildWidget {
+class InheritedValue<T> extends InheritedWidget implements SingleChildWidget {
   final T value;
 
   const InheritedValue({
@@ -14,17 +14,18 @@ class InheritedValue<T extends Object> extends InheritedWidget implements Single
     super.child = const SizedBox.shrink(),
   });
 
-  static T of<T extends Object>(BuildContext context) {
-    final value = maybeOf<T>(context);
-    if (value == null) {
+  static T of<T>(BuildContext context) {
+    final widget = _maybeWidgetOf<T>(context);
+    if (widget == null) {
       throw ArgumentError('InheritedValue widget not exist on widget tree with type $T');
     }
-    return value;
+    return widget.value;
   }
 
-  static T? maybeOf<T extends Object>(BuildContext context) {
-    final widget = context.dependOnInheritedWidgetOfExactType<InheritedValue<T>>();
-    return widget?.value;
+  static T? maybeOf<T>(BuildContext context) => _maybeWidgetOf(context)?.value;
+
+  static InheritedValue<T>? _maybeWidgetOf<T>(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<InheritedValue<T>>();
   }
 
   @override

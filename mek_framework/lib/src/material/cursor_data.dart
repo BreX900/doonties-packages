@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek_data_class/mek_data_class.dart';
 
 part 'cursor_data.g.dart';
@@ -68,7 +68,7 @@ class CursorState with _$CursorState {
   }
 }
 
-class CursorBloc extends Cubit<CursorState> {
+class CursorBloc extends StateNotifier<CursorState> {
   static int defaultSize = 20;
 
   CursorBloc({String? debugLabel, int? size})
@@ -87,10 +87,10 @@ class CursorBloc extends Cubit<CursorState> {
     final updatedOffsets =
         state.lastPagesOffsets.add(page, offsets?.elementAtOrNull(state.size - 1));
 
-    emit(state.change((c) => c
+    state = state.change((c) => c
       ..lastPage = endAtPage
       ..lastPagesOffsets = updatedOffsets
-      ..page = nextPage));
+      ..page = nextPage);
   }
 
   void registerOffsets(Iterable<String> offsets, {int? page}) =>
@@ -113,8 +113,8 @@ class CursorBloc extends Cubit<CursorState> {
       if (!isInAvailablePages) return;
     }
 
-    emit(state.change((c) => c..page = pageIndex));
+    state = state.change((c) => c..page = pageIndex);
   }
 
-  void clean() => emit(CursorState(size: state.size));
+  void clean() => state = CursorState(size: state.size);
 }

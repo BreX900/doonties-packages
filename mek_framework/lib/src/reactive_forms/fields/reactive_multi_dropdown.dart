@@ -1,15 +1,11 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
-import 'package:mek/src/form/shared/built_form_theme.dart';
 import 'package:reactive_forms/reactive_forms.dart';
-
-typedef ReactivePopupMenuButtonState<T> = ReactiveFormFieldState<ISet<T>, ISet<T>>;
 
 class ReactivePopupMenuButton<T> extends ReactiveFormField<ISet<T>, ISet<T>> {
   ReactivePopupMenuButton({
     super.key,
     required FormControl<ISet<T>> super.formControl,
-    EdgeInsetsGeometry? padding,
     BoxConstraints? constraints,
     InputDecoration decoration = const InputDecoration(),
     ValueChanged<ISet<T>>? onChanged,
@@ -18,11 +14,12 @@ class ReactivePopupMenuButton<T> extends ReactiveFormField<ISet<T>, ISet<T>> {
     Widget? icon,
   }) : super(
           builder: (field) {
+            field as ReactivePopupMenuButtonState<T>;
+
             final theme = Theme.of(field.context);
-            final formTheme = BuiltFormTheme.of(field.context);
             final isEnabled = field.control.enabled;
 
-            final values = field.value ?? ISet<T>.empty();
+            final values = field.value;
 
             void changeValue(T value) {
               final newValues = values.contains(value) ? values.remove(value) : values.add(value);
@@ -38,10 +35,7 @@ class ReactivePopupMenuButton<T> extends ReactiveFormField<ISet<T>, ISet<T>> {
               );
               return ConstrainedBox(
                 constraints: constraints ?? const BoxConstraints(minHeight: kToolbarHeight),
-                child: formTheme.wrap(
-                  padding: padding,
-                  child: child,
-                ),
+                child: child,
               );
             }
 
@@ -73,7 +67,7 @@ class ReactivePopupMenuButton<T> extends ReactiveFormField<ISet<T>, ISet<T>> {
           itemBuilder: itemBuilder,
           builder: (field) {
             final items = itemBuilder(field);
-            final values = field.value ?? ISet();
+            final values = field.value;
 
             void changeValue(T value) {
               final newValues = values.contains(value) ? values.remove(value) : values.add(value);
@@ -100,4 +94,12 @@ class ReactivePopupMenuButton<T> extends ReactiveFormField<ISet<T>, ISet<T>> {
             );
           },
         );
+
+  @override
+  ReactivePopupMenuButtonState<T> createState() => ReactivePopupMenuButtonState<T>();
+}
+
+class ReactivePopupMenuButtonState<T> extends ReactiveFormFieldState<ISet<T>, ISet<T>> {
+  @override
+  ISet<T> get value => super.value ?? ISet<T>.empty();
 }

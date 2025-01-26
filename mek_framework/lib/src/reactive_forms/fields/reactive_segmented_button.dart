@@ -118,26 +118,26 @@ class _ReactiveSegmentedButtonState<T> extends ReactiveFormFieldState<Object?, S
   @override
   ControlValueAccessor<Object?, Set<T?>> selectValueAccessor() {
     if (widget.multiSelectionEnabled) {
-      return _MultiControlValueAccessor(emptySelectionAllowed: widget.emptySelectionAllowed);
+      return _MultiControlValueAccessor<T>(emptySelectionAllowed: widget.emptySelectionAllowed);
     } else {
       return _SingleControlValueAccessor<T>(emptySelectionAllowed: widget.emptySelectionAllowed);
     }
   }
 }
 
-class _MultiControlValueAccessor<T> extends ControlValueAccessor<Set<T>, Set<T>> {
+class _MultiControlValueAccessor<T> extends ControlValueAccessor<ISet<T>, Set<T?>> {
   final bool emptySelectionAllowed;
 
   _MultiControlValueAccessor({required this.emptySelectionAllowed});
 
   @override
-  Set<T>? modelToViewValue(Set<T>? modelValue) => modelValue;
+  Set<T?>? modelToViewValue(ISet<T>? modelValue) => modelValue?.unlockView.cast<T?>();
 
   @override
-  Set<T>? viewToModelValue(Set<T>? viewValue) => viewValue;
+  ISet<T>? viewToModelValue(Set<T?>? viewValue) => viewValue?.cast<T>().lockUnsafe;
 }
 
-class _SingleControlValueAccessor<T> extends ControlValueAccessor<T, Set<T>> {
+class _SingleControlValueAccessor<T> extends ControlValueAccessor<T, Set<T?>> {
   final bool emptySelectionAllowed;
 
   _SingleControlValueAccessor({required this.emptySelectionAllowed});
@@ -146,7 +146,7 @@ class _SingleControlValueAccessor<T> extends ControlValueAccessor<T, Set<T>> {
   Set<T>? modelToViewValue(T? modelValue) => modelValue == null ? <T>{} : <T>{modelValue};
 
   @override
-  T? viewToModelValue(Set<T>? viewValue) => viewValue?.singleOrNull;
+  T? viewToModelValue(Set<T?>? viewValue) => viewValue?.singleOrNull;
 }
 
 // class _ControlValueAccessor<T> extends ControlValueAccessor<Object?, Set<T?>> {

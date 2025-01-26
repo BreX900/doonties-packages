@@ -64,12 +64,15 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         ReactiveTypedTextField(
           formControl: _emailFb,
           variant: const TextFieldVariant.email(),
+          textInputAction: TextInputAction.next,
           decoration: const InputDecoration(labelText: 'Email'),
         ),
         ReactiveTypedTextField(
           formControl: _passwordFb,
           variant: const TextFieldVariant.password(),
           config: _passwordConfigController,
+          textInputAction: TextInputAction.done,
+          onSubmitted: isIdle ? (_) => signIn(nil) : null,
           decoration: InputDecoration(
             labelText: 'Password',
             suffixIcon: ReactiveVisibilityButton(controller: _passwordConfigController),
@@ -83,7 +86,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       ];
     }
 
-    final scaffold = Scaffold(
+    return Scaffold(
       appBar: AppBar(
         title: const Text('Sign In'),
       ),
@@ -116,11 +119,6 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           ],
         ),
       ),
-    );
-
-    return SkeletonForm(
-      onSubmit: isIdle ? () => signIn(nil) : null,
-      child: scaffold,
     );
   }
 }

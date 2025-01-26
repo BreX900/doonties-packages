@@ -307,11 +307,13 @@ class OptionsValidation<T> extends ValidationBase<Iterable<T>> {
     if (lengths != null && !lengths!.contains(value.length)) {
       return OptionsValidationError(
         validation: this,
+        code: errorCode,
         lengths: lengths,
       );
     } else if (minLength != null && value.length < minLength!) {
       return OptionsValidationError(
         validation: this,
+        code: errorCode,
         minLength: minLength,
       );
     } else if (maxLength != null && value.length > maxLength!) {

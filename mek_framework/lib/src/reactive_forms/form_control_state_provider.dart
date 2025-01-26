@@ -11,21 +11,23 @@ extension AbstractControlStateProvider<V> on AbstractControl<V> {
 }
 
 extension AbstractControlStateProviderExtensions<V> on ProviderListenable<AbstractControlState<V>> {
+  ProviderListenable<bool> get hasValue => select(_hasValue);
   ProviderListenable<V> get value => select(_value);
   ProviderListenable<bool> get pristine => select(_pristine);
   ProviderListenable<bool> get dirty => select(_dirty);
   ProviderListenable<bool> get touched => select(_touched);
   ProviderListenable<ControlStatus> get status => select(_status);
   ProviderListenable<MapEntry<String, Object>?> get error => select(_error);
-  ProviderListenable<bool> get hasInitialValue => select(_hasInitialValue);
+  ProviderListenable<bool> get isValueInitial => select(_isValueInitial);
 
+  static bool _hasValue<V>(AbstractControlState<V> state) => state.value != null;
   static V _value<V>(AbstractControlState<V> state) => state.value;
   static bool _pristine<V>(AbstractControlState<V> state) => state.pristine;
   static bool _dirty<V>(AbstractControlState<V> state) => state.dirty;
   static bool _touched<V>(AbstractControlState<V> state) => state.touched;
   static ControlStatus _status<V>(AbstractControlState<V> state) => state.status;
   static MapEntry<String, Object>? _error<V>(AbstractControlState<V> state) => state.error;
-  static bool _hasInitialValue<V>(AbstractControlState<V> state) => state.hasInitialValue;
+  static bool _isValueInitial<V>(AbstractControlState<V> state) => state.isValueInitial;
 }
 
 extension ProviderListenableControlStatusExtensions on ProviderListenable<ControlStatus> {
@@ -85,7 +87,7 @@ class AbstractControlState<V> with EquatableAndDescribable {
   final bool touched;
   final Map<String, Object> errors;
   final ControlStatus status;
-  final bool hasInitialValue;
+  final bool isValueInitial;
 
   bool get dirty => !pristine;
   bool get hasErrors => errors.isNotEmpty;
@@ -103,7 +105,7 @@ class AbstractControlState<V> with EquatableAndDescribable {
     required this.touched,
     required this.errors,
     required this.status,
-    required this.hasInitialValue,
+    required this.isValueInitial,
   });
 
   @override
@@ -113,7 +115,7 @@ class AbstractControlState<V> with EquatableAndDescribable {
         'touched': touched,
         'errors': errors,
         'status': status,
-        'hasInitialValue': hasInitialValue,
+        'isValueInitial': isValueInitial,
       };
 }
 
@@ -126,7 +128,7 @@ class FormControlState<V> extends AbstractControlState<V?> {
     required super.touched,
     required super.errors,
     required super.status,
-    required super.hasInitialValue,
+    required super.isValueInitial,
     required this.hasFocus,
   });
 
@@ -147,14 +149,14 @@ class _FormCollectionState<C, V> extends AbstractControlState<V> {
     required super.touched,
     required super.errors,
     required super.status,
-    required super.hasInitialValue,
+    required super.isValueInitial,
     required this.controls,
   });
 
   @override
   Map<String, Object?> get props => super.props
     ..['controls'] = controls
-    ..['hasInitialValues'] = hasInitialValue;
+    ..['isValueInitial'] = isValueInitial;
 }
 
 class _AbstractControlStateProvider<V>
@@ -169,7 +171,7 @@ class _AbstractControlStateProvider<V>
       touched: source.touched,
       errors: source.errors,
       status: source.status,
-      hasInitialValue: source.hasInitialValue,
+      isValueInitial: source.isValueInitial,
     );
   }
 }
@@ -189,7 +191,7 @@ class _FormControlStateProvider<V>
       touched: source.touched,
       errors: source.errors,
       status: source.status,
-      hasInitialValue: source.hasInitialValue,
+      isValueInitial: source.isValueInitial,
       hasFocus: source.hasFocus,
     );
   }
@@ -245,7 +247,7 @@ abstract class _FormCollectionStateProvider<S extends FormControlCollection, C, 
       errors: source.errors,
       status: source.status,
       controls: controls,
-      hasInitialValue: source.hasInitialValue,
+      isValueInitial: source.isValueInitial,
     );
   }
 }

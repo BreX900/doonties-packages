@@ -29,11 +29,11 @@ abstract final class ValidatorsTyped {
   }
 
   static Validator<T> comparable<T extends Comparable<Object>>({
+    String code = ValidationCodes.comparable,
     T? lessThan,
     T? lessOrEqualThan,
     T? greaterOrEqualThan,
     T? greaterThan,
-    String code = ValidationCodes.comparable,
   }) {
     return _ValidationAdapter(NumberValidation(
       errorCode: code,
@@ -45,11 +45,11 @@ abstract final class ValidatorsTyped {
   }
 
   static Validator<String> text({
+    String code = ValidationCodes.text,
     int? minLength,
     int? maxLength,
     RegExp? match,
     RegExp? notMatch,
-    String code = ValidationCodes.text,
   }) {
     return _ValidationAdapter(TextValidation(
       errorCode: code,

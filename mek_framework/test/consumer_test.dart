@@ -3,8 +3,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mek/src/bloc/state_bloc.dart';
-import 'package:mek/src/riverpod/adapters/state_stremable_provider.dart';
 import 'package:mek/src/riverpod/adapters/value_listenable_provider.dart';
 
 Widget _build({required Widget child}) {
@@ -37,24 +35,24 @@ void main() {
     expect(find.text('3'), findsOneWidget);
   });
 
-  testWidgets('Bloc', (tester) async {
-    final bloc = StateBloc(0);
-
-    await tester.pumpWidget(_build(
-      child: Consumer(builder: (context, ref, _) {
-        final value = ref.watch(bloc.provider);
-        return Text('$value');
-      }),
-    ));
-
-    bloc.emit(bloc.state + 1);
-    bloc.emit(bloc.state + 1);
-    bloc.emit(bloc.state + 1);
-
-    await tester.pumpAndSettle();
-
-    expect(find.text('3'), findsOneWidget);
-  });
+  // testWidgets('Bloc', (tester) async {
+  //   final bloc = StateBloc(0);
+  //
+  //   await tester.pumpWidget(_build(
+  //     child: Consumer(builder: (context, ref, _) {
+  //       final value = ref.watch(bloc.provider);
+  //       return Text('$value');
+  //     }),
+  //   ));
+  //
+  //   bloc.emit(bloc.state + 1);
+  //   bloc.emit(bloc.state + 1);
+  //   bloc.emit(bloc.state + 1);
+  //
+  //   await tester.pumpAndSettle();
+  //
+  //   expect(find.text('3'), findsOneWidget);
+  // });
 
   testWidgets('Bloc Listening', (tester) async {
     final bloc = ValueNotifier(0);
