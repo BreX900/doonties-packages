@@ -4,8 +4,8 @@ version: 0.0.1
 publish_to: 'none'
 
 environment:
-  sdk: ^3.5.0
-  flutter: ^3.24.0
+  sdk: ^3.6.0
+  flutter: ^3.27.0
 
 scripts:
   bootstrap: dart pub global activate rps 0.7.0
@@ -13,8 +13,7 @@ scripts:
   # To generate .g files:
   generate-code: dart run build_runner watch --delete-conflicting-outputs
   # To generate library file: https://pub.dev/packages/index_generator
-  generate-library: >-
-    dart pub global activate index_generator 4.0.0 &&
+  generate-library: dart pub global activate index_generator 4.0.0 &&
     dart pub global run index_generator
 
   # Integration tools

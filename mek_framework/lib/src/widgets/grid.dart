@@ -15,6 +15,7 @@ class Grid extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: children.slices(crossAxisCount).map((cells) {
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
