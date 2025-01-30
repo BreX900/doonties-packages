@@ -129,7 +129,7 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>> 
   void call(TArg arg) => run(arg);
 
   Future<void> run(TArg arg) async {
-    if (!mounted) throw StateError("Can't mutate if bloc is closed!");
+    _ensureIsMounted();
 
     if (state.args.contains(arg)) {
       lg.info('Bloc is mutating! $this');
@@ -137,12 +137,15 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>> 
     }
 
     if (!(await _onWillMutate?.call(arg) ?? true)) return;
+    if (!mounted) return;
 
     emit(state.toLoading(arg: arg));
 
     await _tryCall1(_onStart, arg);
+    if (!mounted) return;
 
-    final ref = MutationRef._(_ref, this);
+    // ignore: use_build_context_synchronously
+    final ref = MutationRef._(ProviderScope.containerOf(_ref.context, listen: false), this);
     try {
       final result = await _mutator(ref, arg);
       ref._dispose();
@@ -180,6 +183,10 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>> 
       return;
     }
     emit(state.toLoading(arg: state.args.single, progress: value));
+  }
+
+  void _ensureIsMounted() {
+    if (!mounted) throw StateError("Can't mutate if bloc is closed!");
   }
 
   FutureOr<void> _tryCall1<T1>(FutureOr<void> Function(T1)? fn, T1 $1) async {
@@ -220,32 +227,24 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>> 
 
 @optionalTypeArgs
 class MutationRef<R> {
-  WidgetRef? _ref;
+  final ProviderContainer _ref;
   MutationBloc<void, R>? _bloc;
 
   MutationRef._(this._ref, this._bloc);
 
-  MutationBloc<void, R> get bloc => _get(_bloc);
+  MutationBloc<void, R> get bloc => ArgumentError.checkNotNull(_bloc, 'MutationRef.bloc');
 
-  ProviderContainer get container => ProviderScope.containerOf(_get(_ref).context, listen: false);
+  bool exists(ProviderBase<Object?> provider) => _ref.exists(provider);
 
-  bool exists(ProviderBase<Object?> provider) => _get(_ref).exists(provider);
+  void invalidate(ProviderOrFamily provider) => _ref.invalidate(provider);
 
-  void invalidate(ProviderOrFamily provider) => _get(_ref).invalidate(provider);
+  T read<T>(ProviderListenable<T> provider) => _ref.read(provider);
 
-  T read<T>(ProviderListenable<T> provider) => _get(_ref).read(provider);
+  T refresh<T>(Refreshable<T> provider) => _ref.refresh(provider);
 
-  T refresh<T>(Refreshable<T> provider) => _get(_ref).refresh(provider);
-
-  void updateProgress(double value) => _get(_bloc).updateProgress(value);
-
-  T _get<T>(T? v) {
-    if (v == null) throw StateError('Is disposed');
-    return v;
-  }
+  void updateProgress(double value) => bloc.updateProgress(value);
 
   void _dispose() {
-    _ref = null;
     _bloc = null;
   }
 }

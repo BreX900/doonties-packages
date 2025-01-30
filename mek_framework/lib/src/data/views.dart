@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:mek/src/shared/mek_utils.dart';
-import 'package:mek/src/widgets/info_tile.dart';
+import 'package:mek/src/widgets/material/info_tile.dart';
 
 Widget buildWithMaterial(BuildContext context, Widget child) {
   if (Material.maybeOf(context) == null) {

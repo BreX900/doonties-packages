@@ -1,6 +1,6 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mek/src/material/cursor_data.dart';
+import 'package:mek/src/notifiers/cursor_data.dart';
 
 Cursor _cursor(int page, [String? prevPageLastOffset]) {
   return Cursor(

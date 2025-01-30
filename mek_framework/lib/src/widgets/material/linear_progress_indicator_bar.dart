@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
 
-class LinearProgressIndicatorBar extends StatefulWidget {
-  final bool isHidden;
+class LinearProgressIndicatorFlexible extends StatefulWidget {
+  final bool visible;
   final double? value;
 
-  bool get isVisible => !isHidden;
-
-  const LinearProgressIndicatorBar({
+  const LinearProgressIndicatorFlexible({
     super.key,
-    @Deprecated('In favour of isHidden') bool? isVisible,
-    bool? isHidden,
+    this.visible = true,
     this.value,
-  })  : assert(isVisible == null || isHidden == null),
-        isHidden = isHidden ?? !(isVisible ?? false);
+  });
 
   @override
-  State<LinearProgressIndicatorBar> createState() => _LinearProgressIndicatorBarState();
+  State<LinearProgressIndicatorFlexible> createState() => _LinearProgressIndicatorFlexibleState();
 }
 
-class _LinearProgressIndicatorBarState extends State<LinearProgressIndicatorBar>
+class _LinearProgressIndicatorFlexibleState extends State<LinearProgressIndicatorFlexible>
     with TickerProviderStateMixin {
   late final AnimationController _animationController;
   late final Animation<double> _topPaddingAnimation;
@@ -33,10 +29,11 @@ class _LinearProgressIndicatorBarState extends State<LinearProgressIndicatorBar>
     _animationController = AnimationController(
       vsync: this,
       duration: Durations.long2,
-      value: widget.isVisible ? 1.0 : 0.0,
+      value: widget.visible ? 1.0 : 0.0,
     );
     final value = widget.value;
     if (value != null) _initValueController(value);
+    _animationController.addListener(_onAnimationChange);
   }
 
   @override
@@ -58,11 +55,12 @@ class _LinearProgressIndicatorBarState extends State<LinearProgressIndicatorBar>
   }
 
   @override
-  void didUpdateWidget(covariant LinearProgressIndicatorBar oldWidget) {
+  void didUpdateWidget(covariant LinearProgressIndicatorFlexible oldWidget) {
     super.didUpdateWidget(oldWidget);
     final value = widget.value;
     if (value != oldWidget.value) {
       if (value == null) {
+        _valueController?.removeListener(_onAnimationChange);
         _valueController?.dispose();
         _valueController = null;
       } else {
@@ -70,12 +68,13 @@ class _LinearProgressIndicatorBarState extends State<LinearProgressIndicatorBar>
         if (valueController == null) {
           _initValueController(value);
         } else {
+          valueController.addListener(_onAnimationChange);
           valueController.animateTo(value, duration: Durations.long1);
         }
       }
     }
-    if (widget.isVisible != oldWidget.isVisible) {
-      if (widget.isVisible) {
+    if (widget.visible != oldWidget.visible) {
+      if (widget.visible) {
         _valueController?.value = widget.value!;
         _animationController.forward();
       } else {
@@ -86,45 +85,37 @@ class _LinearProgressIndicatorBarState extends State<LinearProgressIndicatorBar>
 
   @override
   void dispose() {
+    _animationController.removeListener(_onAnimationChange);
     _animationController.dispose();
+    _valueController?.removeListener(_onAnimationChange);
     _valueController?.dispose();
     super.dispose();
+  }
+
+  void _onAnimationChange() {
+    setState(_noop);
   }
 
   void _initValueController(double value) {
     _valueController = AnimationController(vsync: this, value: value);
   }
 
-  Widget _buildLinearProgressIndicator(BuildContext context, [double? value, Widget? _]) {
-    return LinearProgressIndicator(
-      minHeight: _linearMinHeight,
-      value: value,
-    );
-  }
-
-  Widget _buildAppearAnimation(BuildContext context, double value, Widget? _) {
-    final isHidden = (value - _currentExtent) > 0.0;
-    if (isHidden) return const SizedBox.shrink();
-
-    final valueController = _valueController;
-    final child = valueController == null
-        ? _buildLinearProgressIndicator(context)
-        : ValueListenableBuilder(
-            valueListenable: valueController,
-            builder: _buildLinearProgressIndicator,
-          );
-
-    return Padding(
-      padding: EdgeInsets.only(top: value),
-      child: child,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: _topPaddingAnimation,
-      builder: _buildAppearAnimation,
+    final topPaddingSize = _topPaddingAnimation.value;
+    final value = _valueController?.value;
+
+    final isHidden = (topPaddingSize - _currentExtent) > 0.0;
+    if (isHidden) return const SizedBox.shrink();
+
+    return Padding(
+      padding: EdgeInsets.only(top: topPaddingSize),
+      child: LinearProgressIndicator(
+        minHeight: _linearMinHeight,
+        value: value,
+      ),
     );
   }
 }
+
+void _noop() {}
