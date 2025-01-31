@@ -59,7 +59,9 @@ class ReactiveAddButton extends ConsumerWidget {
 }
 
 class ReactiveClearButton extends ConsumerWidget {
-  const ReactiveClearButton({super.key});
+  final VoidCallback? onClear;
+
+  const ReactiveClearButton({super.key, this.onClear});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -67,7 +69,12 @@ class ReactiveClearButton extends ConsumerWidget {
     final isEnabled = ref.watch(field.control.provider.status.enabled);
 
     return IconButton(
-      onPressed: isEnabled ? () => field.control.reset(removeFocus: true) : null,
+      onPressed: isEnabled
+          ? () {
+              field.control.reset();
+              onClear?.call();
+            }
+          : null,
       icon: const Icon(Icons.clear),
     );
   }

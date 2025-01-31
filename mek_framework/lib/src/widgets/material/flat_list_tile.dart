@@ -73,6 +73,7 @@ class ListTileLayout extends StatelessWidget {
 class ParagraphTile extends StatelessWidget {
   final bool dense;
   final Color? color;
+  final Color? textColor;
   final VoidCallback? onTap;
   final Widget? leading;
   final Widget title;
@@ -83,6 +84,7 @@ class ParagraphTile extends StatelessWidget {
     super.key,
     this.dense = false,
     this.color,
+    this.textColor,
     this.onTap,
     this.leading,
     required this.title,
@@ -112,25 +114,26 @@ class ParagraphTile extends StatelessWidget {
                     ),
                     child: Center(
                       child: DefaultTextStyle(
-                        style: textTheme.bodyMedium!.copyWith(color: color),
+                        style: textTheme.bodyMedium!.copyWith(color: textColor ?? color),
                         child: leading!,
                       ),
                     ),
                   )
                 : null,
             title: DefaultTextStyle(
-              style: textTheme.titleLarge!.copyWith(color: color),
+              style: (dense ? textTheme.titleMedium : textTheme.titleLarge)!
+                  .copyWith(color: textColor ?? color),
               child: title,
             ),
             subtitle: subtitle != null
                 ? DefaultTextStyle(
-                    style: textTheme.titleMedium!.copyWith(color: color),
+                    style: textTheme.titleMedium!.copyWith(color: textColor ?? color),
                     child: subtitle!,
                   )
                 : null,
             trailing: trailing != null
                 ? DefaultTextStyle(
-                    style: textTheme.bodyMedium!.copyWith(color: color),
+                    style: textTheme.bodyMedium!.copyWith(color: textColor ?? color),
                     child: trailing!,
                   )
                 : null,

@@ -30,10 +30,17 @@ class MaterialBar extends StatelessWidget {
       _MaterialBarVariant.primary => colors.surfaceContainer,
       _MaterialBarVariant.secondary => colors.surfaceContainer,
     };
+    final minHeight = switch (_variant) {
+      _MaterialBarVariant.primary => 48.0,
+      _MaterialBarVariant.secondary => 32.0,
+    };
 
     return Material(
       color: forceElevated ? surfaceContainer : surface,
-      child: child,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: minHeight),
+        child: child,
+      ),
     );
   }
 }

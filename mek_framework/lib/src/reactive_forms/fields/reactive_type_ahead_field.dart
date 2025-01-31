@@ -4,14 +4,14 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:flutter_typeahead/src/common/base/types.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-typedef TextFieldBuilder = Widget Function(ReactiveTypeAheadFieldBuilderState field);
+typedef TextFieldBuilder = Widget Function(BuildContext context, ReactiveTypeAheadFieldState field);
 
-class ReactiveTypeAheadField<T> extends ReactiveFormField<T, T> {
+class ReactiveTypeAheadField<T> extends ReactiveFormField<Object?, Object?> {
   final TextEditingController? controller;
 
   ReactiveTypeAheadField({
     super.key,
-    required FormControl<T> super.formControl,
+    required FormControl<Object?> super.formControl,
     Duration animationDuration = const Duration(milliseconds: 200),
     bool autoFlipDirection = false,
     double autoFlipMinHeight = 144,
@@ -34,7 +34,7 @@ class ReactiveTypeAheadField<T> extends ReactiveFormField<T, T> {
     bool retainOnLoading = true,
     WidgetBuilder? loadingBuilder,
     WidgetBuilder? emptyBuilder,
-    // required super.onSelected,
+    required void Function(ReactiveTypeAheadFieldState field, T suggestion) onSelected,
     ScrollController? scrollController,
     SuggestionsController<T>? suggestionsController,
     required SuggestionsCallback<T> suggestionsCallback,
@@ -45,13 +45,15 @@ class ReactiveTypeAheadField<T> extends ReactiveFormField<T, T> {
     Offset? offset,
   }) : super(
           builder: (field) {
-            field as _ReactiveTypeAheadFieldState<T>;
+            field as ReactiveTypeAheadFieldState<T>;
 
             return TypeAheadField<T>(
               animationDuration: animationDuration,
               autoFlipDirection: autoFlipDirection,
               autoFlipMinHeight: autoFlipMinHeight,
-              builder: builder != null ? (context, controller, focusNode) => builder(field) : null,
+              builder: builder != null
+                  ? (context, controller, focusNode) => builder(context, field)
+                  : null,
               controller: field.controller,
               debounceDuration: debounceDuration,
               direction: direction,
@@ -70,7 +72,7 @@ class ReactiveTypeAheadField<T> extends ReactiveFormField<T, T> {
               retainOnLoading: retainOnLoading,
               loadingBuilder: loadingBuilder,
               emptyBuilder: emptyBuilder,
-              onSelected: field.didChange,
+              onSelected: (suggestion) => onSelected(field, suggestion),
               scrollController: scrollController,
               suggestionsController: suggestionsController,
               suggestionsCallback: suggestionsCallback,
@@ -83,23 +85,15 @@ class ReactiveTypeAheadField<T> extends ReactiveFormField<T, T> {
           },
         );
   @override
-  ReactiveFormFieldState<T, T> createState() => _ReactiveTypeAheadFieldState<T>();
+  ReactiveFormFieldState<Object?, Object?> createState() => ReactiveTypeAheadFieldState<T>();
 }
 
-abstract interface class ReactiveTypeAheadFieldBuilderState {
-  TextEditingController get controller;
-  FocusNode get focusNode;
-  String? get errorText;
-}
-
-class _ReactiveTypeAheadFieldState<T> extends ReactiveFocusableFormFieldState<T, T>
-    implements ReactiveTypeAheadFieldBuilderState {
+class ReactiveTypeAheadFieldState<T> extends ReactiveFocusableFormFieldState<Object?, Object?> {
   late TextEditingController _textController;
 
   @override
   ReactiveTypeAheadField<T> get widget => super.widget as ReactiveTypeAheadField<T>;
 
-  @override
   TextEditingController get controller => _textController;
 
   @override
@@ -117,13 +111,13 @@ class _ReactiveTypeAheadFieldState<T> extends ReactiveFocusableFormFieldState<T,
     }
   }
 
-  void _initializeTextController() {
-    _textController = widget.controller ?? TextEditingController();
-  }
-
   @override
   void dispose() {
     if (widget.controller == null) _textController.dispose();
     super.dispose();
+  }
+
+  void _initializeTextController() {
+    _textController = widget.controller ?? TextEditingController();
   }
 }

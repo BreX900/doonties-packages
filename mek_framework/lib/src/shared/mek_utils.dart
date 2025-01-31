@@ -108,6 +108,25 @@ abstract final class MekUtils {
       endBoxOffset.dy,
     );
   }
+
+  static Iterable<T> search<T>(
+    Iterable<T> elements,
+    String text,
+    String Function(T element) hash,
+  ) sync* {
+    text = text.toLowerCase();
+    for (final element in elements) {
+      final data = hash(element);
+      if (data.toLowerCase().contains(text.toLowerCase())) yield element;
+    }
+  }
+
+  static List<T> Function(String text) handleSuggestions<T>(
+    Iterable<T> elements,
+    String Function(T element) hash,
+  ) {
+    return (text) => search(elements, text, hash).toList();
+  }
 }
 
 class _ErrorSnackBarContent extends StatelessWidget {

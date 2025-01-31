@@ -31,7 +31,9 @@ class BinConnection implements BinSession {
 
   @override
   Future<String?> read(String name) async {
-    return await engine.read(name);
+    return await _lock.synchronized(() async {
+      return await engine.read(name);
+    });
   }
 
   @override
