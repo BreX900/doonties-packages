@@ -31,7 +31,8 @@ abstract class CachedValueBinStore<T> {
 
   Future<void> write(T value);
 
-  void Function() listen(void Function() listener) => stream.listen((_) => listener()).cancel;
+  // void Function() listen(void Function(T value) listener) =>
+  //     stream.listen((_) => listener()).cancel;
 }
 
 class _CachedMapValueBin<T> extends CachedValueBinStore<T> {

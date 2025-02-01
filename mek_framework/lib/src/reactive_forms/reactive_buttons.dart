@@ -69,12 +69,7 @@ class ReactiveClearButton extends ConsumerWidget {
     final isEnabled = ref.watch(field.control.provider.status.enabled);
 
     return IconButton(
-      onPressed: isEnabled
-          ? () {
-              field.control.reset();
-              onClear?.call();
-            }
-          : null,
+      onPressed: isEnabled ? onClear ?? field.control.reset : null,
       icon: const Icon(Icons.clear),
     );
   }

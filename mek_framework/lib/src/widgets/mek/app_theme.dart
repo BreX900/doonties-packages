@@ -2,20 +2,26 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 abstract class MekTheme {
-  static ColorScheme buildColorScheme(BuildContext context) {
+  static ColorScheme buildColorScheme(BuildContext context, [Color? color]) {
     final brightness = MediaQuery.platformBrightnessOf(context);
+    final isDark = brightness == Brightness.dark;
     const colorPrimary = Colors.amber;
     const colorSecondary = Colors.yellow;
 
+    final surface = isDark ? const Color(0xff121212) : Colors.white;
+    final onSurface = isDark ? Colors.white : Colors.black;
+
     return ColorScheme.fromSeed(
-      seedColor: colorPrimary,
+      dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
+      seedColor: color ?? colorPrimary,
       brightness: brightness,
-      // ignore: deprecated_member_use
-      background: brightness == Brightness.light ? null : const Color(0xff121212),
-      primary: colorPrimary,
+      primary: color == null ? colorPrimary : null,
       onPrimary: Colors.black,
-      secondary: colorSecondary,
+      secondary: color == null ? colorSecondary : null,
       onSecondary: Colors.black,
+      surface: surface,
+      onSurface: onSurface,
+      onSurfaceVariant: onSurface,
     );
   }
 

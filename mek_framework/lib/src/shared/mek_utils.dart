@@ -114,10 +114,10 @@ abstract final class MekUtils {
     String text,
     String Function(T element) hash,
   ) sync* {
-    text = text.toLowerCase();
+    final words = text.toLowerCase().split(' ');
     for (final element in elements) {
-      final data = hash(element);
-      if (data.toLowerCase().contains(text.toLowerCase())) yield element;
+      final elementText = hash(element).toLowerCase();
+      if (words.every(elementText.contains)) yield element;
     }
   }
 

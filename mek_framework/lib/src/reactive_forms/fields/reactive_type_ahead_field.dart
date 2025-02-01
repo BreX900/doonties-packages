@@ -1,13 +1,17 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 // ignore: implementation_imports
 import 'package:flutter_typeahead/src/common/base/types.dart';
+import 'package:mek/src/reactive_forms/reactive_buttons.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 typedef TextFieldBuilder = Widget Function(BuildContext context, ReactiveTypeAheadFieldState field);
 
 class ReactiveTypeAheadField<T> extends ReactiveFormField<Object?, Object?> {
   final TextEditingController? controller;
+  final TextFieldBuilder builder;
+  final SuggestionsController<T>? suggestionsController;
+  final void Function(ReactiveTypeAheadFieldState field, T suggestion) onSelected;
 
   ReactiveTypeAheadField({
     super.key,
@@ -15,7 +19,7 @@ class ReactiveTypeAheadField<T> extends ReactiveFormField<Object?, Object?> {
     Duration animationDuration = const Duration(milliseconds: 200),
     bool autoFlipDirection = false,
     double autoFlipMinHeight = 144,
-    TextFieldBuilder? builder,
+    required this.builder,
     this.controller,
     Duration debounceDuration = const Duration(milliseconds: 300),
     VerticalDirection direction = VerticalDirection.down,
@@ -34,9 +38,9 @@ class ReactiveTypeAheadField<T> extends ReactiveFormField<Object?, Object?> {
     bool retainOnLoading = true,
     WidgetBuilder? loadingBuilder,
     WidgetBuilder? emptyBuilder,
-    required void Function(ReactiveTypeAheadFieldState field, T suggestion) onSelected,
+    required this.onSelected,
     ScrollController? scrollController,
-    SuggestionsController<T>? suggestionsController,
+    this.suggestionsController,
     required SuggestionsCallback<T> suggestionsCallback,
     AnimationTransitionBuilder? transitionBuilder,
     DecorationBuilder? decorationBuilder,
@@ -51,9 +55,7 @@ class ReactiveTypeAheadField<T> extends ReactiveFormField<Object?, Object?> {
               animationDuration: animationDuration,
               autoFlipDirection: autoFlipDirection,
               autoFlipMinHeight: autoFlipMinHeight,
-              builder: builder != null
-                  ? (context, controller, focusNode) => builder(context, field)
-                  : null,
+              builder: field._build,
               controller: field.controller,
               debounceDuration: debounceDuration,
               direction: direction,
@@ -72,9 +74,9 @@ class ReactiveTypeAheadField<T> extends ReactiveFormField<Object?, Object?> {
               retainOnLoading: retainOnLoading,
               loadingBuilder: loadingBuilder,
               emptyBuilder: emptyBuilder,
-              onSelected: (suggestion) => onSelected(field, suggestion),
+              onSelected: field._onSelect,
               scrollController: scrollController,
-              suggestionsController: suggestionsController,
+              suggestionsController: field._suggestionsController,
               suggestionsCallback: suggestionsCallback,
               transitionBuilder: transitionBuilder,
               decorationBuilder: decorationBuilder,
@@ -90,6 +92,7 @@ class ReactiveTypeAheadField<T> extends ReactiveFormField<Object?, Object?> {
 
 class ReactiveTypeAheadFieldState<T> extends ReactiveFocusableFormFieldState<Object?, Object?> {
   late TextEditingController _textController;
+  late SuggestionsController<T> _suggestionsController;
 
   @override
   ReactiveTypeAheadField<T> get widget => super.widget as ReactiveTypeAheadField<T>;
@@ -99,7 +102,8 @@ class ReactiveTypeAheadFieldState<T> extends ReactiveFocusableFormFieldState<Obj
   @override
   void initState() {
     super.initState();
-    _initializeTextController();
+    _textController = widget.controller ?? TextEditingController();
+    _suggestionsController = widget.suggestionsController ?? SuggestionsController();
   }
 
   @override
@@ -107,17 +111,37 @@ class ReactiveTypeAheadFieldState<T> extends ReactiveFocusableFormFieldState<Obj
     super.didUpdateWidget(oldWidget);
     if (widget.controller != oldWidget.controller) {
       if (oldWidget.controller == null) _textController.dispose();
-      _initializeTextController();
+      _textController = widget.controller ?? TextEditingController();
+    }
+    if (widget.suggestionsController != oldWidget.suggestionsController) {
+      if (oldWidget.controller == null) _textController.dispose();
+      _suggestionsController = widget.suggestionsController ?? SuggestionsController();
     }
   }
 
   @override
   void dispose() {
     if (widget.controller == null) _textController.dispose();
+    if (widget.suggestionsController == null) _suggestionsController.dispose();
     super.dispose();
   }
 
-  void _initializeTextController() {
-    _textController = widget.controller ?? TextEditingController();
+  void _onSelect(T suggestion) {
+    _suggestionsController.close();
+    widget.onSelected(this, suggestion);
   }
+
+  void _onClear() {
+    controller.clear();
+    control.reset();
+    control.focus();
+  }
+
+  InputDecoration get decoration => InputDecoration(
+        suffixIcon: ReactiveClearButton(onClear: _onClear),
+        errorText: errorText,
+      );
+
+  Widget _build(BuildContext context, TextEditingController _, FocusNode __) =>
+      widget.builder(context, this);
 }
