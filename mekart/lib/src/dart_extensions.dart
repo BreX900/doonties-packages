@@ -69,9 +69,10 @@ extension DateTimeExtensions on DateTime {
     return copyWith(day: day - (this.weekday - 1) + (weekday - 1));
   }
 
-  DateTime copyAdding({int? years, int? months}) => copyWith(
+  DateTime copyAdding({int? years, int? months, int? days}) => copyWith(
         year: years != null ? year + years : null,
         month: months != null ? month + months : null,
+        day: days != null ? day + days : null,
       );
 
   DateTime copySubtracting({int? years, int? months}) => copyWith(

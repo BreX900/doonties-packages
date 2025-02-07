@@ -78,6 +78,7 @@ export 'src/widgets/material/hide_banner_button.dart';
 export 'src/widgets/material/info_tile.dart';
 export 'src/widgets/material/linear_progress_indicator_bar.dart';
 export 'src/widgets/material/material_bar.dart';
+export 'src/widgets/material/material_surface.dart';
 export 'src/widgets/material/navigation_baril.dart';
 export 'src/widgets/material/popup_menu.dart';
 export 'src/widgets/material/table.dart';

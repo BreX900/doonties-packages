@@ -22,24 +22,31 @@ class MaterialBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final inkController = Material.of(context);
     final colors = theme.colorScheme;
-
-    final surface = Material.of(context).color!;
+    final surface = inkController.color!;
 
     final surfaceContainer = switch (_variant) {
       _MaterialBarVariant.primary => colors.surfaceContainer,
       _MaterialBarVariant.secondary => colors.surfaceContainer,
     };
+
     final minHeight = switch (_variant) {
       _MaterialBarVariant.primary => 48.0,
       _MaterialBarVariant.secondary => 32.0,
     };
 
     return Material(
-      color: forceElevated ? surfaceContainer : surface,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(minHeight: minHeight),
-        child: child,
+      animationDuration: Durations.medium1,
+      color: surface,
+      surfaceTintColor: surfaceContainer,
+      child: AnimatedContainer(
+        duration: Durations.medium1,
+        color: forceElevated ? surfaceContainer : surface,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: minHeight),
+          child: child,
+        ),
       ),
     );
   }

@@ -38,8 +38,7 @@ abstract class MekTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
     ).copyWith(
-      // ignore: deprecated_member_use
-      canvasColor: colorScheme.background,
+      canvasColor: colorScheme.surfaceContainerHigh,
       // textTheme: Typography.tall2018.apply(fontSizeFactor: 1.1),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(minimumSize: buttonSize),
@@ -64,7 +63,7 @@ abstract class MekTheme {
           TargetPlatform.android || TargetPlatform.iOS => false,
           _ => true,
         },
-        backgroundColor: colorScheme.surfaceContainer,
+        backgroundColor: colorScheme.surfaceContainerHigh,
       ),
       bannerTheme: MaterialBannerThemeData(
         backgroundColor: colorScheme.secondaryContainer,

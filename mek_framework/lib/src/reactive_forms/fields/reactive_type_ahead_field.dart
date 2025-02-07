@@ -79,13 +79,22 @@ class ReactiveTypeAheadField<T> extends ReactiveFormField<Object?, Object?> {
               suggestionsController: field._suggestionsController,
               suggestionsCallback: suggestionsCallback,
               transitionBuilder: transitionBuilder,
-              decorationBuilder: decorationBuilder,
+              decorationBuilder: decorationBuilder ?? _buildDecoration,
               listBuilder: listBuilder,
               constraints: constraints,
               offset: offset,
             );
           },
         );
+
+  static Widget _buildDecoration(BuildContext context, Widget child) {
+    return Material(
+      elevation: 8.0,
+      borderRadius: const BorderRadius.all(Radius.circular(2.0)),
+      child: child,
+    );
+  }
+
   @override
   ReactiveFormFieldState<Object?, Object?> createState() => ReactiveTypeAheadFieldState<T>();
 }

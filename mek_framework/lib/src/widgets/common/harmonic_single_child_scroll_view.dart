@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 
 class HarmonicSingleChildScrollView extends StatelessWidget {
   final bool resizeToAvoidBottomInset;
+  final bool intrinsic;
   final Axis scrollDirection;
   final Clip clipBehavior;
 
@@ -19,6 +20,7 @@ class HarmonicSingleChildScrollView extends StatelessWidget {
   const HarmonicSingleChildScrollView({
     super.key,
     this.resizeToAvoidBottomInset = true,
+    required this.intrinsic,
     this.scrollDirection = Axis.vertical,
     this.clipBehavior = Clip.none,
     this.reverse = false,
@@ -40,9 +42,13 @@ class HarmonicSingleChildScrollView extends StatelessWidget {
       padding = padding?.add(viewInsets) ?? viewInsets;
     }
 
-    final child = IntrinsicHeight(
-      child: this.child,
-    );
+    var child = this.child;
+    if (intrinsic) {
+      child = switch (scrollDirection) {
+        Axis.vertical => IntrinsicHeight(child: this.child),
+        Axis.horizontal => IntrinsicWidth(child: this.child),
+      };
+    }
 
     return LayoutBuilder(builder: (context, constraints) {
       return SingleChildScrollView(
