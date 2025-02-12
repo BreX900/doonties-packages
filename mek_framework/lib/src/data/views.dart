@@ -112,17 +112,20 @@ class DefaultWidgets extends ThemeExtension<DataBuilders> with EquatableMixin {
   }
 
   static Widget _buildError(BuildContext context, ErrorData data) {
-    const child = InfoView(
-      icon: Icon(Icons.error_outline),
-      title: Text('🤖 My n_m_ _s r_b_t! 🤖'),
+    final error = data.error;
+    final child = InfoView(
+      onTap: data.onTap,
+      icon: const Icon(Icons.error_outline),
+      title: error is TextualError ? Text(error.message) : const Text('🤖 My n_m_ _s r_b_t! 🤖'),
     );
     return buildWithMaterial(context, child);
   }
 
   static void _showError(BuildContext context, ErrorData data) {
+    final error = data.error;
     MekUtils.showSnackBarError(
       context: context,
-      description: const Text('🤖 My n_m_ _s r_b_t! 🤖'),
+      description: error is TextualError ? Text(error.message) : const Text('🤖 My n_m_ _s r_b_t! 🤖'),
     );
   }
 
@@ -135,4 +138,12 @@ class DefaultWidgets extends ThemeExtension<DataBuilders> with EquatableMixin {
 
   @override
   List<Object?> get props => [loadingBuilder, errorBuilder, errorListener];
+}
+
+class TextualError extends Error {
+  final String message;
+
+  TextualError(this.message);
+
+  String toString() => 'TextualError: $message';
 }
