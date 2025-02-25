@@ -1,12 +1,8 @@
-import 'package:mekart/mekart.dart';
 import 'package:mekcli/mekcli.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-class _FakeBinSession extends Fake implements BinSession {}
-
 void main() {
-  final cronJob = CronJob(binSession: _FakeBinSession(), hour: 14);
+  final cronJob = CronJob(hour: 14);
 
   test('can execute if never executed', () {
     final startedAt = DateTime.utc(2000, 10, 05);

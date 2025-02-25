@@ -3,14 +3,9 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mek_data_class/mek_data_class.dart';
+import 'package:mekart/mekart.dart';
 
-part 'cursor_data.g.dart';
-
-/// VERSION 3.0.0
-
-@DataClass()
-class Cursor with _$Cursor {
+class Cursor with EquatableAndDescribable {
   final int size;
   final int page;
   final String? prevPageLastOffset;
@@ -22,10 +17,13 @@ class Cursor with _$Cursor {
     required this.page,
     required this.prevPageLastOffset,
   });
+
+  @override
+  Map<String, Object?> get props =>
+      {'size': size, 'page': page, 'prevPageLastOffset': prevPageLastOffset};
 }
 
-@DataClass(changeable: true)
-class CursorState with _$CursorState {
+class CursorState with EquatableAndDescribable {
   final String? debugLabel;
   final int size;
   final int? lastPage;
@@ -58,6 +56,28 @@ class CursorState with _$CursorState {
   Cursor cursorAt(int index) =>
       Cursor(size: size, page: index, prevPageLastOffset: lastPagesOffsets[index - 1]);
 
+  CursorState copyWith({
+    int? size,
+    int? lastPage,
+    IMap<int, String?>? lastPagesOffsets,
+    int? page,
+  }) =>
+      CursorState(
+        debugLabel: debugLabel,
+        size: size ?? this.size,
+        lastPage: lastPage ?? this.lastPage,
+        lastPagesOffsets: lastPagesOffsets ?? this.lastPagesOffsets,
+        page: page ?? this.page,
+      );
+
+  @override
+  Map<String, Object?> get props => {
+        'size': size,
+        'lastPage': lastPage,
+        'lastPagesOffsets': lastPagesOffsets,
+        'page': page,
+      };
+
   @override
   String toString() {
     final offsetsString = lastPagesOffsets.entries.map((e) {
@@ -87,10 +107,11 @@ class CursorBloc extends StateNotifier<CursorState> {
     final updatedOffsets =
         state.lastPagesOffsets.add(page, offsets?.elementAtOrNull(state.size - 1));
 
-    state = state.change((c) => c
-      ..lastPage = endAtPage
-      ..lastPagesOffsets = updatedOffsets
-      ..page = nextPage);
+    state = state.copyWith(
+      lastPage: endAtPage,
+      lastPagesOffsets: updatedOffsets,
+      page: nextPage,
+    );
   }
 
   void registerOffsets(Iterable<String> offsets, {int? page}) =>
@@ -113,7 +134,7 @@ class CursorBloc extends StateNotifier<CursorState> {
       if (!isInAvailablePages) return;
     }
 
-    state = state.change((c) => c..page = pageIndex);
+    state = state.copyWith(page: pageIndex);
   }
 
   void clean() => state = CursorState(size: state.size);

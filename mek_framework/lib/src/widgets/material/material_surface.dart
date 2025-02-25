@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class Surface extends StatelessWidget {
-  final Widget child;
+  final Widget? child;
 
-  const Surface({super.key, required this.child});
+  const Surface({super.key, this.child});
 
   @override
   Widget build(BuildContext context) {

@@ -1,12 +1,10 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
-import 'package:mek_data_class/mek_data_class.dart';
+import 'package:mekart/mekart.dart';
 
-part 'mutation_state.g.dart';
-
-sealed class MutationState<TData> {
+sealed class MutationState<TData> with EquatableAndDescribable {
   final ISet<Object?> args;
 
-  const MutationState._({required this.args});
+  const MutationState({required this.args});
 
   bool get isMutating => args.isNotEmpty;
 
@@ -136,11 +134,13 @@ sealed class MutationState<TData> {
       success: (state) => success?.call(state.data),
     );
   }
+
+  @override
+  Map<String, Object?> get props => {'args': args};
 }
 
-@DataClass()
-class IdleMutation<TData> extends MutationState<TData> with _$IdleMutation<TData> {
-  const IdleMutation() : super._(args: const ISet.empty());
+class IdleMutation<TData> extends MutationState<TData> {
+  const IdleMutation() : super(args: const ISet.empty());
 
   @override
   R map<R>({
@@ -153,23 +153,29 @@ class IdleMutation<TData> extends MutationState<TData> with _$IdleMutation<TData
   }
 }
 
-@DataClass()
-class LoadingMutation<TData> extends MutationState<TData> with _$LoadingMutation<TData> {
+class LoadingMutation<TData> extends MutationState<TData> {
   final double? progress;
 
-  const LoadingMutation({required super.args, this.progress}) : super._();
+  const LoadingMutation({required super.args, this.progress});
+
+  @override
+  Map<String, Object?> get props => super.props..['progress'] = progress;
 }
 
-@DataClass()
-class FailedMutation<TData> extends MutationState<TData> with _$FailedMutation<TData> {
+class FailedMutation<TData> extends MutationState<TData> {
   final Object error;
 
-  const FailedMutation({required super.args, required this.error}) : super._();
+  const FailedMutation({required super.args, required this.error});
+
+  @override
+  Map<String, Object?> get props => super.props..['error'] = error;
 }
 
-@DataClass()
-class SuccessMutation<TData> extends MutationState<TData> with _$SuccessMutation<TData> {
+class SuccessMutation<TData> extends MutationState<TData> {
   final TData data;
 
-  const SuccessMutation({required super.args, required this.data}) : super._();
+  const SuccessMutation({required super.args, required this.data});
+
+  @override
+  Map<String, Object?> get props => super.props..['data'] = data;
 }

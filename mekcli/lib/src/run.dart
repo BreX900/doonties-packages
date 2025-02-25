@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:io/ansi.dart';
 
@@ -11,6 +12,36 @@ class ProcessException extends Error {
 
   @override
   String toString() => 'ProcessException: $exitCode';
+}
+
+class RunningProcess {
+  final Process process;
+
+  RunningProcess._(this.process);
+
+  static Future<RunningProcess> run(String executable, List<String> arguments) async {
+    final process = await Process.start(executable, arguments);
+
+    return RunningProcess._(process);
+  }
+
+  Stream<Uint8List> get asBytes async* {
+    yield* process.stdout.map(Uint8List.fromList);
+    await _checkExitCode();
+  }
+
+  Future<String> get asString async {
+    await _checkExitCode();
+    return process.stdout.transform(const Utf8Decoder()).join('\n');
+  }
+
+  Future<void> _checkExitCode() async {
+    final exitCode = await process.exitCode;
+    if (exitCode == 0) return;
+
+    await stderr.addStream(process.stderr);
+    throw ProcessException(exitCode);
+  }
 }
 
 Future<String> runProcess(String executable, List<String> arguments) async {
@@ -25,11 +56,15 @@ Future<String> runProcess(String executable, List<String> arguments) async {
   return process.stdout.transform(const Utf8Decoder()).join('\n');
 }
 
-Future<void> runPrintableProcess(String executable, List<String> arguments) async {
+Future<void> runPrintableProcess(
+  String executable,
+  List<String> arguments, {
+  String? workingDirectory,
+}) async {
   // ignore: avoid_print
   print(blue.wrap('\$ ${[executable, ...arguments].join(' ')}'));
 
-  final process = await Process.start(executable, arguments);
+  final process = await Process.start(executable, arguments, workingDirectory: workingDirectory);
 
   await Future.wait([stderr.addStream(process.stderr), stdout.addStream(process.stdout)]);
   final exitCode = await process.exitCode;

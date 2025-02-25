@@ -13,16 +13,31 @@ extension ControlStatusExtensions on ControlStatus {
 extension AbstractControlExtensions<T> on AbstractControl<T> {
   Stream<T?> get valueHotChanges => valueChanges.startWith(value);
 
-  void markAsClean({bool? enabled}) {
-    markAsPristine();
-    markAsUntouched();
-    if (enabled != null) (enabled ? markAsEnabled : markAsDisabled)();
+  void markAsReset({
+    bool updateParent = true,
+    bool removeFocus = false,
+    bool? disabled,
+  }) {
+    markAsPristine(updateParent: updateParent);
+    markAsUntouched(updateParent: updateParent);
+    if (disabled != null) (disabled ? markAsDisabled : markAsEnabled)(emitEvent: false);
+    if (removeFocus) unfocus(touched: false);
   }
 
-  void markAs({bool? enabled, bool? pristine, bool? touched, bool? allTouched}) {
-    if (enabled != null) (enabled ? markAsEnabled : markAsDisabled)();
+  @Deprecated('In favour of markAsReset')
+  void markAsClean({bool? disabled}) => markAsReset(disabled: disabled);
+
+  void markAs({
+    bool? disabled,
+    bool? pristine,
+    bool? touched,
+    bool? allTouched,
+    bool? focus,
+  }) {
     if (pristine != null) (pristine ? markAsPristine : markAsDirty)();
     if (touched != null) (touched ? markAsTouched : markAsUntouched)();
+    if (disabled != null) (disabled ? markAsDisabled : markAsEnabled)();
+    if (focus != null) (focus ? this.focus : unfocus)();
   }
 }
 

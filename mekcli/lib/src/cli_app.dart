@@ -17,6 +17,9 @@ class CliException implements Exception {
   CliException.executionEmpty()
       : exitCode = 3,
         type = CliExceptionType.executionEmpty;
+
+  @override
+  String toString() => 'CliException: ${type.name}';
 }
 
 abstract class CliApp {

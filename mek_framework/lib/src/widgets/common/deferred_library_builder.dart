@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
+import 'package:mek/src/widgets/material/material_surface.dart';
 
 typedef DeferredLibraryLoader = Future<void> Function();
 
@@ -58,7 +59,7 @@ class _DeferredLibraryBuilderState extends State<DeferredLibraryBuilder> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) return const SizedBox.shrink();
+    if (_isLoading) return const Surface();
     return widget.builder(context);
   }
 }

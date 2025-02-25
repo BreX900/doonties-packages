@@ -32,6 +32,7 @@ class InheritedValue<T> extends InheritedWidget implements SingleChildWidget {
   bool updateShouldNotify(InheritedValue<T> oldWidget) => value != oldWidget.value;
 
   @override
+  // ignore: use_to_and_as_if_applicable
   SingleChildInheritedElementMixin createElement() => _InheritedDataElement(this);
 }
 

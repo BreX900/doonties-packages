@@ -125,7 +125,8 @@ class DefaultWidgets extends ThemeExtension<DataBuilders> with EquatableMixin {
     final error = data.error;
     MekUtils.showSnackBarError(
       context: context,
-      description: error is TextualError ? Text(error.message) : const Text('🤖 My n_m_ _s r_b_t! 🤖'),
+      description:
+          error is TextualError ? Text(error.message) : const Text('🤖 My n_m_ _s r_b_t! 🤖'),
     );
   }
 
@@ -145,5 +146,6 @@ class TextualError extends Error {
 
   TextualError(this.message);
 
+  @override
   String toString() => 'TextualError: $message';
 }
