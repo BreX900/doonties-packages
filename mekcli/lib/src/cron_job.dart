@@ -1,15 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:mekart/mekart.dart';
 import 'package:mekcli/mekcli.dart';
-
-void runCliAppWithCronJob(CronJob job, CliApp Function(ProviderRef ref) creator) {
-  runWithRef((ref) async {
-    final app = creator(ref);
-    await job.run(app.run);
-  });
-}
 
 typedef AppHandler = Future<void> Function(ProviderRef ref);
 typedef AppMiddleware = AppHandler Function(AppHandler handler);
@@ -28,6 +20,7 @@ class _AppPipeline extends AppPipeline {
 
   const _AppPipeline(this._middleware, this._parent);
 
+  @override
   AppHandler addHandler(AppHandler handler) => _parent(_middleware(handler));
 }
 
@@ -39,20 +32,6 @@ class CliAppHandler {
   Future<void> call(ProviderRef ref) async {
     final handler = creator(ref);
     return await handler.run();
-  }
-}
-
-class CronJobMiddleware {
-  final CronJob job;
-
-  const CronJobMiddleware(this.job);
-
-  AppHandler call(AppHandler handler) {
-    return (ref) async {
-      await job.run(() async {
-        await handler(ref);
-      });
-    };
   }
 }
 
@@ -117,29 +96,70 @@ class _CronJob extends CronJob {
 
   @override
   Future<void> run(FutureOr<void> Function() runner) async {
+    await _run(runner);
+
     while (true) {
-      final now = DateTime.now();
+      final now = DateTime.timestamp();
       var startAt = now.withoutTime().copyWith(hour: hour);
       if (startAt.isBefore(now)) startAt = startAt.copyAdding(days: 1);
 
       final wait = startAt.difference(now);
-      print('Scheduled at $startAt and start in $wait');
+      lg.config('Scheduled at ${startAt.toSimpleString()} and start '
+          'in ${wait.toShortString(milliseconds: false)}...\n');
       await Future<void>.delayed(wait);
 
-      try {
-        final startedAt = DateTime.now();
-        print('Started at $startedAt');
+      await _run(runner);
+    }
+  }
 
-        await runner();
+  Future<void> _run(FutureOr<void> Function() runner) async {
+    try {
+      await runner();
+    } catch (error, stackTrace) {
+      lg.severe('Crash on cron jon', error, stackTrace);
+    }
+  }
+}
 
-        final completedAt = DateTime.now();
-        print('Finished at $completedAt in ${completedAt.difference(startedAt)}');
-      } on CliException catch (exception) {
-        stdout.write(exception);
-      } catch (error, stackTrace) {
-        stderr.write(error);
-        stderr.write(stackTrace);
-      }
+extension on DateTime {
+  String toSimpleString() => toString().split('.').first;
+}
+
+abstract class AppMiddlewareBase {
+  const AppMiddlewareBase();
+
+  AppHandler call(AppHandler handler) => (ref) => onCall(ref, handler);
+
+  Future<void> onCall(ProviderRef ref, AppHandler handler);
+}
+
+class TimerMiddleware extends AppMiddlewareBase {
+  const TimerMiddleware();
+
+  @override
+  Future<void> onCall(ProviderRef ref, AppHandler handler) async {
+    final startedAt = DateTime.timestamp();
+    lg.config('Started at ${startedAt.toSimpleString()}');
+
+    try {
+      await handler(ref);
+    } finally {
+      final completedAt = DateTime.timestamp();
+      lg.config('Finished at ${completedAt.toSimpleString()} '
+          'in ${completedAt.difference(startedAt).toShortString()}');
+    }
+  }
+}
+
+class CliExceptionMiddleware extends AppMiddlewareBase {
+  const CliExceptionMiddleware();
+
+  @override
+  Future<void> onCall(ProviderRef ref, AppHandler handler) async {
+    try {
+      await handler(ref);
+    } on CliException catch (exception) {
+      lg.warning('$exception');
     }
   }
 }

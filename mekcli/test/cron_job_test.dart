@@ -2,7 +2,7 @@ import 'package:mekcli/mekcli.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final cronJob = CronJob(hour: 14);
+  const cronJob = CronJob(hour: 14);
 
   test('can execute if never executed', () {
     final startedAt = DateTime.utc(2000, 10, 05);

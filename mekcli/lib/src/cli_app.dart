@@ -51,7 +51,7 @@ void runCliApp(CliApp Function(ProviderRef ref) creator) {
 void runWithRef(FutureOr<void> Function(ProviderRef ref) body) => _runWithRef(body);
 
 void _runWithRef(FutureOr<void> Function(ProviderContainer container) body) {
-  final logSub = _listenLogRecords();
+  final logSub = reportLogRecords();
   final container = ProviderContainer();
 
   Zone.current.runGuarded(() async {
@@ -68,8 +68,8 @@ void _runWithRef(FutureOr<void> Function(ProviderContainer container) body) {
   });
 }
 
-StreamSubscription<LogRecord> _listenLogRecords() {
-  if (kDebugMode) lg.level = Level.ALL;
+StreamSubscription<LogRecord> reportLogRecords() {
+  lg.level = kDebugMode ? Level.ALL : Level.CONFIG;
   return lg.onRecord.listen((record) {
     if (record.level < Level.SEVERE) {
       stdout.writeln(record);
