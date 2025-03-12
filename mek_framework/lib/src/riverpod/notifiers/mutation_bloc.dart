@@ -126,7 +126,7 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>> 
         super(IdleMutation<TResult>());
 
   // ignore: discarded_futures
-  void call(TArg arg) => run(arg);
+  void call(TArg arg) => run(arg).ignore();
 
   Future<void> run(TArg arg) async {
     _ensureIsMounted();

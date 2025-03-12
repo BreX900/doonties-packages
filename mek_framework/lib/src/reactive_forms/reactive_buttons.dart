@@ -6,7 +6,7 @@ import 'package:mek/mek.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 class ReactiveSaveButton extends ConsumerWidget {
-  final VoidCallback? onSubmit;
+  final Future<void> Function()? onSubmit;
 
   const ReactiveSaveButton({
     super.key,
@@ -22,7 +22,7 @@ class ReactiveSaveButton extends ConsumerWidget {
     final isPristine = ref.watch(field.control.provider.pristine);
     if (isPristine) return const SizedBox.shrink();
 
-    final submit = field.control.handleSubmit<VoidCallback>((submit) => submit());
+    final submit = field.control.handleSubmit<Future<void> Function()>((submit) => submit());
     return IconButton(
       onPressed: onSubmit != null ? () => submit(onSubmit) : null,
       icon: const Icon(Icons.save),

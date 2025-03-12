@@ -138,3 +138,74 @@ extension BaseBinIList<V> on BinStore<IList<V>> {
     await write(data.remove(value));
   }
 }
+
+abstract class SerializableKey<Fine, Raw> {
+  String get name;
+
+  const SerializableKey();
+
+  static SerializableKey<T, T> of<T>(String name) => _SimpleSerializableKey(name);
+
+  Fine deserialize(Raw data);
+  Raw serialize(Fine data);
+
+  SerializableKey<R, Raw> map<R>(
+    R Function(Fine data) deserializer,
+    Fine Function(R data) serializer,
+  ) {
+    return _MappedStorageKey(this, deserializer, serializer);
+  }
+}
+
+extension on SerializableKey<String, String> {
+  SerializableKey<R, String> mapJson<R>(
+    R Function(Object data) deserializer,
+    Object Function(R data) serializer,
+  ) {
+    return _JsonStorageKey(this, deserializer, serializer);
+  }
+}
+
+class _SimpleSerializableKey<T> extends SerializableKey<T, T> {
+  @override
+  final String name;
+
+  const _SimpleSerializableKey(this.name);
+
+  @override
+  T deserialize(T data) => data;
+  @override
+  T serialize(T data) => data;
+}
+
+class _MappedStorageKey<Fine, T, Raw> extends SerializableKey<Fine, Raw> {
+  final SerializableKey<T, Raw> _key;
+  final Fine Function(T json) _deserializer;
+  final T Function(Fine instance) _serializer;
+
+  @override
+  String get name => _key.name;
+
+  const _MappedStorageKey(this._key, this._deserializer, this._serializer);
+
+  @override
+  Fine deserialize(Raw data) => _deserializer(_key.deserialize(data));
+  @override
+  Raw serialize(Fine instance) => _key.serialize(_serializer(instance));
+}
+
+class _JsonStorageKey<Fine> extends SerializableKey<Fine, String> {
+  final SerializableKey<String, String> _key;
+  final Fine Function(Object json) _deserializer;
+  final Object Function(Fine instance) _serializer;
+
+  @override
+  String get name => _key.name;
+
+  const _JsonStorageKey(this._key, this._deserializer, this._serializer);
+
+  @override
+  Fine deserialize(String data) => _deserializer(jsonDecode(_key.deserialize(data)) as Object);
+  @override
+  String serialize(Fine instance) => _key.serialize(jsonEncode(_serializer(instance)));
+}

@@ -42,20 +42,22 @@ extension AbstractControlExtensions<T> on AbstractControl<T> {
 }
 
 extension FormArrayExtensions<T> on FormArray<T> {
-  void tryAddAll(Iterable<FormControl<T>> controls) {
-    for (final control in controls) {
-      final hasControl = this.controls.contains(control);
-      if (hasControl) continue;
-      add(control);
-    }
+  void tryAddAll(Iterable<AbstractControl<T>> controls) {
+    controls.forEach(tryAdd);
   }
 
-  void tryRemoveAll(Iterable<FormControl<T>> controls) {
-    for (final control in controls) {
-      final index = this.controls.indexOf(control);
-      if (index == -1) continue;
-      removeAt(index);
-    }
+  void tryAdd(AbstractControl<T> control) {
+    final hasControl = controls.contains(control);
+    if (!hasControl) add(control);
+  }
+
+  void tryRemoveAll(Iterable<AbstractControl<T>> controls) {
+    controls.forEach(tryRemove);
+  }
+
+  void tryRemove(AbstractControl<T> control) {
+    final index = controls.indexOf(control);
+    if (index >= 0) removeAt(index);
   }
 }
 
@@ -83,10 +85,10 @@ extension ReactiveFormConfigExtensions on ReactiveFormConfig? {
 
 extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
   void Function(T arg) handleSubmit<T>(
-    FutureOr<void> Function(T arg) submit, {
+    Future<void> Function(T arg) submit, {
     bool keepDisabled = false,
   }) {
-    return (arg) {
+    return (arg) async {
       switch (status) {
         case ControlStatus.disabled:
           return;
@@ -95,20 +97,23 @@ extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
         case ControlStatus.invalid:
           markAllAsTouched();
         case ControlStatus.valid:
-          // ignore: discarded_futures
-          final result = submit(arg);
-          if (result is! Future<void>) return;
+          try {
+            markAsDisabled();
 
-          markAsDisabled();
+            await submit(arg);
 
-          if (keepDisabled) return;
-          unawaited(result.whenComplete(markAsEnabled));
+            if (keepDisabled) return;
+            markAsEnabled();
+          } catch (_) {
+            markAsEnabled();
+            rethrow;
+          }
       }
     };
   }
 
   void Function() handleVoidSubmit<T>(
-    FutureOr<void> Function() submit, {
+    Future<void> Function() submit, {
     bool shouldKeepDisabled = false,
   }) {
     // ignore: discarded_futures

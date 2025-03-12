@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 
-class LinearProgressIndicatorFlexible extends StatefulWidget {
+typedef LinearProgressIndicatorFlexible = FlexibleProgressIndicator;
+
+class FlexibleProgressIndicator extends StatefulWidget {
   final bool visible;
   final double? value;
 
-  const LinearProgressIndicatorFlexible({
+  const FlexibleProgressIndicator({
     super.key,
     this.visible = true,
     this.value,
   });
 
   @override
-  State<LinearProgressIndicatorFlexible> createState() => _LinearProgressIndicatorFlexibleState();
+  State<FlexibleProgressIndicator> createState() => _FlexibleProgressIndicatorState();
 }
 
-class _LinearProgressIndicatorFlexibleState extends State<LinearProgressIndicatorFlexible>
+class _FlexibleProgressIndicatorState extends State<FlexibleProgressIndicator>
     with TickerProviderStateMixin {
   late final AnimationController _animationController;
   late final Animation<double> _topPaddingAnimation;
