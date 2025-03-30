@@ -111,14 +111,6 @@ extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
       }
     };
   }
-
-  void Function() handleVoidSubmit<T>(
-    Future<void> Function() submit, {
-    bool shouldKeepDisabled = false,
-  }) {
-    // ignore: discarded_futures
-    return () => handleSubmit((_) => submit())(null);
-  }
 }
 
 class FormList<C extends AbstractControl<V>, V> extends FormArray<V> {

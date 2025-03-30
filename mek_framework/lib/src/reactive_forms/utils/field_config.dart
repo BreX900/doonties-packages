@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-abstract class FieldConfigBase<T extends FieldConfigBase<T>> implements ValueListenable<T> {
+sealed class FieldConfigBase<T extends FieldConfigBase<T>> implements ValueListenable<T> {
   final bool? _readOnly;
 
   bool get readOnly => _readOnly ?? false;
@@ -28,7 +28,7 @@ class FieldConfig extends FieldConfigBase<FieldConfig> {
   });
 
   @override
-  FieldConfig copyWith({bool? readOnly, bool? obscureText}) {
+  FieldConfig copyWith({bool? readOnly}) {
     return FieldConfig(
       readOnly: readOnly ?? _readOnly,
     );

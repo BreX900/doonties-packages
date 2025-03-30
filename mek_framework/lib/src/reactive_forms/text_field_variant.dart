@@ -18,8 +18,6 @@ abstract class TextFieldVariant {
   const factory TextFieldVariant.phoneNumber() = _PhoneNumberTextFieldVariant;
 
   TextConfig buildConfig(BuildContext context, TextConfig data) => data;
-
-  InputDecoration buildDecoration(BuildContext context, InputDecoration decoration) => decoration;
 }
 
 class _NoneTextFieldVariant extends TextFieldVariant {

@@ -4,21 +4,20 @@ import 'package:mek/mek.dart';
 import 'package:mekfire/src/providers/auth_providers.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-class SignInScreen extends ConsumerStatefulWidget {
-  final VoidCallback onSignUpPressed;
-  final Widget? footer;
+abstract class SignInScreenBase extends ConsumerStatefulWidget {
+  const SignInScreenBase({super.key});
 
-  const SignInScreen({
-    super.key,
-    required this.onSignUpPressed,
-    this.footer,
-  });
+  AsyncHandler get asyncHandler;
+
+  void onSignUpPressed(BuildContext context);
+
+  Widget? buildFooter(BuildContext context);
 
   @override
-  ConsumerState<SignInScreen> createState() => _SignInScreenState();
+  ConsumerState<SignInScreenBase> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends ConsumerState<SignInScreen> {
+class _SignInScreenState extends ConsumerState<SignInScreenBase> {
   final _emailFb = FormControlTyped<String>(
     initialValue: const String.fromEnvironment('_DEBUG_EMAIL'),
     validators: [ValidatorsTyped.required(), ValidatorsTyped.email()],
@@ -31,15 +30,19 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
   late final _form = FormArray([_emailFb, _passwordFb]);
 
-  late final _signIn = ref.mutation((ref, Nil _) async {
+  late final _signIn = ref.mutation((ref, None _) async {
     await UserAuthProviders.signIn(
       email: _emailFb.value,
       password: _passwordFb.value,
     );
+  }, onError: (_, error) {
+    widget.asyncHandler.showError(context, error);
   });
 
-  late final _sendPasswordResetEmail = ref.mutation((ref, Nil _) async {
+  late final _sendPasswordResetEmail = ref.mutation((ref, None _) async {
     await UserAuthProviders.sendPasswordResetEmail(_emailFb.value);
+  }, onError: (_, error) {
+    widget.asyncHandler.showError(context, error);
   }, onSuccess: (_, __) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('Sent password reset email to ${_emailFb.value}!'),
@@ -72,19 +75,21 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           variant: const TextFieldVariant.password(),
           config: _passwordConfigController,
           textInputAction: TextInputAction.done,
-          onSubmitted: isIdle ? (_) => signIn(nil) : null,
+          onSubmitted: isIdle ? (_) => signIn(none) : null,
           decoration: InputDecoration(
             labelText: 'Password',
             suffixIcon: ReactiveVisibilityButton(controller: _passwordConfigController),
           ),
         ),
         TextButton.icon(
-          onPressed: isIdle ? () => sendPasswordResetEmail(nil) : null,
+          onPressed: isIdle ? () => sendPasswordResetEmail(none) : null,
           icon: const Icon(Icons.lock_reset_outlined),
           label: const Text('Send reset password email'),
         ),
       ];
     }
+
+    final footer = widget.buildFooter(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -101,13 +106,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ElevatedButton.icon(
-                  onPressed: isIdle ? () => signIn(nil) : null,
+                  onPressed: isIdle ? () => signIn(none) : null,
                   icon: const Icon(Icons.login),
                   label: const Text('Sign In'),
                 ),
                 const SizedBox(height: 16.0),
                 OutlinedButton.icon(
-                  onPressed: isIdle ? widget.onSignUpPressed : null,
+                  onPressed: isIdle ? () => widget.onSignUpPressed(context) : null,
                   icon: const Icon(Icons.app_registration),
                   label: const Text('Sign Up'),
                 ),
@@ -115,7 +120,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               ],
             ),
             const Spacer(),
-            if (widget.footer != null) widget.footer!,
+            if (footer != null) footer,
           ],
         ),
       ),

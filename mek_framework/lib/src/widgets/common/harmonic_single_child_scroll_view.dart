@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 
 class HarmonicSingleChildScrollView extends StatelessWidget {
   final bool resizeToAvoidBottomInset;
-  final bool intrinsic;
+  final bool hasIntrinsicBody;
   final Axis scrollDirection;
   final Clip clipBehavior;
 
@@ -14,15 +14,16 @@ class HarmonicSingleChildScrollView extends StatelessWidget {
   final ScrollPhysics? physics;
   final Widget child;
   final DragStartBehavior dragStartBehavior;
+  final HitTestBehavior hitTestBehavior;
   final String? restorationId;
   final ScrollViewKeyboardDismissBehavior keyboardDismissBehavior;
 
   const HarmonicSingleChildScrollView({
     super.key,
     this.resizeToAvoidBottomInset = true,
-    required this.intrinsic,
+    this.hasIntrinsicBody = false,
     this.scrollDirection = Axis.vertical,
-    this.clipBehavior = Clip.none,
+    this.clipBehavior = Clip.hardEdge,
     this.reverse = false,
     this.padding,
     this.primary,
@@ -30,29 +31,28 @@ class HarmonicSingleChildScrollView extends StatelessWidget {
     this.controller,
     required this.child,
     this.dragStartBehavior = DragStartBehavior.start,
+    this.hitTestBehavior = HitTestBehavior.opaque,
     this.restorationId,
     this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.manual,
   });
 
   @override
   Widget build(BuildContext context) {
-    var padding = this.padding;
-    if (resizeToAvoidBottomInset) {
-      final viewInsets = MediaQuery.viewInsetsOf(context);
-      padding = padding?.add(viewInsets) ?? viewInsets;
-    }
+    final viewInsets = resizeToAvoidBottomInset ? MediaQuery.viewInsetsOf(context) : null;
 
     var child = this.child;
-    if (intrinsic) {
+    if (hasIntrinsicBody) {
       child = switch (scrollDirection) {
-        Axis.vertical => IntrinsicHeight(child: this.child),
-        Axis.horizontal => IntrinsicWidth(child: this.child),
+        Axis.horizontal => IntrinsicWidth(child: child),
+        Axis.vertical => IntrinsicHeight(child: child),
       };
     }
 
     return LayoutBuilder(builder: (context, constraints) {
       return SingleChildScrollView(
-        padding: padding,
+        padding: padding != null && viewInsets != null
+            ? padding!.add(viewInsets)
+            : padding ?? viewInsets,
         scrollDirection: scrollDirection,
         reverse: reverse,
         controller: controller,
@@ -60,6 +60,7 @@ class HarmonicSingleChildScrollView extends StatelessWidget {
         physics: physics,
         dragStartBehavior: dragStartBehavior,
         clipBehavior: clipBehavior,
+        hitTestBehavior: hitTestBehavior,
         restorationId: restorationId,
         keyboardDismissBehavior: keyboardDismissBehavior,
         child: ConstrainedBox(

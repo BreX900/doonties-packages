@@ -22,7 +22,7 @@ class ReactiveSaveButton extends ConsumerWidget {
     final isPristine = ref.watch(field.control.provider.pristine);
     if (isPristine) return const SizedBox.shrink();
 
-    final submit = field.control.handleSubmit<Future<void> Function()>((submit) => submit());
+    final submit = field.control.handleSubmit<Future<void> Function()>((submit) async => submit());
     return IconButton(
       onPressed: onSubmit != null ? () => submit(onSubmit) : null,
       icon: const Icon(Icons.save),

@@ -93,7 +93,7 @@ class MekTable extends StatelessWidget {
     final effectiveDataRowColor = dataTableTheme.dataRowColor ?? theme.dataTableTheme.dataRowColor;
     final defaultRowColor = WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.selected)) {
-        return theme.colorScheme.primary.withOpacity(0.08);
+        return theme.colorScheme.primary.withValues(alpha: 0.08);
       }
       return null;
     });

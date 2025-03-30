@@ -7,6 +7,8 @@ import 'package:reactive_forms/reactive_forms.dart';
 abstract class UserDeleteScreenBase extends ConsumerStatefulWidget {
   const UserDeleteScreenBase({super.key});
 
+  AsyncHandler get asyncHandler;
+
   Future<void> onDelete(MutationRef<void> ref, String email, String password);
 
   @override
@@ -25,7 +27,7 @@ class _UserDeleteScreenState extends ConsumerState<UserDeleteScreenBase> {
 
   late final _form = FormArray([_emailFieldBloc, _passwordFieldBloc]);
 
-  late final _deleteUser = ref.mutation((ref, Nil _) async {
+  late final _deleteUser = ref.mutation((ref, None _) async {
     await widget.onDelete(ref, _emailFieldBloc.value, _passwordFieldBloc.value);
   }, onWillMutate: (_) async {
     return await showTypedDialog(
@@ -36,6 +38,8 @@ class _UserDeleteScreenState extends ConsumerState<UserDeleteScreenBase> {
             'All user data will be deleted and cannot be restored.'),
       ),
     );
+  }, onError: (_, error) {
+    widget.asyncHandler.showError(context, error);
   });
 
   @override
@@ -79,7 +83,7 @@ class _UserDeleteScreenState extends ConsumerState<UserDeleteScreenBase> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               OutlinedButton.icon(
-                onPressed: isIdle ? () => deleteUser(nil) : null,
+                onPressed: isIdle ? () => deleteUser(none) : null,
                 icon: const Icon(Icons.delete_forever_outlined),
                 label: const Text('Delete'),
               ),
@@ -100,7 +104,7 @@ class _UserDeleteScreenState extends ConsumerState<UserDeleteScreenBase> {
         title: const Text('Delete user?'),
         flexibleSpace: Consumer(builder: (context, ref, _) {
           final progress = ref.watch(_deleteUser.select((state) => state.progressOrNull));
-          return LinearProgressIndicatorFlexible(visible: isMutating, value: progress);
+          return FlexibleProgressIndicator(visible: isMutating, value: progress);
         }),
       ),
       body: _buildBody(isIdle: !isMutating),

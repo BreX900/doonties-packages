@@ -4,16 +4,20 @@ import 'package:mek/mek.dart';
 import 'package:mekfire/src/providers/auth_providers.dart';
 import 'package:mekfire/src/widgets/sign_out_icon_button.dart';
 
-class EmailVerificationScreen extends ConsumerStatefulWidget {
-  const EmailVerificationScreen({super.key});
+abstract class EmailVerificationScreenBase extends ConsumerStatefulWidget {
+  AsyncHandler get asyncHandler;
+
+  const EmailVerificationScreenBase({super.key});
 
   @override
-  ConsumerState<EmailVerificationScreen> createState() => _SignEmailScreenState();
+  ConsumerState<EmailVerificationScreenBase> createState() => _SignEmailScreenState();
 }
 
-class _SignEmailScreenState extends ConsumerState<EmailVerificationScreen> {
+class _SignEmailScreenState extends ConsumerState<EmailVerificationScreenBase> {
   late final _sendEmailVerification = ref.mutation((ref, arg) async {
     await UserAuthProviders.sendEmailVerification();
+  }, onError: (_, error) {
+    widget.asyncHandler.showError(context, error);
   }, onSuccess: (_, __) {
     ScaffoldMessenger.of(context).showMaterialBanner(const MaterialBanner(
       content: Text('Verification email sent!'),
@@ -23,10 +27,14 @@ class _SignEmailScreenState extends ConsumerState<EmailVerificationScreen> {
 
   late final _reload = ref.mutation((ref, arg) async {
     await UserAuthProviders.checkEmailVerification();
+  }, onError: (_, error) {
+    widget.asyncHandler.showError(context, error);
   });
 
   late final _signOut = ref.mutation((ref, arg) async {
     await UserAuthProviders.signOut();
+  }, onError: (_, error) {
+    widget.asyncHandler.showError(context, error);
   });
 
   @override

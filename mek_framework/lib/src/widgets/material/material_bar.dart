@@ -4,18 +4,19 @@ enum _MaterialBarVariant { primary, secondary }
 
 class MaterialBar extends StatelessWidget {
   final _MaterialBarVariant _variant;
-  final bool forceElevated;
+  final bool? forceElevated;
+
   final Widget child;
 
   const MaterialBar.primary({
     super.key,
-    this.forceElevated = false,
+    this.forceElevated,
     required this.child,
   }) : _variant = _MaterialBarVariant.primary;
 
   const MaterialBar.secondary({
     super.key,
-    this.forceElevated = false,
+    this.forceElevated,
     required this.child,
   }) : _variant = _MaterialBarVariant.secondary;
 
@@ -42,7 +43,11 @@ class MaterialBar extends StatelessWidget {
       surfaceTintColor: surfaceContainer,
       child: AnimatedContainer(
         duration: Durations.medium1,
-        color: forceElevated ? surfaceContainer : surface,
+        color: forceElevated != null
+            ? forceElevated!
+                ? surfaceContainer
+                : surface
+            : colors.surfaceTint,
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: minHeight),
           child: child,

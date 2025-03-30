@@ -45,6 +45,7 @@ class ReactiveTypedTextField<T> extends ConsumerStatefulWidget {
 }
 
 class _ReactiveTypedTextFieldState<T> extends ConsumerState<ReactiveTypedTextField<T>> {
+  final _fieldStateKey = GlobalKey<ReactiveFormFieldState<T, String>>();
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
 
@@ -63,9 +64,8 @@ class _ReactiveTypedTextFieldState<T> extends ConsumerState<ReactiveTypedTextFie
 
   void _onFocusChange() {
     if (_focusNode.hasFocus) return;
-    final valueAccessor = widget.valueAccessor;
-    if (valueAccessor == null) return;
 
+    final valueAccessor = _fieldStateKey.currentState!.valueAccessor;
     _controller.text = valueAccessor.modelToViewValue(widget.formControl.value) ?? '';
   }
 
@@ -73,9 +73,9 @@ class _ReactiveTypedTextFieldState<T> extends ConsumerState<ReactiveTypedTextFie
   Widget build(BuildContext context) {
     final rawConfig = ref.watch(widget.config.provider);
     final config = widget.variant.buildConfig(context, rawConfig);
-    final decoration = widget.variant.buildDecoration(context, widget.decoration);
 
-    return ReactiveTextField(
+    return ReactiveTextField<T>(
+      key: _fieldStateKey,
       formControl: widget.formControl,
       valueAccessor: widget.valueAccessor,
       controller: _controller,
@@ -84,7 +84,7 @@ class _ReactiveTypedTextFieldState<T> extends ConsumerState<ReactiveTypedTextFie
       maxLength: widget.maxLength,
       textCapitalization: widget.textCapitalization,
       textInputAction: widget.textInputAction,
-      decoration: decoration,
+      decoration: widget.decoration,
       onTap: widget.onTap,
       onEditingComplete: widget.onEditingComplete,
       onSubmitted: widget.onSubmitted,

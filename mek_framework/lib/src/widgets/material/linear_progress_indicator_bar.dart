@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+@Deprecated('')
 typedef LinearProgressIndicatorFlexible = FlexibleProgressIndicator;
 
 class FlexibleProgressIndicator extends StatefulWidget {
@@ -121,3 +122,19 @@ class _FlexibleProgressIndicatorState extends State<FlexibleProgressIndicator>
 }
 
 void _noop() {}
+
+class CircularProgressIcon extends StatelessWidget {
+  const CircularProgressIcon({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IconTheme.of(context);
+
+    return CircularProgressIndicator(
+      strokeWidth: theme.weight! / 125,
+      constraints: BoxConstraints.tight(Size.square((theme.size ?? 24.0) - 4.0)),
+      padding: const EdgeInsets.all(2.0),
+      color: theme.color,
+    );
+  }
+}

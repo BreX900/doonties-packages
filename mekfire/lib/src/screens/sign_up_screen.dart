@@ -4,14 +4,16 @@ import 'package:mek/mek.dart';
 import 'package:mekfire/src/providers/auth_providers.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-class SignUpScreen extends ConsumerStatefulWidget {
-  const SignUpScreen({super.key});
+abstract class SignUpScreenBase extends ConsumerStatefulWidget {
+  AsyncHandler get asyncHandler;
+
+  const SignUpScreenBase({super.key});
 
   @override
-  ConsumerState<SignUpScreen> createState() => _SignUpScreenState();
+  ConsumerState<SignUpScreenBase> createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends ConsumerState<SignUpScreen> {
+class _SignUpScreenState extends ConsumerState<SignUpScreenBase> {
   final _emailFb = FormControlTyped<String>(
     initialValue: const String.fromEnvironment('_DEBUG_EMAIL'),
     validators: [ValidatorsTyped.required(), ValidatorsTyped.email()],
@@ -35,12 +37,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     super.dispose();
   }
 
-  late final _signUp = ref.mutation((ref, Nil _) async {
+  late final _signUp = ref.mutation((ref, None _) async {
     await UserAuthProviders.signUp(
       email: _emailFb.value,
       password: _passwordFb.value,
       passwordConfirmation: _passwordConfirmationFb.value,
     );
+  }, onError: (_, error) {
+    widget.asyncHandler.showError(context, error);
   });
 
   @override
@@ -56,7 +60,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         children: [
           Expanded(
             child: ElevatedButton(
-              onPressed: isIdle ? () => signUp(nil) : null,
+              onPressed: isIdle ? () => signUp(none) : null,
               child: const Text('Sign Up!'),
             ),
           ),

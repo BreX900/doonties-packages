@@ -5,7 +5,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/src/core/_log.dart';
 import 'package:mek/src/core/typedefs.dart';
-import 'package:mek/src/data/views.dart';
 import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
 import 'package:mek/src/riverpod/adapters/state_notifier_provider.dart';
 import 'package:mek/src/riverpod/auto_dispose_extension.dart';
@@ -39,8 +38,7 @@ extension MutationBlocExtension on WidgetRef {
     Future<R> Function(MutationRef<R> ref, A arg) mutator, {
     StartMutationListener<A>? onStart,
     WillStartMutationListener<A>? onWillMutate,
-    ErrorMutationListener<A>? onError = _sentinelError,
-    @Deprecated('In favour of onSuccess') DataMutationListener<A, R>? onData,
+    required ErrorMutationListener<A>? onError,
     DataMutationListener<A, R>? onSuccess,
     ResultMutationListener<A, R>? onFinish,
   }) {
@@ -49,8 +47,8 @@ extension MutationBlocExtension on WidgetRef {
       mutator,
       onStart: onStart,
       onWillMutate: onWillMutate,
-      onError: onError == _sentinelError ? _listenError : onError,
-      onData: onSuccess ?? onData,
+      onError: onError,
+      onData: onSuccess,
       onFinish: onFinish,
     );
     onDispose(mutation.dispose);
@@ -95,10 +93,6 @@ extension MutationBlocExtension on WidgetRef {
       );
     });
   }
-
-  static void _sentinelError(void arg, void error) {}
-
-  void _listenError(void arg, Object error) => DataBuilders.listenError(context, error);
 }
 
 class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>> {
@@ -113,11 +107,11 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>> 
   MutationBloc(
     this._ref,
     this._mutator, {
-    StartMutationListener<TArg>? onStart,
-    WillStartMutationListener<TArg>? onWillMutate,
-    ErrorMutationListener<TArg>? onError,
-    DataMutationListener<TArg, TResult>? onData,
-    ResultMutationListener<TArg, TResult>? onFinish,
+    required StartMutationListener<TArg>? onStart,
+    required WillStartMutationListener<TArg>? onWillMutate,
+    required ErrorMutationListener<TArg>? onError,
+    required DataMutationListener<TArg, TResult>? onData,
+    required ResultMutationListener<TArg, TResult>? onFinish,
   })  : _onStart = onStart,
         _onWillMutate = onWillMutate,
         _onError = onError,

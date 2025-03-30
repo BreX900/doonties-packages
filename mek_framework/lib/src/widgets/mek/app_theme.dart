@@ -2,26 +2,30 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 abstract class MekTheme {
-  static ColorScheme buildColorScheme(BuildContext context, [Color? color]) {
+  static ColorScheme buildColorScheme(BuildContext context, [Color? primary, Color? secondary]) {
+    const luminance = 0.5;
     final brightness = MediaQuery.platformBrightnessOf(context);
     final isDark = brightness == Brightness.dark;
-    const colorPrimary = Colors.amber;
-    const colorSecondary = Colors.yellow;
 
-    final surface = isDark ? const Color(0xff121212) : Colors.white;
+    primary ??= Colors.amber;
+    secondary ??= Colors.yellow;
+
+    final surface = isDark ? Colors.black : Colors.white;
     final onSurface = isDark ? Colors.white : Colors.black;
 
-    return ColorScheme.fromSeed(
-      dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
-      seedColor: color ?? colorPrimary,
+    return ColorScheme(
       brightness: brightness,
-      primary: color == null ? colorPrimary : null,
-      onPrimary: Colors.black,
-      secondary: color == null ? colorSecondary : null,
-      onSecondary: Colors.black,
+      primary: primary,
+      onPrimary: primary.computeLuminance() > luminance ? Colors.black : Colors.white,
+      secondary: secondary,
+      onSecondary: secondary.computeLuminance() > luminance ? Colors.black : Colors.white,
       surface: surface,
       onSurface: onSurface,
       onSurfaceVariant: onSurface,
+      surfaceTint: isDark ? const Color(0xff161616) : const Color(0xfff0f0f0),
+      surfaceContainer: isDark ? const Color(0xff242424) : const Color(0xffe9e9e9),
+      error: Colors.red[700]!,
+      onError: isDark ? Colors.black : Colors.white,
     );
   }
 
@@ -63,7 +67,7 @@ abstract class MekTheme {
           TargetPlatform.android || TargetPlatform.iOS => false,
           _ => true,
         },
-        backgroundColor: colorScheme.surfaceContainerHigh,
+        backgroundColor: colorScheme.surfaceContainer,
       ),
       bannerTheme: MaterialBannerThemeData(
         backgroundColor: colorScheme.secondaryContainer,
@@ -71,7 +75,9 @@ abstract class MekTheme {
       inputDecorationTheme: const InputDecorationTheme(
         errorMaxLines: 5,
       ),
+      // ignore: deprecated_member_use
       dialogBackgroundColor: colorScheme.surfaceContainer,
+      dialogTheme: DialogTheme(backgroundColor: colorScheme.surfaceContainer),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
           TargetPlatform.iOS:
@@ -80,6 +86,9 @@ abstract class MekTheme {
       ),
       snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: colorScheme.surfaceTint,
       ),
     );
   }
