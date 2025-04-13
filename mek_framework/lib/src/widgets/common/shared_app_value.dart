@@ -1,19 +1,18 @@
 import 'package:flutter/widgets.dart';
 
-class SharedAppValue<V> {
-  final (SharedAppValueFamily<V>, String)? _key;
-  final SharedAppDataInitCallback<V> _init;
+class SharedAppValue<T> {
+  final SharedAppDataInitCallback<T> _init;
 
-  const SharedAppValue(this._init) : _key = null;
-
-  const SharedAppValue._(this._key, this._init);
+  SharedAppValue(this._init);
 
   static SharedAppValueFamily<V> family<V>(SharedAppDataInitCallback<V> init) =>
       SharedAppValueFamily(init);
 
-  V get(BuildContext context) => SharedAppData.getValue(context, _key ?? this, _init);
+  Object get _key => this;
 
-  void set(BuildContext context, V value) => SharedAppData.setValue(context, _key ?? this, value);
+  T get(BuildContext context) => SharedAppData.getValue(context, _key, _init);
+
+  void set(BuildContext context, T value) => SharedAppData.setValue(context, _key, value);
 }
 
 class SharedAppValueFamily<V> {
@@ -21,5 +20,15 @@ class SharedAppValueFamily<V> {
 
   SharedAppValueFamily(this._init);
 
-  SharedAppValue<V> call(String argument) => SharedAppValue._((this, argument), _init);
+  SharedAppValue<V> call(String argument) => _SharedAppValueFamily(this, argument);
+}
+
+class _SharedAppValueFamily<T, A> extends SharedAppValue<T> {
+  final SharedAppValueFamily<T> _origin;
+  final A _argument;
+
+  _SharedAppValueFamily(this._origin, this._argument) : super(_origin._init);
+
+  @override
+  Object get _key => (_origin, _argument);
 }

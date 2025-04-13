@@ -68,6 +68,7 @@ export 'src/widgets/common/deferred_library_builder.dart';
 export 'src/widgets/common/dots_text.dart';
 export 'src/widgets/common/draggable_with_size.dart';
 export 'src/widgets/common/grid.dart';
+export 'src/widgets/common/harmonic_scaffold.dart';
 export 'src/widgets/common/harmonic_single_child_scroll_view.dart';
 export 'src/widgets/common/inherited_value.dart';
 export 'src/widgets/common/rotators.dart';

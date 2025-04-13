@@ -8,7 +8,7 @@ class HarmonicSingleChildScrollView extends StatelessWidget {
   final Clip clipBehavior;
 
   final bool reverse;
-  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry padding;
   final ScrollController? controller;
   final bool? primary;
   final ScrollPhysics? physics;
@@ -25,7 +25,7 @@ class HarmonicSingleChildScrollView extends StatelessWidget {
     this.scrollDirection = Axis.vertical,
     this.clipBehavior = Clip.hardEdge,
     this.reverse = false,
-    this.padding,
+    this.padding = EdgeInsets.zero,
     this.primary,
     this.physics,
     this.controller,
@@ -38,6 +38,7 @@ class HarmonicSingleChildScrollView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final viewPadding = MediaQuery.viewPaddingOf(context);
     final viewInsets = resizeToAvoidBottomInset ? MediaQuery.viewInsetsOf(context) : null;
 
     var child = this.child;
@@ -50,9 +51,7 @@ class HarmonicSingleChildScrollView extends StatelessWidget {
 
     return LayoutBuilder(builder: (context, constraints) {
       return SingleChildScrollView(
-        padding: padding != null && viewInsets != null
-            ? padding!.add(viewInsets)
-            : padding ?? viewInsets,
+        padding: (viewInsets?.add(padding) ?? padding).add(viewPadding),
         scrollDirection: scrollDirection,
         reverse: reverse,
         controller: controller,
@@ -66,12 +65,12 @@ class HarmonicSingleChildScrollView extends StatelessWidget {
         child: ConstrainedBox(
           constraints: BoxConstraints(
             minHeight: switch (scrollDirection) {
-              Axis.vertical => constraints.maxHeight - (padding?.vertical ?? 0.0),
+              Axis.vertical => constraints.maxHeight - padding.vertical - viewPadding.vertical,
               Axis.horizontal => 0.0,
             },
             minWidth: switch (scrollDirection) {
               Axis.vertical => 0.0,
-              Axis.horizontal => constraints.maxWidth - (padding?.horizontal ?? 0.0),
+              Axis.horizontal => constraints.maxWidth - padding.horizontal - viewPadding.vertical,
             },
           ),
           child: child,

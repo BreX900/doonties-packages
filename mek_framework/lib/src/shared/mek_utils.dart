@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 typedef ProgressEmitter = void Function(double value);
 
 abstract final class MekUtils {
-  static void showSnackBarError({
+  static void showErrorSnackBar({
     required BuildContext context,
     required Widget description,
   }) {

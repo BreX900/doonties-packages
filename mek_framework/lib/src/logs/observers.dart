@@ -8,7 +8,6 @@ abstract final class Observers {
   static void attachAll() {
     PlatformDispatcher.instance.onError = _handlePlatformError;
     FlutterError.presentError = _handleFlutterError;
-    // Bloc.observer = const _BlocObserver();
   }
 
   static bool _handlePlatformError(Object error, StackTrace stackTrace) {
@@ -61,14 +60,3 @@ class _ProviderObserver extends ProviderObserver {
     return data.toString().split('\n').take(32).join(' ');
   }
 }
-
-// class _BlocObserver extends BlocObserver {
-//   const _BlocObserver();
-//
-//   @override
-//   void onError(BlocBase<Object?> bloc, Object error, StackTrace stackTrace) {
-//     super.onError(bloc, error, stackTrace);
-//
-//     lg.severe('Exception caught by ${bloc.runtimeType}#$bloc', error, stackTrace);
-//   }
-// }

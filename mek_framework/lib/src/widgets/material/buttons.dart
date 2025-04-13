@@ -17,14 +17,15 @@ class FixedFloatingActionButton extends StatelessWidget {
     final buttonTheme = theme.floatingActionButtonTheme;
 
     return (
-      (buttonTheme.foregroundColor ?? theme.colorScheme.onPrimaryContainer).withValues(alpha: 0.6),
-      theme.disabledColor,
+      buttonTheme.foregroundColor ?? theme.colorScheme.onPrimaryContainer,
+      theme.disabledColor.withValues(alpha: 1.0),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = onPressed == null ? _resolveDisabledColors(context) : null;
+    final enabled = onPressed == null;
+    final colors = enabled ? _resolveDisabledColors(context) : null;
 
     return FloatingActionButton.extended(
       foregroundColor: colors?.$1,

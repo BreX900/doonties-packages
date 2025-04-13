@@ -10,7 +10,7 @@ abstract class MekTheme {
     primary ??= Colors.amber;
     secondary ??= Colors.yellow;
 
-    final surface = isDark ? Colors.black : Colors.white;
+    final surface = isDark ? const Color(0xff121212) : Colors.white;
     final onSurface = isDark ? Colors.white : Colors.black;
 
     return ColorScheme(
@@ -21,10 +21,12 @@ abstract class MekTheme {
       onSecondary: secondary.computeLuminance() > luminance ? Colors.black : Colors.white,
       surface: surface,
       onSurface: onSurface,
+      surfaceTint: Colors.red,
       onSurfaceVariant: onSurface,
-      surfaceTint: isDark ? const Color(0xff161616) : const Color(0xfff0f0f0),
-      surfaceContainer: isDark ? const Color(0xff242424) : const Color(0xffe9e9e9),
-      error: Colors.red[700]!,
+      surfaceContainer: isDark ? const Color(0xff181818) : const Color(0xfff0f0f0),
+      surfaceContainerLowest: isDark ? const Color(0xff242424) : const Color(0xffe9e9e9),
+      secondaryContainer: secondary,
+      error: isDark ? const Color(0xffcf6679) : const Color(0xffb00020),
       onError: isDark ? Colors.black : Colors.white,
     );
   }
@@ -68,6 +70,7 @@ abstract class MekTheme {
           _ => true,
         },
         backgroundColor: colorScheme.surfaceContainer,
+        surfaceTintColor: colorScheme.surfaceContainer,
       ),
       bannerTheme: MaterialBannerThemeData(
         backgroundColor: colorScheme.secondaryContainer,
@@ -88,7 +91,14 @@ abstract class MekTheme {
         behavior: SnackBarBehavior.floating,
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: colorScheme.surfaceTint,
+        backgroundColor: colorScheme.surfaceContainer,
+        indicatorColor: colorScheme.primary,
+      ),
+      tabBarTheme: const TabBarThemeData(
+        dividerHeight: 0.0,
+      ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        linearTrackColor: Colors.transparent,
       ),
     );
   }

@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
 
-@Deprecated('')
-typedef LinearProgressIndicatorFlexible = FlexibleProgressIndicator;
-
-class FlexibleProgressIndicator extends StatefulWidget {
+class FlexibleLinearProgressBar extends StatefulWidget {
   final bool visible;
   final double? value;
 
-  const FlexibleProgressIndicator({
+  const FlexibleLinearProgressBar({
     super.key,
     this.visible = true,
     this.value,
   });
 
   @override
-  State<FlexibleProgressIndicator> createState() => _FlexibleProgressIndicatorState();
+  State<FlexibleLinearProgressBar> createState() => _FlexibleLinearProgressBarState();
 }
 
-class _FlexibleProgressIndicatorState extends State<FlexibleProgressIndicator>
+class _FlexibleLinearProgressBarState extends State<FlexibleLinearProgressBar>
     with TickerProviderStateMixin {
   late final AnimationController _animationController;
   late final Animation<double> _topPaddingAnimation;
@@ -58,7 +55,7 @@ class _FlexibleProgressIndicatorState extends State<FlexibleProgressIndicator>
   }
 
   @override
-  void didUpdateWidget(covariant LinearProgressIndicatorFlexible oldWidget) {
+  void didUpdateWidget(covariant FlexibleLinearProgressBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     final value = widget.value;
     if (value != oldWidget.value) {

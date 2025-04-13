@@ -104,7 +104,7 @@ class _UserDeleteScreenState extends ConsumerState<UserDeleteScreenBase> {
         title: const Text('Delete user?'),
         flexibleSpace: Consumer(builder: (context, ref, _) {
           final progress = ref.watch(_deleteUser.select((state) => state.progressOrNull));
-          return FlexibleProgressIndicator(visible: isMutating, value: progress);
+          return FlexibleLinearProgressBar(visible: isMutating, value: progress);
         }),
       ),
       body: _buildBody(isIdle: !isMutating),

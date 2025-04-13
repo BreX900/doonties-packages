@@ -23,8 +23,13 @@ class BottomButtonBar extends StatelessWidget {
         data: TextButtonThemeData(
           style: _buttonStyle.merge(TextButtonTheme.of(context).style),
         ),
-        child: Row(
-          children: children,
+        child: FilledButtonTheme(
+          data: FilledButtonThemeData(
+            style: _buttonStyle.merge(FilledButtonTheme.of(context).style),
+          ),
+          child: Row(
+            children: children,
+          ),
         ),
       ),
     );

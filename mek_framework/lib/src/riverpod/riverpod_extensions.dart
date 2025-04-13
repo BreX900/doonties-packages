@@ -1,37 +1,38 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 extension RefreshAndInvalidateAncestorsWidgetRefExtension on WidgetRef {
-  void refreshAndInvalidateAncestors(ProviderBase<Object?> provider) =>
-      ProviderScope.containerOf(context, listen: false).refreshAndInvalidateAncestors(provider);
+  void invalidateWithAncestors(ProviderBase<Object?> provider) {
+    final container = ProviderScope.containerOf(context, listen: false);
+    container.invalidateAncestors(provider);
+    container.invalidate(provider);
+  }
 }
 
 extension InvalidateFromProviderContainerExtension on ProviderContainer {
-  void refreshAndInvalidateAncestors<T>(ProviderBase<Object?> provider) {
+  void invalidateAncestors<T>(ProviderBase<Object?> provider) {
+    if (!exists(provider)) return;
+
     final element = readProviderElement(provider);
-    final visitor = _createVisitor((element) => element.invalidateSelf());
+    final elements = <ProviderElementBase<Object?>>[];
+
+    void visitor(ProviderElementBase<Object?> element) {
+      if (_checkCanInvalidate(element)) elements.add(element);
+
+      element.visitAncestors(visitor);
+    }
+
     visitor(element);
+  }
 
+  bool _checkCanInvalidate(ProviderElementBase<Object?> element) {
     // ignore: invalid_use_of_protected_member, invalid_use_of_internal_member
-    element.flush();
-  }
+    final state = element.getState();
+    if (state == null || !state.hasState) return true;
 
-  void Function(ProviderElementBase<Object?> element) _createVisitor(
-    void Function(ProviderElementBase<AsyncValue>) visitor,
-  ) {
-    return (ProviderElementBase<Object?> element) {
-      if (element is! ProviderElementBase<AsyncValue>) return;
-      if (!_checkCanInvalidate(element)) return;
-
-      visitor(element);
-
-      element.visitAncestors(_createVisitor(visitor));
-    };
-  }
-
-  bool _checkCanInvalidate(ProviderElementBase<AsyncValue<Object?>> element) {
     if (element is FutureProviderElement) return true;
     // ignore: invalid_use_of_protected_member, invalid_use_of_internal_member
     if (element is StreamProviderElement) return element.requireState.hasError;
+
     return false;
   }
 }

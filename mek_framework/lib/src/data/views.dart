@@ -41,7 +41,7 @@ base class AsyncHandler {
   }
 
   void showError(BuildContext context, Object error) {
-    MekUtils.showSnackBarError(
+    MekUtils.showErrorSnackBar(
       context: context,
       description:
           error is TextualError ? Text(error.message) : const Text('🤖 My n_m_ _s r_b_t! 🤖'),

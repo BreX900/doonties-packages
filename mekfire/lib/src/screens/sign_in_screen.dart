@@ -11,7 +11,7 @@ abstract class SignInScreenBase extends ConsumerStatefulWidget {
 
   void onSignUpPressed(BuildContext context);
 
-  Widget? buildFooter(BuildContext context);
+  Widget? buildFooter(BuildContext context) => null;
 
   @override
   ConsumerState<SignInScreenBase> createState() => _SignInScreenState();
@@ -92,6 +92,7 @@ class _SignInScreenState extends ConsumerState<SignInScreenBase> {
     final footer = widget.buildFooter(context);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('Sign In'),
       ),
@@ -105,13 +106,13 @@ class _SignInScreenState extends ConsumerState<SignInScreenBase> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                ElevatedButton.icon(
+                FilledButton.icon(
                   onPressed: isIdle ? () => signIn(none) : null,
                   icon: const Icon(Icons.login),
                   label: const Text('Sign In'),
                 ),
                 const SizedBox(height: 16.0),
-                OutlinedButton.icon(
+                TextButton.icon(
                   onPressed: isIdle ? () => widget.onSignUpPressed(context) : null,
                   icon: const Icon(Icons.app_registration),
                   label: const Text('Sign Up'),
