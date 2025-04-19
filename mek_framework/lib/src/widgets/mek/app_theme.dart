@@ -87,8 +87,10 @@ abstract class MekTheme {
               kIsWeb ? _HorizontalPageTransitionsBuilder() : CupertinoPageTransitionsBuilder(),
         },
       ),
-      snackBarTheme: const SnackBarThemeData(
+      snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
+        actionBackgroundColor: colorScheme.primary,
+        actionTextColor: colorScheme.onPrimary,
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: colorScheme.surfaceContainer,
@@ -99,6 +101,9 @@ abstract class MekTheme {
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         linearTrackColor: Colors.transparent,
+      ),
+      sliderTheme: SliderThemeData(
+        inactiveTrackColor: colorScheme.primary.withValues(alpha: 0.2),
       ),
     );
   }

@@ -77,6 +77,7 @@ export 'src/widgets/common/sliver_persistent_preferred_size_header.dart';
 export 'src/widgets/common/text_icon.dart';
 export 'src/widgets/material/bottom_button_bar.dart';
 export 'src/widgets/material/buttons.dart';
+export 'src/widgets/material/dismissing_tile.dart';
 export 'src/widgets/material/flat_list_tile.dart';
 export 'src/widgets/material/hide_banner_button.dart';
 export 'src/widgets/material/info_tile.dart';

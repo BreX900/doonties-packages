@@ -2,8 +2,9 @@ import 'package:flutter/widgets.dart';
 
 class TextIcon extends StatelessWidget {
   final String data;
+  final Color? color;
 
-  const TextIcon(this.data, {super.key});
+  const TextIcon(this.data, {super.key, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +12,7 @@ class TextIcon extends StatelessWidget {
     return Text(
       data,
       style: TextStyle(
-        color: theme.color,
+        color: color ?? theme.color,
         fontSize: theme.size,
       ),
     );
