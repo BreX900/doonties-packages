@@ -1,13 +1,13 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/src/core/_log.dart';
 import 'package:mek/src/core/typedefs.dart';
 import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
 import 'package:mek/src/riverpod/adapters/state_notifier_provider.dart';
 import 'package:mek/src/riverpod/auto_dispose_extension.dart';
+import 'package:mek/src/riverpod/notifiers/_mutation.dart';
+import 'package:mek/src/riverpod/notifiers/mutation_ref.dart';
 import 'package:mek/src/riverpod/notifiers/mutation_state.dart';
 import 'package:mek/src/riverpod/state_notifier_extensions.dart';
 
@@ -126,7 +126,7 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>> 
     _ensureIsMounted();
 
     if (state.args.contains(arg)) {
-      lg.info('Bloc is mutating! $this');
+      lg.info('$this is mutating!');
       return;
     }
 
@@ -138,32 +138,31 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>> 
     await _tryCall1(_onStart, arg);
     if (!mounted) return;
 
+    final delegate = NotifierDelegate(this);
     // ignore: use_build_context_synchronously
-    final ref = MutationRef._(ProviderScope.containerOf(_ref.context, listen: false), this);
+    final ref = MutationRef(ProviderScope.containerOf(_ref.context, listen: false), delegate);
     try {
       final result = await _mutator(ref, arg);
-      ref._dispose();
-
-      if (!mounted) {
-        lg.info('Bloc is closed! Cant emit success state. $this');
-        return;
-      }
+      delegate.dispose();
+      if (!mounted) return;
 
       await _tryCall2(_onData, arg, result);
+      if (!mounted) return;
+
       await _tryCall3(_onFinish, arg, null, result);
+      if (!mounted) return;
 
       emit(state.toSuccess(arg: arg, data: result));
     } catch (error, stackTrace) {
       addError(error, stackTrace);
-      ref._dispose();
-
-      if (!mounted) {
-        lg.info('Bloc is closed!  Cant emit failed state. $this');
-        return;
-      }
+      delegate.dispose();
+      if (!mounted) return;
 
       await _tryCall2(_onError, arg, error);
+      if (!mounted) return;
+
       await _tryCall3(_onFinish, arg, error, null);
+      if (!mounted) return;
 
       emit(state.toFailed(arg: arg, error: error));
 
@@ -217,28 +216,4 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>> 
 
   @override
   String toString() => 'MutationBloc($_mutator)';
-}
-
-@optionalTypeArgs
-class MutationRef<R> {
-  final ProviderContainer _ref;
-  MutationBloc<void, R>? _bloc;
-
-  MutationRef._(this._ref, this._bloc);
-
-  MutationBloc<void, R> get bloc => ArgumentError.checkNotNull(_bloc, 'MutationRef.bloc');
-
-  bool exists(ProviderBase<Object?> provider) => _ref.exists(provider);
-
-  void invalidate(ProviderOrFamily provider) => _ref.invalidate(provider);
-
-  T read<T>(ProviderListenable<T> provider) => _ref.read(provider);
-
-  T refresh<T>(Refreshable<T> provider) => _ref.refresh(provider);
-
-  void updateProgress(double value) => bloc.updateProgress(value);
-
-  void _dispose() {
-    _bloc = null;
-  }
 }

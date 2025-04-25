@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class SliverPersistentSizeHeader extends StatelessWidget {
   final bool pinned;
   final bool floating;
+  final bool forceElevated;
   final double height;
   final Widget child;
 
@@ -10,6 +11,7 @@ class SliverPersistentSizeHeader extends StatelessWidget {
     super.key,
     this.pinned = false,
     this.floating = false,
+    this.forceElevated = false,
     required this.height,
     required this.child,
   });
@@ -18,6 +20,7 @@ class SliverPersistentSizeHeader extends StatelessWidget {
     super.key,
     this.pinned = false,
     this.floating = false,
+    this.forceElevated = false,
     required PreferredSizeWidget this.child,
   }) : height = child.preferredSize.height;
 
@@ -27,6 +30,7 @@ class SliverPersistentSizeHeader extends StatelessWidget {
       pinned: pinned,
       floating: floating,
       delegate: _SliverPersistentPreferredSizeHeaderDelegate(
+        forceElevated: forceElevated,
         height: height,
         child: child,
       ),
@@ -35,10 +39,12 @@ class SliverPersistentSizeHeader extends StatelessWidget {
 }
 
 class _SliverPersistentPreferredSizeHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final bool forceElevated;
   final double height;
   final Widget child;
 
   const _SliverPersistentPreferredSizeHeaderDelegate({
+    required this.forceElevated,
     required this.height,
     required this.child,
   });
@@ -51,7 +57,7 @@ class _SliverPersistentPreferredSizeHeaderDelegate extends SliverPersistentHeade
 
   @override
   bool shouldRebuild(covariant _SliverPersistentPreferredSizeHeaderDelegate oldDelegate) =>
-      height != oldDelegate.height;
+      forceElevated != oldDelegate.forceElevated || height != oldDelegate.height;
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
@@ -59,7 +65,7 @@ class _SliverPersistentPreferredSizeHeaderDelegate extends SliverPersistentHeade
     final colors = theme.colorScheme;
 
     return Material(
-      elevation: shrinkOffset / height * 3.0,
+      elevation: forceElevated ? 3.0 : (shrinkOffset / height * 3.0),
       color: colors.surface,
       surfaceTintColor: colors.surfaceTint,
       child: child,

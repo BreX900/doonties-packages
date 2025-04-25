@@ -52,6 +52,7 @@ export 'src/riverpod/auto_dispose_extension.dart';
 export 'src/riverpod/future_of_data_provider.dart';
 export 'src/riverpod/notifiers/mutation_bloc.dart';
 export 'src/riverpod/notifiers/mutation_bloc_v2.dart';
+export 'src/riverpod/notifiers/mutation_ref.dart';
 export 'src/riverpod/notifiers/mutation_state.dart';
 export 'src/riverpod/refreshable_consumer.dart';
 export 'src/riverpod/riverpod_extensions.dart';

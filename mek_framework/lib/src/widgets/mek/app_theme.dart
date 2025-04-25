@@ -21,7 +21,7 @@ abstract class MekTheme {
       onSecondary: secondary.computeLuminance() > luminance ? Colors.black : Colors.white,
       surface: surface,
       onSurface: onSurface,
-      surfaceTint: Colors.red,
+      surfaceTint: Colors.white,
       onSurfaceVariant: onSurface,
       surfaceContainer: isDark ? const Color(0xff181818) : const Color(0xfff0f0f0),
       surfaceContainerLowest: isDark ? const Color(0xff242424) : const Color(0xffe9e9e9),
