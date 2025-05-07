@@ -66,7 +66,9 @@ class _ReactiveTypedTextFieldState<T> extends ConsumerState<ReactiveTypedTextFie
     if (_focusNode.hasFocus) return;
 
     final valueAccessor = _fieldStateKey.currentState!.valueAccessor;
-    _controller.text = valueAccessor.modelToViewValue(widget.formControl.value) ?? '';
+    final text = valueAccessor.modelToViewValue(widget.formControl.value) ?? '';
+    if (_controller.text == text) return;
+    _controller.text = text;
   }
 
   @override

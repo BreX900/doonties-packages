@@ -49,9 +49,11 @@ class HarmonicSingleChildScrollView extends StatelessWidget {
       };
     }
 
+    final scrollViewPadding = (viewInsets?.add(padding) ?? padding).add(viewPadding);
+
     return LayoutBuilder(builder: (context, constraints) {
       return SingleChildScrollView(
-        padding: (viewInsets?.add(padding) ?? padding).add(viewPadding),
+        padding: scrollViewPadding,
         scrollDirection: scrollDirection,
         reverse: reverse,
         controller: controller,
@@ -65,12 +67,12 @@ class HarmonicSingleChildScrollView extends StatelessWidget {
         child: ConstrainedBox(
           constraints: BoxConstraints(
             minHeight: switch (scrollDirection) {
-              Axis.vertical => constraints.maxHeight - padding.vertical - viewPadding.vertical,
+              Axis.vertical => constraints.maxHeight - scrollViewPadding.vertical,
               Axis.horizontal => 0.0,
             },
             minWidth: switch (scrollDirection) {
               Axis.vertical => 0.0,
-              Axis.horizontal => constraints.maxWidth - padding.horizontal - viewPadding.vertical,
+              Axis.horizontal => constraints.maxWidth - scrollViewPadding.horizontal,
             },
           ),
           child: child,

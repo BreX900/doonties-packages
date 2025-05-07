@@ -1,33 +1,22 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mek/mek.dart';
 
-class NotifierDelegate<T> {
-  var _isDisposed = false;
-  final StateNotifier<T> _notifier;
+class MutationRefImpl<TArg> extends MutationRef {
+  Mutation? _delegate;
+  final TArg _arg;
 
-  NotifierDelegate(this._notifier);
+  MutationRefImpl(super._ref, this._delegate, this._arg);
 
-  T get state {
-    _ensureIsMounted();
-    // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
-    return _notifier.state;
-  }
-
-  set state(T state) {
-    _ensureIsMounted();
-    // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-    _notifier.state = state;
-  }
-
-  void _ensureIsMounted() {
-    if (!_isDisposed) return;
-    throw StateError('''
-Tried to use $runtimeType after `dispose` was called.
-
-Consider checking `mounted`.
-''');
+  @override
+  void updateProgress(double value) {
+    assert(_delegate != null);
+    _delegate?.updateProgress(_arg, value);
   }
 
   void dispose() {
-    _isDisposed = false;
+    _delegate = null;
   }
+}
+
+abstract class Mutation<TArg> {
+  void updateProgress(TArg arg, double value);
 }

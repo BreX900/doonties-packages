@@ -19,13 +19,13 @@ extension ReportRecordsExtension on Logger {
     Crashlytics crashlytics = Crashlytics.none,
     ErrorDetailsMapper? onErrorDetails,
   }) {
-    Logger.root.level = kReleaseMode ? Level.CONFIG : Level.ALL;
+    level = kReleaseMode ? Level.CONFIG : Level.ALL;
 
     final reporter = _LogReporter(onErrorDetails ?? ErrorDetails.new);
 
-    Logger.root.onRecord.listen(reporter.reportToConsole, onError: reporter._printLoggingError);
+    onRecord.listen(reporter.reportToConsole, onError: reporter._printLoggingError);
     if (kReleaseMode && crashlytics != Crashlytics.none) {
-      Logger.root.onRecord
+      onRecord
           .asyncMap((error) async => await reporter.reportToCrashlytics(crashlytics, error))
           .listen(null, onError: reporter._printLoggingError);
     }

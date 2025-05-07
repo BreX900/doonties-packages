@@ -18,7 +18,7 @@ class FixedFloatingActionButton extends StatelessWidget {
 
     return (
       buttonTheme.foregroundColor ?? theme.colorScheme.onPrimaryContainer,
-      theme.disabledColor.withValues(alpha: 1.0),
+      theme.disabledColor,
     );
   }
 
@@ -28,6 +28,7 @@ class FixedFloatingActionButton extends StatelessWidget {
     final colors = enabled ? _resolveDisabledColors(context) : null;
 
     return FloatingActionButton.extended(
+      mouseCursor: onPressed != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
       foregroundColor: colors?.$1,
       backgroundColor: colors?.$2,
       onPressed: onPressed,

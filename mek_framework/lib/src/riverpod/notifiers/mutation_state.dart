@@ -17,12 +17,18 @@ sealed class MutationState<TData> with EquatableAndDescribable {
 
   double? get progressOrNull {
     final state = this;
-    return state is LoadingMutation<TData> ? state.progress : null;
+    return state is LoadingMutation<TData> ? state.status.values.singleOrNull : null;
+  }
+
+  IMap<Object?, double?> get status {
+    final state = this;
+    return state is LoadingMutation<TData> ? state.status : const IMap.empty();
   }
 
   const factory MutationState.idle() = IdleMutation<TData>;
-  const factory MutationState.loading({required ISet<Object?> args, double? progress}) =
-      LoadingMutation<TData>;
+  const factory MutationState.loading(
+      {required ISet<Object?> args,
+      required IMap<Object?, double?> status}) = LoadingMutation<TData>;
   const factory MutationState.failed({required ISet<Object?> args, required Object error}) =
       FailedMutation<TData>;
   const factory MutationState.success({required ISet<Object?> args, required TData data}) =
@@ -31,7 +37,7 @@ sealed class MutationState<TData> with EquatableAndDescribable {
   MutationState<TData> toIdle() => IdleMutation<TData>();
 
   MutationState<TData> toLoading({required Object? arg, double? progress}) =>
-      LoadingMutation<TData>(args: args.add(arg), progress: progress);
+      LoadingMutation<TData>(args: args.add(arg), status: status.add(arg, progress));
 
   MutationState<TData> toFailed({
     required Object? arg,
@@ -154,12 +160,13 @@ class IdleMutation<TData> extends MutationState<TData> {
 }
 
 class LoadingMutation<TData> extends MutationState<TData> {
-  final double? progress;
+  @override
+  final IMap<Object?, double?> status;
 
-  const LoadingMutation({required super.args, this.progress});
+  const LoadingMutation({required super.args, required this.status});
 
   @override
-  Map<String, Object?> get props => super.props..['progress'] = progress;
+  Map<String, Object?> get props => super.props..['status'] = status;
 }
 
 class FailedMutation<TData> extends MutationState<TData> {

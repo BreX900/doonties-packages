@@ -9,7 +9,7 @@ abstract class UserDeleteScreenBase extends ConsumerStatefulWidget {
 
   AsyncHandler get asyncHandler;
 
-  Future<void> onDelete(MutationRef<void> ref, String email, String password);
+  Future<void> onDelete(MutationRef ref, String email, String password);
 
   @override
   ConsumerState<UserDeleteScreenBase> createState() => _UserDeleteScreenState();

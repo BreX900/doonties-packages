@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 
 abstract final class Comparators {
   static Comparator<T> by<T, K extends Comparable<Object>>(K Function(T element) keyOf) {
@@ -128,19 +129,6 @@ extension DurationExtensions on Duration {
   }
 }
 
-extension MapExtensions<K, V> on Map<K, V> {
-  V require(K key, {V Function()? orElse}) {
-    if (containsKey(key)) return this[key] as V;
-    if (orElse != null) return orElse();
-    throw StateError('Map<$K, $V> not contains "$key" key\n$this');
-  }
-
-  Iterable<R> mapEntries<R>(R Function(K key, V value) mapper) => entries.mapTo(mapper);
-
-  Map<KR, VR> mapWhereNotNull<KR, VR>(MapEntry<KR, VR>? Function(K key, V value) mapper) =>
-      Map.fromEntries(entries.map((e) => mapper(e.key, e.value)).nonNulls);
-}
-
 extension IterableExtension<T> on Iterable<T> {
   T firstSortedBy(Comparator<T> comparator) {
     final iterator = this.iterator;
@@ -230,19 +218,14 @@ extension IterableExtension<T> on Iterable<T> {
 }
 
 extension ListExtensions<T> on List<T> {
+  List<T> asUnmodifiable() => this is UnmodifiableListView<T> ? this : UnmodifiableListView(this);
+
   Iterable<T> skipLast(int count) => take(length - count);
 
   Iterable<T> takeLast(int count) => skip(length - count);
 }
 
 extension ListEntryExtensions<K, V> on Iterable<MapEntry<K, V>> {
-  @Deprecated('In favour of mapTo')
-  Iterable<R> mapEntries<R>(R Function(K key, V value) mapper) sync* {
-    for (final entry in this) {
-      yield mapper(entry.key, entry.value);
-    }
-  }
-
   Iterable<R> mapTo<R>(R Function(K key, V value) mapper) sync* {
     for (final entry in this) {
       yield mapper(entry.key, entry.value);
@@ -255,9 +238,39 @@ extension ListEntryExtensions<K, V> on Iterable<MapEntry<K, V>> {
     }
   }
 
-  Iterable<K> get keys => map((e) => e.key);
-  Iterable<V> get values => map((e) => e.value);
+  Iterable<K> get keys sync* {
+    for (final entry in this) {
+      yield entry.key;
+    }
+  }
+
+  Iterable<V> get values sync* {
+    for (final entry in this) {
+      yield entry.value;
+    }
+  }
+
   Map<K, V> toMap() => Map.fromEntries(this);
+}
+
+extension SetExtensions<T> on Set<T> {
+  Set<T> asUnmodifiable() => this is UnmodifiableSetView<T> ? this : UnmodifiableSetView(this);
+}
+
+extension MapExtensions<K, V> on Map<K, V> {
+  Map<K, V> asUnmodifiable() =>
+      this is UnmodifiableMapView<K, V> ? this : UnmodifiableMapView(this);
+
+  V require(K key, {V Function()? orElse}) {
+    if (containsKey(key)) return this[key] as V;
+    if (orElse != null) return orElse();
+    throw StateError('Map<$K, $V> not contains "$key" key\n$this');
+  }
+
+  Iterable<R> mapEntries<R>(R Function(K key, V value) mapper) => entries.mapTo(mapper);
+
+  Map<KR, VR> mapWhereNotNull<KR, VR>(MapEntry<KR, VR>? Function(K key, V value) mapper) =>
+      Map.fromEntries(entries.map((e) => mapper(e.key, e.value)).nonNulls);
 }
 
 FutureOr<List<T>> waitAll<T>(Iterable<FutureOr<T>> entries) {

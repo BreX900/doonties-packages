@@ -35,7 +35,7 @@ typedef ResultMutationListener<Arg, Result> = FutureOr<void> Function(
 
 extension MutationBlocExtension on WidgetRef {
   MutationBloc<A, R> mutation<A, R>(
-    Future<R> Function(MutationRef<R> ref, A arg) mutator, {
+    Future<R> Function(MutationRef ref, A arg) mutator, {
     StartMutationListener<A>? onStart,
     WillStartMutationListener<A>? onWillMutate,
     required ErrorMutationListener<A>? onError,
@@ -95,9 +95,10 @@ extension MutationBlocExtension on WidgetRef {
   }
 }
 
-class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>> {
+class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>>
+    implements Mutation<TArg> {
   final WidgetRef _ref;
-  final FutureOr<TResult> Function(MutationRef<TResult> ref, TArg arg) _mutator;
+  final FutureOr<TResult> Function(MutationRef ref, TArg arg) _mutator;
   final StartMutationListener<TArg>? _onStart;
   final WillStartMutationListener<TArg>? _onWillMutate;
   final ErrorMutationListener<TArg>? _onError;
@@ -138,12 +139,11 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>> 
     await _tryCall1(_onStart, arg);
     if (!mounted) return;
 
-    final delegate = NotifierDelegate(this);
     // ignore: use_build_context_synchronously
-    final ref = MutationRef(ProviderScope.containerOf(_ref.context, listen: false), delegate);
+    final ref = MutationRefImpl(ProviderScope.containerOf(_ref.context, listen: false), this, arg);
     try {
       final result = await _mutator(ref, arg);
-      delegate.dispose();
+      ref.dispose();
       if (!mounted) return;
 
       await _tryCall2(_onData, arg, result);
@@ -155,7 +155,7 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>> 
       emit(state.toSuccess(arg: arg, data: result));
     } catch (error, stackTrace) {
       addError(error, stackTrace);
-      delegate.dispose();
+      ref.dispose();
       if (!mounted) return;
 
       await _tryCall2(_onError, arg, error);
@@ -170,12 +170,13 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>> 
     }
   }
 
-  void updateProgress(double value) {
+  @override
+  void updateProgress(TArg arg, double value) {
     if (state is! LoadingMutation<TResult>) {
       lg.info("Bloc isn't mutating! Cant update progress state. $this");
       return;
     }
-    emit(state.toLoading(arg: state.args.single, progress: value));
+    emit(state.toLoading(arg: arg, progress: value));
   }
 
   void _ensureIsMounted() {

@@ -10,6 +10,16 @@ extension IterableIExtensions<E> on Iterable<E> {
       groupListsBy(keyOf).mapTo((key, value) => MapEntry(key, value.lockUnsafe)).toIMap();
 }
 
+extension IListExtensions<T> on IList<T> {
+  // ignore: avoid_positional_boolean_parameters
+  IList<T> toggle(bool isAdding, T value) => isAdding ? add(value) : remove(value);
+}
+
+extension ISetExtensions<T> on ISet<T> {
+  // ignore: avoid_positional_boolean_parameters
+  ISet<T> toggle(bool isAdding, T value) => isAdding ? add(value) : remove(value);
+}
+
 extension IMapExtensions<K, V> on IMap<K, V> {
   V require(K key, {V Function()? orElse}) {
     if (containsKey(key)) return this[key] as V;
@@ -18,50 +28,28 @@ extension IMapExtensions<K, V> on IMap<K, V> {
   }
 }
 
-extension ListRoExtensions<T> on List<T> {
-  List<T> asUnmodifiable() => this is UnmodifiableListView<T> ? this : UnmodifiableListView(this);
-  @Deprecated('In favour of lockUnsafe')
-  IList<T> asImmutable([ConfigList? config]) =>
-      IList.unsafe(this, config: config ?? IList.defaultConfig);
+extension NonNullsIMapExtensions<K extends Object, V extends Object> on IMap<K?, V?> {
+  IMap<K, V> get nonNulls => <K, V>{
+        for (final MapEntry(:key, :value) in entries)
+          if (key != null && value != null) key: value
+      }.lockUnsafe;
 }
 
-extension IListRoExtensions<T> on IList<T> {
-  @Deprecated('In favour of unlockView')
-  List<T> asUnmodifiable() => unlockView;
-
-  // ignore: avoid_positional_boolean_parameters
-  IList<T> toggle(bool isAdding, T value) => isAdding ? add(value) : remove(value);
+extension NonNullValuesIMapExtensions<K, V extends Object> on IMap<K, V?> {
+  IMap<K, V> get nonNullValues => <K, V>{
+        for (final MapEntry(:key, :value) in entries)
+          if (value != null) key: value
+      }.lockUnsafe;
 }
 
-extension SetRoExtensions<T> on Set<T> {
-  Set<T> asUnmodifiable() => this is UnmodifiableSetView<T> ? this : UnmodifiableSetView(this);
-  @Deprecated('In favour of lockUnsafe')
-  ISet<T> asImmutable([ConfigSet? config]) =>
-      ISet.unsafe(this, config: config ?? ISet.defaultConfig);
+extension NonNullKeysIMapExtensions<K extends Object, V> on IMap<K?, V> {
+  IMap<K, V> get nonNullKeys => <K, V>{
+        for (final MapEntry(:key, :value) in entries)
+          if (key != null) key: value
+      }.lockUnsafe;
 }
 
-extension ISetRoExtensions<T> on ISet<T> {
-  @Deprecated('In favour of unlockView')
-  Set<T> asUnmodifiable() => unlockView;
-
-  // ignore: avoid_positional_boolean_parameters
-  ISet<T> toggle(bool isAdding, T value) => isAdding ? add(value) : remove(value);
-}
-
-extension MapRoExtensions<K, V> on Map<K, V> {
-  Map<K, V> asUnmodifiable() =>
-      this is UnmodifiableMapView<K, V> ? this : UnmodifiableMapView(this);
-  @Deprecated('In favour of lockUnsafe')
-  IMap<K, V> asImmutable([ConfigMap? config]) =>
-      IMap.unsafe(this, config: config ?? IMap.defaultConfig);
-}
-
-extension IMapRoExtensions<K, V> on IMap<K, V> {
-  @Deprecated('In favour of unlockView')
-  Map<K, V> asUnmodifiable() => unlockView;
-}
-
-extension EntriesRoExtensions<K, V> on Iterable<MapEntry<K, V>> {
+extension EntriesIMapExtensions<K, V> on Iterable<MapEntry<K, V>> {
   IMap<K, V> toIMap([ConfigMap? config]) =>
       IMap.fromEntries(this, config: config ?? IMap.defaultConfig);
 }

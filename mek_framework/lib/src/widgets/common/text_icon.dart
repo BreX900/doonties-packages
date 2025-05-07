@@ -9,11 +9,18 @@ class TextIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IconTheme.of(context);
-    return Text(
-      data,
-      style: TextStyle(
-        color: color ?? theme.color,
-        fontSize: theme.size,
+    final size = theme.size ?? 24.0;
+
+    return SizedBox(
+      width: size,
+      child: Center(
+        child: Text(
+          data,
+          style: TextStyle(
+            color: color ?? theme.color,
+            fontSize: size,
+          ),
+        ),
       ),
     );
   }

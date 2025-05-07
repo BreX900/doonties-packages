@@ -57,7 +57,9 @@ class _SliverPersistentPreferredSizeHeaderDelegate extends SliverPersistentHeade
 
   @override
   bool shouldRebuild(covariant _SliverPersistentPreferredSizeHeaderDelegate oldDelegate) =>
-      forceElevated != oldDelegate.forceElevated || height != oldDelegate.height;
+      forceElevated != oldDelegate.forceElevated ||
+      height != oldDelegate.height ||
+      child != oldDelegate.child;
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {

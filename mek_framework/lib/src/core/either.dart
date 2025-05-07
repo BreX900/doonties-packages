@@ -16,7 +16,7 @@ sealed class Either<L, R> {
 
   T when<T>(T Function(L value) left, T Function(R value) right);
 
-  Future<Either<TL, TR>> whenAsync<TL, TR>(
+  Future<Either<TL, TR>> mapAsync<TL, TR>(
     FutureOr<TL> Function(L value) left,
     FutureOr<TR> Function(R value) right,
   ) {
