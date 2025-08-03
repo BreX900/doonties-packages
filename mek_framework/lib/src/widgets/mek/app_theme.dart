@@ -97,8 +97,14 @@ abstract class MekTheme {
         backgroundColor: colorScheme.surfaceContainer,
         indicatorColor: colorScheme.primary,
       ),
-      tabBarTheme: const TabBarThemeData(
+      tabBarTheme: TabBarThemeData(
         dividerHeight: 0.0,
+        indicatorSize: TabBarIndicatorSize.tab,
+        indicator: UnderlineTabIndicator(
+          insets: const EdgeInsets.symmetric(horizontal: 4.0),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
+          borderSide: BorderSide(color: colorScheme.primary, width: 3.0),
+        ),
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         linearTrackColor: Colors.transparent,
