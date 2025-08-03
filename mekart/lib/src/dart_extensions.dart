@@ -288,11 +288,11 @@ FutureOr<List<T>> waitAll<T>(Iterable<FutureOr<T>> entries) {
       values.add(null);
       final pos = index;
       remaining++;
-      futureOrValue.then((value) {
+      unawaited(futureOrValue.then((value) {
         values[pos] = value;
         remaining--;
         if (remaining == 0) xCompleter.complete(List<T>.from(values));
-      }, onError: xCompleter.completeError);
+      }, onError: xCompleter.completeError));
     }
     index++;
   }

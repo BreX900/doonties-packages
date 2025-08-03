@@ -18,6 +18,12 @@ class Nav {
   }
 
   @optionalTypeArgs
+  Future<T?> popAndPush<T>(Widget screen, [T? result]) {
+    _navigator.pop(result);
+    return _navigator.push(_createPage(screen));
+  }
+
+  @optionalTypeArgs
   Future<T?> pushReplacement<T>(Widget screen) {
     return _navigator.pushReplacement(_createPage(screen));
   }

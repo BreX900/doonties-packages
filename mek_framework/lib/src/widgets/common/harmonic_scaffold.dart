@@ -1,33 +1,57 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-class HarmonicScaffold extends StatelessWidget {
-  bool get resizeToAvoidBottomInset => true;
-  final PreferredSizeWidget? appBar;
-  final Widget floatingActionButton;
-  final Widget body;
+class FloatingActionButtonInjector extends StatefulWidget {
+  const FloatingActionButtonInjector({super.key});
 
-  const HarmonicScaffold({
-    super.key,
-    this.appBar,
-    required this.floatingActionButton,
-    required this.body,
-  });
+  @override
+  State<FloatingActionButtonInjector> createState() => _FloatingActionButtonInjectorState();
+}
+
+class _FloatingActionButtonInjectorState extends State<FloatingActionButtonInjector> {
+  ValueListenable<ScaffoldGeometry>? _geometryListenable;
+  var _height = 56.0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _geometryListenable?.removeListener(_onGeometryChange);
+    _geometryListenable = Scaffold.geometryOf(context);
+    _geometryListenable!.addListener(_onGeometryChange);
+  }
+
+  @override
+  void dispose() {
+    _geometryListenable!.removeListener(_onGeometryChange);
+    super.dispose();
+  }
+
+  void _onGeometryChange() {
+    _findFloatingActionButtonHeight();
+  }
+
+  void _findFloatingActionButtonHeight() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final scaffold = context.findAncestorStateOfType<ScaffoldState>();
+      var height = 0.0;
+      void visitor(Element element) {
+        if (element.widget is Hero) {
+          height = (element.findRenderObject()! as RenderBox).size.height;
+          return;
+        }
+        element.visitChildren(visitor);
+      }
+
+      scaffold?.context.visitChildElements(visitor);
+
+      if (_height == height) return;
+      setState(() => _height = height);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-      appBar: appBar,
-      floatingActionButton: floatingActionButton,
-      body: Builder(builder: (context) {
-        final metrics = MediaQuery.of(context);
-        return MediaQuery(
-          data: metrics.copyWith(
-            viewPadding: metrics.viewPadding + const EdgeInsets.only(bottom: 64.0 + 16.0),
-          ),
-          child: body,
-        );
-      }),
-    );
+    _findFloatingActionButtonHeight();
+    return SizedBox(height: _height + (kFloatingActionButtonMargin * 2));
   }
 }

@@ -4,87 +4,74 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // ignore: implementation_imports, depend_on_referenced_packages
 import 'package:riverpod/src/framework.dart';
 
-extension ProviderListenableExtensions2<T> on ProviderListenable<AsyncValue<T>> {
-  ProviderListenable<Future<T>> get futureOfData => _IgnoreErrorsProviderListenable(this);
+extension FutureOfDataAsyncProviderExtension<T> on ProviderListenable<AsyncValue<T>> {
+  ProviderListenable<FutureOr<T>> get futureOfData => _ProviderListenable(this);
 }
 
-class _IgnoreErrorsProviderListenable<T> with ProviderListenable<Future<T>> {
-  final ProviderListenable<AsyncValue<T>> _provider;
+class _ProviderListenable<T> with ProviderListenable<FutureOr<T>> {
+  final ProviderListenable<AsyncValue<T>> source;
 
-  _IgnoreErrorsProviderListenable(this._provider);
+  _ProviderListenable(this.source);
 
   @override
-  ProviderSubscription<Future<T>> addListener(
+  ProviderSubscription<FutureOr<T>> addListener(
     Node node,
-    void Function(Future<T>? previous, Future<T> next) listener, {
+    void Function(T? previous, T next) listener, {
     required void Function(Object error, StackTrace stackTrace)? onError,
     required void Function()? onDependencyMayHaveChanged,
     required bool fireImmediately,
   }) {
-    Completer<T>? completer;
+    var fire = fireImmediately;
+    AsyncData<T>? current;
 
-    final subscription = node.listen(fireImmediately: fireImmediately, onError: onError, _provider,
-        (previous, next) {
-      next.whenOrNull(
-        skipLoadingOnRefresh: false,
-        data: (data) {
-          completer?.complete(data);
-          completer = null;
+    final subscription = source.addListener(
+      node,
+      (a, b) {
+        final previous = a?.asData;
+        final next = b.asData;
 
-          listener(
-            previous != null && previous.hasValue ? Future.value(previous.requireValue) : null,
-            Future.value(data),
-          );
-        },
-      );
-    });
+        current ??= previous?.asData;
+        if (next != null) {
+          if (fire && current != next) listener(current?.requireValue, next.requireValue);
+          current = next;
+        }
 
-    return _Subscription(node, () {
-      final state = subscription.read();
-      if (!state.hasValue) {
-        completer = Completer.sync();
-        return completer!.future;
-      }
-      return Future.value(state.requireValue);
-    }, subscription.close);
+        fire = true;
+      },
+      onError: onError,
+      onDependencyMayHaveChanged: onDependencyMayHaveChanged,
+      fireImmediately: true,
+    );
+    return _Subscription(node, () => read(node), subscription.close);
   }
 
   @override
-  Future<T> read(Node node) {
-    final state = _provider.read(node);
-    if (!state.hasValue) {
-      final completer = Completer<T>.sync();
-      late final ProviderSubscription<AsyncValue<T>> subscription;
-      subscription = node.listen(_provider, (_, state) {
-        state.whenOrNull(
-          skipLoadingOnRefresh: false,
-          data: (data) {
-            subscription.close();
-            completer.complete(data);
-          },
-        );
-      });
-      return completer.future;
-    }
-    return Future.value(state.requireValue);
+  FutureOr<T> read(Node node) {
+    final state = source.read(node);
+    if (state.hasValue) return state.requireValue;
+
+    final completer = Completer<T>.sync();
+    late final ProviderSubscription<AsyncValue<T>> subscription;
+    subscription = source.addListener(
+      node,
+      (_, state) {
+        if (!state.hasValue) return;
+        completer.complete(state.requireValue);
+        subscription.close();
+      },
+      onError: null,
+      onDependencyMayHaveChanged: null,
+      fireImmediately: true,
+    );
+    return completer.future;
   }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is _IgnoreErrorsProviderListenable<T> &&
-          runtimeType == other.runtimeType &&
-          _provider == other._provider;
-
-  @override
-  int get hashCode => Object.hash(runtimeType, _provider);
 }
 
 class _Subscription<T> extends ProviderSubscription<T> {
   final T Function() reader;
-  final void Function() closer;
+  final void Function() listenerRemover;
 
-  _Subscription(super.source, this.reader, this.closer);
+  _Subscription(super.source, this.reader, this.listenerRemover);
 
   @override
   T read() => reader();
@@ -92,6 +79,6 @@ class _Subscription<T> extends ProviderSubscription<T> {
   @override
   void close() {
     super.close();
-    closer();
+    listenerRemover();
   }
 }

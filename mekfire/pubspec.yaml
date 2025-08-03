@@ -6,7 +6,6 @@ version: 0.0.1
 environment:
   sdk: ^3.6.0
   flutter: ^3.27.0
-resolution: workspace
 
 scripts:
   # To generate library barrel file: https://pub.dev/packages/index_generator
@@ -29,7 +28,7 @@ dependencies:
   rxdart: ^0.28.0
 
   flutter_riverpod: ^2.6.1
-  reactive_forms: ^17.0.1
+  reactive_forms: ^18.0.1
   mek: { path: ../mek_framework }
   mekart: { path: ../mekart }
 

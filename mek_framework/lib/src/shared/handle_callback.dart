@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/mek.dart';
@@ -30,9 +31,19 @@ class _GroupListenableProvider<T>
 
   @override
   void Function() listen(void Function(IList<T> state) listener) {
-    final listenerRemovers = source.map((source) {
-      return source.addListener((_) => listener(state));
+    var isInitialized = false;
+    final states = <T>[];
+    final listenerRemovers = source.mapIndexed((index, source) {
+      return source.addListener((state) {
+        if (isInitialized) {
+          states[index] = state;
+          listener(states.toIList());
+        } else {
+          states.add(state);
+        }
+      });
     }).toList();
+    isInitialized = true;
 
     return () {
       for (final listenerRemover in listenerRemovers) {

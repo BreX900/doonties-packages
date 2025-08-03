@@ -77,10 +77,11 @@ abstract class MekTheme {
       ),
       inputDecorationTheme: const InputDecorationTheme(
         errorMaxLines: 5,
+        contentPadding: EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 8.0),
       ),
       // ignore: deprecated_member_use
       dialogBackgroundColor: colorScheme.surfaceContainer,
-      dialogTheme: DialogTheme(backgroundColor: colorScheme.surfaceContainer),
+      dialogTheme: DialogThemeData(backgroundColor: colorScheme.surfaceContainer),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
           TargetPlatform.iOS:

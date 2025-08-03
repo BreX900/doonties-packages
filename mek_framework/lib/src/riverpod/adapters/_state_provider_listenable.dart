@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:mekart/mekart.dart';
 // ignore: implementation_imports, depend_on_referenced_packages
 import 'package:riverpod/src/framework.dart';
 
@@ -15,8 +14,6 @@ abstract class SourceProviderListenable<S, T> extends _ProviderListenableBase<T>
   const SourceProviderListenable(this.source);
 
   T get state;
-
-  bool updateShouldNotify(T prev, T next) => true;
 
   void Function() listen(void Function(T state) listener);
 
@@ -79,7 +76,7 @@ class _ProviderListenableSelector<T, R> extends _ProviderListenableBase<R> {
         final prev = current;
         current = selector(next);
 
-        if (!iEquality.equals(prev, next)) listener(prev, current);
+        if (updateShouldNotify(prev, current)) listener(prev, current);
       },
       onError: onError,
       onDependencyMayHaveChanged: onDependencyMayHaveChanged,
@@ -128,7 +125,7 @@ class _ProviderListenableSelectorWith<T, A, R> extends _ProviderListenableBase<R
         final prev = current;
         current = selector(arg, next);
 
-        if (prev != next) listener(prev, current);
+        if (updateShouldNotify(prev, current)) listener(prev, current);
       },
       onError: onError,
       onDependencyMayHaveChanged: onDependencyMayHaveChanged,
@@ -155,6 +152,8 @@ class _ProviderListenableSelectorWith<T, A, R> extends _ProviderListenableBase<R
 
 abstract class _ProviderListenableBase<T> implements ProviderListenable<T> {
   const _ProviderListenableBase();
+
+  bool updateShouldNotify(T prev, T next) => prev != next;
 
   @override
   ProviderListenable<R> select<R>(R Function(T value) selector) =>

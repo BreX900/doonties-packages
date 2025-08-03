@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -58,6 +60,7 @@ class _ReactiveTypedTextFieldState<T> extends ConsumerState<ReactiveTypedTextFie
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.removeListener(_onFocusChange);
     _focusNode.dispose();
     super.dispose();
   }
@@ -67,8 +70,14 @@ class _ReactiveTypedTextFieldState<T> extends ConsumerState<ReactiveTypedTextFie
 
     final valueAccessor = _fieldStateKey.currentState!.valueAccessor;
     final text = valueAccessor.modelToViewValue(widget.formControl.value) ?? '';
-    if (_controller.text == text) return;
-    _controller.text = text;
+    final value = _controller.value;
+    if (value.text == text) return;
+    _controller.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(
+        offset: min(value.selection.baseOffset, text.length),
+      ),
+    );
   }
 
   @override

@@ -19,6 +19,7 @@ extension AbstractControlStateProviderExtensions<V> on ProviderListenable<Abstra
   ProviderListenable<ControlStatus> get status => select(_status);
   ProviderListenable<MapEntry<String, Object>?> get error => select(_error);
   ProviderListenable<bool> get isValueInitial => select(_isValueInitial);
+  ProviderListenable<bool> get isEmpty => select(_isEmpty);
 
   static bool _hasValue<V>(AbstractControlState<V> state) => state.value != null;
   static V _value<V>(AbstractControlState<V> state) => state.value;
@@ -28,6 +29,10 @@ extension AbstractControlStateProviderExtensions<V> on ProviderListenable<Abstra
   static ControlStatus _status<V>(AbstractControlState<V> state) => state.status;
   static MapEntry<String, Object>? _error<V>(AbstractControlState<V> state) => state.error;
   static bool _isValueInitial<V>(AbstractControlState<V> state) => state.isValueInitial;
+  static bool _isEmpty(AbstractControlState<Object?> state) {
+    final value = state.value;
+    return value == null || (value is String && value.isEmpty) || (value is Iterable && value.isEmpty) || (value is Map && value.isEmpty);
+  }
 }
 
 extension ProviderListenableControlStatusExtensions on ProviderListenable<ControlStatus> {
