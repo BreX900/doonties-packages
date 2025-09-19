@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/mek.dart';
 import 'package:mekfire/src/widgets/_confirmable_dialog.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-abstract class UserDeleteScreenBase extends ConsumerStatefulWidget {
+abstract class UserDeleteScreenBase extends SourceConsumerStatefulWidget {
   const UserDeleteScreenBase({super.key});
 
   AsyncHandler get asyncHandler;
@@ -12,10 +11,10 @@ abstract class UserDeleteScreenBase extends ConsumerStatefulWidget {
   Future<void> onDelete(MutationRef ref, String email, String password);
 
   @override
-  ConsumerState<UserDeleteScreenBase> createState() => _UserDeleteScreenState();
+  SourceConsumerState<UserDeleteScreenBase> createState() => _UserDeleteScreenState();
 }
 
-class _UserDeleteScreenState extends ConsumerState<UserDeleteScreenBase> {
+class _UserDeleteScreenState extends SourceConsumerState<UserDeleteScreenBase> {
   final _emailFieldBloc = FormControlTyped<String>(
     initialValue: '',
     validators: [ValidatorsTyped.required(), ValidatorsTyped.email()],
@@ -27,7 +26,7 @@ class _UserDeleteScreenState extends ConsumerState<UserDeleteScreenBase> {
 
   late final _form = FormArray([_emailFieldBloc, _passwordFieldBloc]);
 
-  late final _deleteUser = ref.mutation((ref, None _) async {
+  late final _deleteUser = scope.mutation((ref, None _) async {
     await widget.onDelete(ref, _emailFieldBloc.value, _passwordFieldBloc.value);
   }, onWillMutate: (_) async {
     return await showTypedDialog(
@@ -97,13 +96,13 @@ class _UserDeleteScreenState extends ConsumerState<UserDeleteScreenBase> {
 
   @override
   Widget build(BuildContext context) {
-    final isMutating = ref.watchIsMutating([_deleteUser]);
+    final isMutating = scope.watchIsMutating([_deleteUser]);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Delete user?'),
-        flexibleSpace: Consumer(builder: (context, ref, _) {
-          final progress = ref.watch(_deleteUser.select((state) => state.progressOrNull));
+        flexibleSpace: SourceConsumer(builder: (context, scope, _) {
+          final progress = scope.watch(_deleteUser.source.select((state) => state.progressOrNull));
           return FlexibleLinearProgressBar(visible: isMutating, value: progress);
         }),
       ),

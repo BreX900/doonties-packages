@@ -31,9 +31,16 @@ class BinStore<T> {
   Stream<T> get onChanges =>
       _session.onChanges.where((e) => e.key == name).map((e) => _deserialize(e.value));
 
-  Stream<T> get stream async* {
-    yield await read();
-    yield* onChanges;
+  Stream<T> get stream {
+    return Stream.multi((controller) async {
+      try {
+        final data = await read();
+        controller.addSync(data);
+      } catch (error, stackTrace) {
+        controller.addErrorSync(error, stackTrace);
+      }
+      await controller.addStream(onChanges);
+    });
   }
 
   FutureOr<T> read() async {

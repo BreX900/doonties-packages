@@ -2,13 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mek/src/reactive_forms/form_control_state_provider.dart';
-import 'package:mek/src/reactive_forms/reactive_forms.dart';
-import 'package:mek/src/reactive_forms/utils/field_config.dart';
-import 'package:mek/src/riverpod/adapters/value_listenable_provider.dart';
+import 'package:mek/mek.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-class ReactiveSaveButton extends ConsumerWidget {
+class ReactiveSaveButton extends SourceConsumerWidget {
   final Future<void> Function()? onSubmit;
 
   const ReactiveSaveButton({
@@ -17,12 +14,12 @@ class ReactiveSaveButton extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context, ConsumerScope scope) {
     final onSubmit = this.onSubmit;
 
     final field = context.findAncestorStateOfType<ReactiveFormFieldState>()!;
 
-    final isPristine = ref.watch(field.control.provider.pristine);
+    final isPristine = scope.watch(field.control.source.pristine);
     if (isPristine) return const SizedBox.shrink();
 
     final submit = field.control.handleSubmit<Future<void> Function()>((submit) async => submit());
@@ -33,7 +30,7 @@ class ReactiveSaveButton extends ConsumerWidget {
   }
 }
 
-class ReactiveAddButton extends ConsumerWidget {
+class ReactiveAddButton extends SourceConsumerWidget {
   final FutureOr<void> Function()? onSubmit;
 
   const ReactiveAddButton({
@@ -42,12 +39,12 @@ class ReactiveAddButton extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context, ConsumerScope scope) {
     final onSubmit = this.onSubmit;
 
     final field = context.findAncestorStateOfType<ReactiveFormFieldState>()!;
 
-    final isPristine = ref.watch(field.control.provider.pristine);
+    final isPristine = scope.watch(field.control.source.pristine);
     if (isPristine) return const SizedBox.shrink();
 
     final submit = field.control.handleSubmit<FutureOr<void> Function()>((submit) async {
@@ -61,15 +58,15 @@ class ReactiveAddButton extends ConsumerWidget {
   }
 }
 
-class ReactiveClearButton extends ConsumerWidget {
+class ReactiveClearButton extends SourceConsumerWidget {
   final VoidCallback? onClear;
 
   const ReactiveClearButton({super.key, this.onClear});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context, ConsumerScope scope) {
     final field = context.findAncestorStateOfType<ReactiveFormFieldState>()!;
-    final isEnabled = ref.watch(field.control.provider.status.enabled);
+    final isEnabled = scope.watch(field.control.source.status.enabled);
 
     return IconButton(
       onPressed: isEnabled ? onClear ?? field.control.reset : null,
@@ -78,7 +75,7 @@ class ReactiveClearButton extends ConsumerWidget {
   }
 }
 
-class ReactiveEditButton extends ConsumerWidget {
+class ReactiveEditButton extends SourceConsumerWidget {
   final ValueNotifier<FieldConfig> controller;
   final bool toggleableObscureText;
   final FutureOr<void> Function()? onSubmit;
@@ -91,11 +88,11 @@ class ReactiveEditButton extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context, ConsumerScope scope) {
     final onSubmit = this.onSubmit;
 
     final field = context.findAncestorStateOfType<ReactiveFormFieldState>()!;
-    final config = ref.watch(controller.provider);
+    final config = scope.watch(controller.source);
 
     final readOnly = config.readOnly;
     final submit = field.control.handleSubmit<FutureOr<void> Function()>((submit) async {
@@ -112,14 +109,14 @@ class ReactiveEditButton extends ConsumerWidget {
   }
 }
 
-class ReactiveVisibilityButton extends ConsumerWidget {
+class ReactiveVisibilityButton extends SourceConsumerWidget {
   final ValueNotifier<TextConfig> controller;
 
   const ReactiveVisibilityButton({super.key, required this.controller});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final config = ref.watch(controller.provider);
+  Widget build(BuildContext context, ConsumerScope scope) {
+    final config = scope.watch(controller.source);
     return IconButton(
       onPressed: () => controller.value = config.copyWith(obscureText: !config.obscureText),
       icon: config.obscureText ? const Icon(Icons.visibility) : const Icon(Icons.visibility_off),

@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/mek.dart';
 import 'package:mekfire/src/providers/auth_providers.dart';
 import 'package:mekfire/src/widgets/sign_out_icon_button.dart';
 
-abstract class EmailVerificationScreenBase extends ConsumerStatefulWidget {
+abstract class EmailVerificationScreenBase extends SourceConsumerStatefulWidget {
   AsyncHandler get asyncHandler;
 
   const EmailVerificationScreenBase({super.key});
 
   @override
-  ConsumerState<EmailVerificationScreenBase> createState() => _SignEmailScreenState();
+  SourceConsumerState<EmailVerificationScreenBase> createState() => _SignEmailScreenState();
 }
 
-class _SignEmailScreenState extends ConsumerState<EmailVerificationScreenBase> {
-  late final _sendEmailVerification = ref.mutation((ref, arg) async {
+class _SignEmailScreenState extends SourceConsumerState<EmailVerificationScreenBase> {
+  late final _sendEmailVerification = scope.mutation((ref, arg) async {
     await UserAuthProviders.sendEmailVerification();
   }, onError: (_, error) {
     widget.asyncHandler.showError(context, error);
@@ -25,13 +24,13 @@ class _SignEmailScreenState extends ConsumerState<EmailVerificationScreenBase> {
     ));
   });
 
-  late final _reload = ref.mutation((ref, arg) async {
+  late final _reload = scope.mutation((ref, arg) async {
     await UserAuthProviders.checkEmailVerification();
   }, onError: (_, error) {
     widget.asyncHandler.showError(context, error);
   });
 
-  late final _signOut = ref.mutation((ref, arg) async {
+  late final _signOut = scope.mutation((ref, arg) async {
     await UserAuthProviders.signOut();
   }, onError: (_, error) {
     widget.asyncHandler.showError(context, error);
@@ -39,7 +38,7 @@ class _SignEmailScreenState extends ConsumerState<EmailVerificationScreenBase> {
 
   @override
   Widget build(BuildContext context) {
-    final isIdle = !ref.watchIsMutating([_sendEmailVerification, _reload, _signOut]);
+    final isIdle = !scope.watchIsMutating([_sendEmailVerification, _reload, _signOut]);
 
     return Scaffold(
       appBar: AppBar(

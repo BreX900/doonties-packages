@@ -9,7 +9,7 @@ typedef ErrorMutationListenerV2 = FutureOr<void> Function(Object error);
 typedef DataMutationListenerV2<Result> = FutureOr<void> Function(Result result);
 typedef ResultMutationListenerV2<Result> = FutureOr<void> Function(Object? error, Result? result);
 
-class MutationNotifier<TArg, TResult> extends StateNotifier<MutationState<TResult>>
+class MutationNotifier<TArg, TResult> extends SourceNotifier<MutationState<TResult>>
     implements Mutation<TArg> {
   final ProviderContainer Function() _readContainer;
   final Future<TResult> Function(MutationRef ref, TArg arg) _mutator;
@@ -49,7 +49,7 @@ class MutationNotifier<TArg, TResult> extends StateNotifier<MutationState<TResul
       if (!mounted) return;
 
       state = state.toSuccess(arg: arg, data: result);
-    } catch (error, stackTrace) {
+    } catch (error) {
       // addError(error, stackTrace);
       ref.dispose();
       if (!mounted) return;
@@ -72,7 +72,7 @@ class MutationNotifier<TArg, TResult> extends StateNotifier<MutationState<TResul
       lg.info("Bloc isn't mutating! Cant update progress state. $this");
       return;
     }
-    emit(state.toLoading(arg: arg, progress: value));
+    state = state.toLoading(arg: arg, progress: value);
   }
 
   FutureOr<void> _tryCall1<T1>(FutureOr<void> Function(T1)? fn, T1 $1) async {
@@ -80,7 +80,7 @@ class MutationNotifier<TArg, TResult> extends StateNotifier<MutationState<TResul
     try {
       await fn($1);
     } catch (error, stackTrace) {
-      addError(error, stackTrace);
+      Source.observer.onUncaughtError(this, error, stackTrace);
     }
   }
 
@@ -89,7 +89,7 @@ class MutationNotifier<TArg, TResult> extends StateNotifier<MutationState<TResul
     try {
       await fn($1, $2);
     } catch (error, stackTrace) {
-      addError(error, stackTrace);
+      Source.observer.onUncaughtError(this, error, stackTrace);
     }
   }
 }

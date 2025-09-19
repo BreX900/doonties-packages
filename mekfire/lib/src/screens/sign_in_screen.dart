@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/mek.dart';
 import 'package:mekfire/src/providers/auth_providers.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-abstract class SignInScreenBase extends ConsumerStatefulWidget {
+abstract class SignInScreenBase extends SourceConsumerStatefulWidget {
   const SignInScreenBase({super.key});
 
   AsyncHandler get asyncHandler;
@@ -14,10 +13,10 @@ abstract class SignInScreenBase extends ConsumerStatefulWidget {
   Widget? buildFooter(BuildContext context) => null;
 
   @override
-  ConsumerState<SignInScreenBase> createState() => _SignInScreenState();
+  SourceConsumerState<SignInScreenBase> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends ConsumerState<SignInScreenBase> {
+class _SignInScreenState extends SourceConsumerState<SignInScreenBase> {
   final _emailFb = FormControlTyped<String>(
     initialValue: const String.fromEnvironment('_DEBUG_EMAIL'),
     validators: [ValidatorsTyped.required(), ValidatorsTyped.email()],
@@ -30,7 +29,7 @@ class _SignInScreenState extends ConsumerState<SignInScreenBase> {
 
   late final _form = FormArray([_emailFb, _passwordFb]);
 
-  late final _signIn = ref.mutation((ref, None _) async {
+  late final _signIn = scope.mutation((ref, None _) async {
     await UserAuthProviders.signIn(
       email: _emailFb.value,
       password: _passwordFb.value,
@@ -39,7 +38,7 @@ class _SignInScreenState extends ConsumerState<SignInScreenBase> {
     widget.asyncHandler.showError(context, error);
   });
 
-  late final _sendPasswordResetEmail = ref.mutation((ref, None _) async {
+  late final _sendPasswordResetEmail = scope.mutation((ref, None _) async {
     await UserAuthProviders.sendPasswordResetEmail(_emailFb.value);
   }, onError: (_, error) {
     widget.asyncHandler.showError(context, error);
@@ -57,7 +56,7 @@ class _SignInScreenState extends ConsumerState<SignInScreenBase> {
 
   @override
   Widget build(BuildContext context) {
-    final isIdle = !ref.watchIsMutating([_signIn, _sendPasswordResetEmail]);
+    final isIdle = !scope.watchIsMutating([_signIn, _sendPasswordResetEmail]);
 
     final signIn = _form.handleSubmit(_signIn.run, keepDisabled: true);
     final sendPasswordResetEmail = _emailFb.handleSubmit(_sendPasswordResetEmail.run);

@@ -5,6 +5,9 @@ import 'package:mekart/src/bin/bin_connection.dart';
 import 'package:mekart/src/bin/bin_engine.dart';
 
 class BinTransaction implements BinSession {
+  // @override
+  // BinSession get session => this;
+
   final BinEngine engine;
   var _reads = <String, String?>{};
   var _writes = <String, String?>{};

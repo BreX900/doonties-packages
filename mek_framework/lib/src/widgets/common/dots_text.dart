@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 
 class DotsText extends StatefulWidget {
@@ -28,7 +30,7 @@ class _DotsTextState extends State<DotsText> with TickerProviderStateMixin {
     final animation = StepTween(begin: 1, end: 4).animate(_animationController);
     animation.addListener(() => _animate(animation.value));
 
-    _animationController.repeat();
+    unawaited(_animationController.repeat());
   }
 
   @override

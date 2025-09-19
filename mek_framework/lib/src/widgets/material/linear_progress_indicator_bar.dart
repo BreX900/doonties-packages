@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 class FlexibleLinearProgressBar extends StatefulWidget {
@@ -69,16 +71,16 @@ class _FlexibleLinearProgressBarState extends State<FlexibleLinearProgressBar>
           _initValueController(value);
         } else {
           valueController.addListener(_onAnimationChange);
-          valueController.animateTo(value, duration: Durations.long1);
+          unawaited(valueController.animateTo(value, duration: Durations.long1));
         }
       }
     }
     if (widget.visible != oldWidget.visible) {
       if (widget.visible) {
         _valueController?.value = widget.value!;
-        _animationController.forward();
+        unawaited(_animationController.forward());
       } else {
-        _animationController.reverse();
+        unawaited(_animationController.reverse());
       }
     }
   }

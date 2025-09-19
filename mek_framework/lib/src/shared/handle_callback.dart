@@ -1,65 +1,73 @@
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:equatable/equatable.dart';
 import 'package:mek/mek.dart';
-import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
 
-extension HandleWidgetRef on WidgetRef {
-  bool watchIsMutating(Iterable<StateNotifier<MutationState<Object?>>> mutations) {
-    return watch(mutations.provider.isMutating);
+extension HandleWidgetRef on ConsumerScope {
+  bool watchIsMutating(Iterable<SourceNotifier<MutationState<Object?>>> mutations) {
+    return watch(mutations.map((e) => e.source).source.isMutating);
   }
 
   VoidCallback? handle<T>(MutationBloc<T, Object?> mutation, T arg) {
-    final isMutating = watch(mutation.provider.isMutating);
+    final isMutating = watch(mutation.source.isMutating);
     if (isMutating) return null;
     return () => mutation(arg);
   }
 }
 
-class _GroupListenableProvider<T>
-    extends SourceProviderListenable<ISet<StateNotifier<T>>, IList<T>> {
-  _GroupListenableProvider(super.source);
-
-  @override
-  // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
-  IList<T> get state => source.map((e) => e.state).toIList();
-
-  @override
-  bool updateShouldNotify(IList<T> prev, IList<T> next) => prev != next;
-
-  @override
-  void Function() listen(void Function(IList<T> state) listener) {
-    var isInitialized = false;
-    final states = <T>[];
-    final listenerRemovers = source.mapIndexed((index, source) {
-      return source.addListener((state) {
-        if (isInitialized) {
-          states[index] = state;
-          listener(states.toIList());
-        } else {
-          states.add(state);
-        }
-      });
-    }).toList();
-    isInitialized = true;
-
-    return () {
-      for (final listenerRemover in listenerRemovers) {
-        listenerRemover();
-      }
-    };
-  }
+extension ProviderGroupStateListenableExtension<T> on Iterable<Source<T>> {
+  Source<List<T>> get source => _GroupSource(this);
 }
 
-extension ProviderGroupStateListenableExtension<T> on Iterable<StateNotifier<T>> {
-  ProviderListenable<IList<T>> get provider => _GroupListenableProvider(toISet());
-}
-
-extension MutationsGroupProviderListenableExtensions
-    on ProviderListenable<Iterable<MutationState>> {
-  ProviderListenable<bool> get isMutating => select(_isMutating);
+extension MutationsGroupProviderListenableExtensions on Source<Iterable<MutationState>> {
+  Source<bool> get isMutating => select(_isMutating);
 
   static bool _isMutating(Iterable<MutationState> states) => states.any((e) => e.isMutating);
+}
+
+class _GroupSource<T> with EquatableMixin implements Source<List<T>> {
+  final Iterable<Source<T>> sources;
+
+  _GroupSource(this.sources);
+
+  @override
+  SourceSubscription<List<T>> listen(SourceListener<List<T>> listener) {
+    late List<T> current;
+    final subscriptions = sources.mapIndexed((index, source) {
+      return source.listen((previousState, state) {
+        final previous = current;
+        current = [...current]..[index] = state;
+        if (previous.equals(current)) return;
+        listener(previous, current);
+      });
+    }).toList();
+    current = subscriptions.map((e) => e.read()).toList();
+
+    return _GroupSubscription(subscriptions, () => current);
+  }
+
+  @override
+  List<Object?> get props => [sources];
+}
+
+base class _GroupSubscription<T> extends SourceSubscription<List<T>> {
+  final List<SourceSubscription<T>> subscriptions;
+  final List<T> Function() reader;
+
+  _GroupSubscription(this.subscriptions, this.reader);
+
+  @override
+  List<T> read() {
+    SourceSubscription.debugIsCancelled(this);
+    return reader();
+  }
+
+  @override
+  void cancel() {
+    super.cancel();
+    for (final subscription in subscriptions) {
+      subscription.cancel();
+    }
+  }
 }

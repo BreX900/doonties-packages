@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/src/data/optional.dart';
+import 'package:mek/src/source/source.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-extension DebouncedNotifierProviderExtension<T> on ProviderListenable<DebouncedState<T>> {
-  ProviderListenable<bool> get isPending => select(_isPending);
-  ProviderListenable<Optional<T>?> get pending => select(_pending);
-  ProviderListenable<T> get value => select(_value);
+extension DebouncedNotifierProviderExtension<T> on Source<DebouncedState<T>> {
+  Source<bool> get isPending => select(_isPending);
+  Source<Optional<T>?> get pending => select(_pending);
+  Source<T> get value => select(_value);
 
   static bool _isPending<T>(DebouncedState<T> state) => state.isPending;
   static Optional<T>? _pending<T>(DebouncedState<T> state) => state.pending;
@@ -34,7 +34,7 @@ final class DebouncedState<T> extends Equatable {
   List<Object?> get props => [pending, value];
 }
 
-class DebouncedNotifier<T> extends StateNotifier<DebouncedState<T>> {
+class DebouncedNotifier<T> extends SourceNotifier<DebouncedState<T>> {
   final Duration _duration;
   Timer? _timer;
 

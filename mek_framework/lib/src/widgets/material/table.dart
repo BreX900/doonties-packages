@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/mek.dart';
 
 class MekColumn extends StatelessWidget {
@@ -180,7 +179,7 @@ class MekTable extends StatelessWidget {
   }
 }
 
-class MekTablePagination extends ConsumerWidget {
+class MekTablePagination extends SourceConsumerWidget {
   final CursorBloc cursorBloc;
 
   const MekTablePagination({
@@ -189,8 +188,8 @@ class MekTablePagination extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final cursorState = ref.watch(cursorBloc.provider);
+  Widget build(BuildContext context, ConsumerScope scope) {
+    final cursorState = scope.watch(cursorBloc.source);
 
     final localizations = MaterialLocalizations.of(context);
 

@@ -1,26 +1,20 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mek/mek.dart';
 import 'package:mek/src/core/_log.dart';
-import 'package:mek/src/core/typedefs.dart';
-import 'package:mek/src/riverpod/adapters/_state_provider_listenable.dart';
-import 'package:mek/src/riverpod/adapters/state_notifier_provider.dart';
-import 'package:mek/src/riverpod/auto_dispose_extension.dart';
 import 'package:mek/src/riverpod/notifiers/_mutation.dart';
-import 'package:mek/src/riverpod/notifiers/mutation_ref.dart';
-import 'package:mek/src/riverpod/notifiers/mutation_state.dart';
-import 'package:mek/src/riverpod/state_notifier_extensions.dart';
 
-extension MutationProviderListenableExtensions on ProviderListenable<MutationState<Object?>> {
-  ProviderListenable<MutationState<Object?>?> of(Object? arg) => selectWith(arg, _of);
+extension MutationProviderListenableExtensions on Source<MutationState<Object?>> {
+  Source<MutationState<Object?>?> of(Object? arg) => selectWith(arg, _of);
 
   static MutationState<Object?>? _of(Object? arg, MutationState<Object?> state) =>
       state.args.contains(arg) ? state : null;
 }
 
-extension MutationProviderListenableExtensions2 on ProviderListenable<MutationState<Object?>?> {
-  ProviderListenable<bool> get isIdle => select(_isIdle);
-  ProviderListenable<bool> get isMutating => select(_isMutating);
+extension MutationProviderListenableExtensions2 on Source<MutationState<Object?>?> {
+  Source<bool> get isIdle => select(_isIdle);
+  Source<bool> get isMutating => select(_isMutating);
 
   static bool _isIdle(MutationState<Object?>? state) => state?.isIdle ?? true;
   static bool _isMutating(MutationState<Object?>? state) => state?.isMutating ?? false;
@@ -33,7 +27,7 @@ typedef DataMutationListener<Arg, Result> = FutureOr<void> Function(Arg arg, Res
 typedef ResultMutationListener<Arg, Result> = FutureOr<void> Function(
     Arg arg, Object? error, Result? result);
 
-extension MutationBlocExtension on WidgetRef {
+extension MutationBlocExtension on ConsumerScope {
   MutationBloc<A, R> mutation<A, R>(
     Future<R> Function(MutationRef ref, A arg) mutator, {
     StartMutationListener<A>? onStart,
@@ -43,7 +37,7 @@ extension MutationBlocExtension on WidgetRef {
     ResultMutationListener<A, R>? onFinish,
   }) {
     final mutation = MutationBloc<A, R>(
-      this,
+      ref,
       mutator,
       onStart: onStart,
       onWillMutate: onWillMutate,
@@ -54,48 +48,9 @@ extension MutationBlocExtension on WidgetRef {
     onDispose(mutation.dispose);
     return mutation;
   }
-
-  void listenMutation<A, R>(
-    MutationBloc<A, R> bloc, {
-    ListenerCondition<MutationState<R>>? when,
-    void Function()? idle,
-    void Function()? loading,
-    void Function(Object error)? failed,
-    void Function(R data)? success,
-  }) {
-    listen(bloc.provider, (previous, next) {
-      if (previous != null && when != null && !when(previous, next)) return;
-      next.whenOrNull<void>(
-        idle: idle,
-        loading: loading,
-        failed: failed,
-        success: success,
-      );
-    });
-  }
-
-  void listenManualMutation<A, R>(
-    MutationBloc<A, R> bloc, {
-    bool fireImmediately = false,
-    ListenerCondition<MutationState<R>>? when,
-    void Function()? idle,
-    void Function()? loading,
-    void Function(Object error)? failed,
-    void Function(R data)? success,
-  }) {
-    listenManual(fireImmediately: fireImmediately, bloc.provider, (previous, next) {
-      if (when != null && !when(previous!, next)) return;
-      next.whenOrNull<void>(
-        idle: idle,
-        loading: loading,
-        failed: failed,
-        success: success,
-      );
-    });
-  }
 }
 
-class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>>
+class MutationBloc<TArg, TResult> extends SourceNotifier<MutationState<TResult>>
     implements Mutation<TArg> {
   final WidgetRef _ref;
   final FutureOr<TResult> Function(MutationRef ref, TArg arg) _mutator;
@@ -134,7 +89,7 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>>
     if (!(await _onWillMutate?.call(arg) ?? true)) return;
     if (!mounted) return;
 
-    emit(state.toLoading(arg: arg));
+    state = state.toLoading(arg: arg);
 
     await _tryCall1(_onStart, arg);
     if (!mounted) return;
@@ -152,9 +107,9 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>>
       await _tryCall3(_onFinish, arg, null, result);
       if (!mounted) return;
 
-      emit(state.toSuccess(arg: arg, data: result));
+      state = state.toSuccess(arg: arg, data: result);
     } catch (error, stackTrace) {
-      addError(error, stackTrace);
+      Source.observer.onUncaughtError(this, error, stackTrace);
       ref.dispose();
       if (!mounted) return;
 
@@ -164,7 +119,7 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>>
       await _tryCall3(_onFinish, arg, error, null);
       if (!mounted) return;
 
-      emit(state.toFailed(arg: arg, error: error));
+      state = state.toFailed(arg: arg, error: error);
 
       rethrow;
     }
@@ -176,7 +131,7 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>>
       lg.info("Bloc isn't mutating! Cant update progress state. $this");
       return;
     }
-    emit(state.toLoading(arg: arg, progress: value));
+    state = state.toLoading(arg: arg, progress: value);
   }
 
   void _ensureIsMounted() {
@@ -188,7 +143,7 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>>
     try {
       await fn($1);
     } catch (error, stackTrace) {
-      addError(error, stackTrace);
+      Source.observer.onUncaughtError(this, error, stackTrace);
     }
   }
 
@@ -197,7 +152,7 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>>
     try {
       await fn($1, $2);
     } catch (error, stackTrace) {
-      addError(error, stackTrace);
+      Source.observer.onUncaughtError(this, error, stackTrace);
     }
   }
 
@@ -211,7 +166,7 @@ class MutationBloc<TArg, TResult> extends StateNotifier<MutationState<TResult>>
     try {
       await fn($1, $2, $3);
     } catch (error, stackTrace) {
-      addError(error, stackTrace);
+      Source.observer.onUncaughtError(this, error, stackTrace);
     }
   }
 

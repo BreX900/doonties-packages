@@ -4,7 +4,23 @@ import 'package:mekart/src/bin/bin_engine.dart';
 import 'package:mekart/src/bin/bin_transaction.dart';
 import 'package:synchronized/synchronized.dart';
 
+// abstract interface class BinCollection {
+//   BinSession get session;
+// }
+//
+// abstract interface class BinDatabase implements BinCollection {
+//   @override
+//   BinConnection get session;
+//
+//   Future<R> runTransaction<R>(Future<R> Function(BinCollection tx) body) async {
+//     return session.runTransaction(body);
+//   }
+// }
+
 abstract class BinSession {
+  // @override
+  // BinSession get session => this;
+
   Stream<MapEntry<String, String?>> get onChanges;
 
   Future<String?> read(String name);
@@ -15,6 +31,9 @@ abstract class BinSession {
 }
 
 class BinConnection implements BinSession {
+  // @override
+  // BinConnection get session => this;
+
   final BinEngine engine;
   final _lock = Lock();
 

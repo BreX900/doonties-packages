@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/mek.dart';
 import 'package:mekfire/src/providers/auth_providers.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-abstract class SignUpScreenBase extends ConsumerStatefulWidget {
+abstract class SignUpScreenBase extends SourceConsumerStatefulWidget {
   AsyncHandler get asyncHandler;
 
   const SignUpScreenBase({super.key});
 
   @override
-  ConsumerState<SignUpScreenBase> createState() => _SignUpScreenState();
+  SourceConsumerState<SignUpScreenBase> createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends ConsumerState<SignUpScreenBase> {
+class _SignUpScreenState extends SourceConsumerState<SignUpScreenBase> {
   final _emailFb = FormControlTyped<String>(
     initialValue: const String.fromEnvironment('_DEBUG_EMAIL'),
     validators: [ValidatorsTyped.required(), ValidatorsTyped.email()],
@@ -37,7 +36,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreenBase> {
     super.dispose();
   }
 
-  late final _signUp = ref.mutation((ref, None _) async {
+  late final _signUp = scope.mutation((ref, None _) async {
     await UserAuthProviders.signUp(
       email: _emailFb.value,
       password: _passwordFb.value,
@@ -49,7 +48,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreenBase> {
 
   @override
   Widget build(BuildContext context) {
-    final isIdle = !ref.watchIsMutating([_signUp]);
+    final isIdle = !scope.watchIsMutating([_signUp]);
     final signUp = _form.handleSubmit(_signUp.run, keepDisabled: true);
 
     return Scaffold(
