@@ -27,7 +27,7 @@ dependencies:
 
   rxdart: ^0.28.0
 
-  flutter_riverpod: ^2.6.1
+  flutter_riverpod: ^3.0.0
   reactive_forms: ^18.0.1
   mek: { path: ../mek_framework }
   mekart: { path: ../mekart }

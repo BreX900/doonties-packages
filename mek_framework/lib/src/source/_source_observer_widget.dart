@@ -38,6 +38,7 @@ abstract class SourceConsumerStatefulWidget extends ConsumerStatefulWidget {
   SourceConsumerState<SourceConsumerStatefulWidget> createState();
 
   @override
+  // ignore: invalid_use_of_internal_member
   ConsumerStatefulElement createElement() => _SourceConsumerStatefulElement(this);
 }
 
@@ -46,6 +47,7 @@ abstract class SourceConsumerState<T extends SourceConsumerStatefulWidget>
   late final ConsumerScope scope = ConsumerScope._(context as _SourceConsumerStatefulElement);
 }
 
+// ignore: invalid_use_of_internal_member
 final class _SourceConsumerStatefulElement extends ConsumerStatefulElement
     with _SourceStatefulElementMixin {
   _SourceConsumerStatefulElement(SourceConsumerStatefulWidget super.widget);

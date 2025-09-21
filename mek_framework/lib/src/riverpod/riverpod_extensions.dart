@@ -1,7 +1,10 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+// ignore_for_file: invalid_use_of_internal_member
+
+// ignore: implementation_imports
+import 'package:flutter_riverpod/src/internals.dart';
 
 extension RefreshAndInvalidateAncestorsWidgetRefExtension on WidgetRef {
-  void invalidateWithAncestors(ProviderBase<Object?> provider) {
+  void invalidateWithAncestors($ProviderBaseImpl<Object?> provider) {
     final container = ProviderScope.containerOf(context, listen: false);
     container.invalidateAncestors(provider);
     container.invalidate(provider);
@@ -9,13 +12,15 @@ extension RefreshAndInvalidateAncestorsWidgetRefExtension on WidgetRef {
 }
 
 extension InvalidateFromProviderContainerExtension on ProviderContainer {
-  void invalidateAncestors<T>(ProviderBase<Object?> provider) {
+  void invalidateAncestors<T>($ProviderBaseImpl<Object?> provider) {
     if (!exists(provider)) return;
 
-    final element = readProviderElement(provider);
-    final elements = <ProviderElementBase<Object?>>[];
+    final element = pointerManager.readElement(provider);
+    final elements = <ProviderElement<dynamic, dynamic>>[];
 
-    void visitor(ProviderElementBase<Object?> element) {
+    void visitor(ProviderElement<dynamic, dynamic>? element) {
+      if (element == null) return;
+
       if (_checkCanInvalidate(element)) elements.add(element);
 
       element.visitAncestors(visitor);
@@ -24,18 +29,16 @@ extension InvalidateFromProviderContainerExtension on ProviderContainer {
     visitor(element);
 
     for (final element in elements) {
-      element.invalidateSelf();
+      element.invalidateSelf(asReload: true);
     }
   }
 
-  bool _checkCanInvalidate(ProviderElementBase<Object?> element) {
-    // ignore: invalid_use_of_protected_member, invalid_use_of_internal_member
-    final state = element.getState();
-    if (state == null || !state.hasState) return true;
+  bool _checkCanInvalidate(ProviderElement<dynamic, dynamic> element) {
+    final value = element.stateResult()?.value;
+    if (value == null || value is! AsyncValue) return true;
 
-    if (element is FutureProviderElement) return true;
-    // ignore: invalid_use_of_protected_member, invalid_use_of_internal_member
-    if (element is StreamProviderElement) return element.requireState.hasError;
+    if (element.provider is $FutureProviderElement) return true;
+    if (element is $StreamProviderElement) return value.hasError;
 
     return false;
   }

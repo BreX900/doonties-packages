@@ -111,6 +111,21 @@ extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
       }
     };
   }
+
+  void Function() handleVoidSubmit(void Function() submit) {
+    return () async {
+      switch (status) {
+        case ControlStatus.disabled:
+          return;
+        case ControlStatus.pending:
+          return;
+        case ControlStatus.invalid:
+          markAllAsTouched();
+        case ControlStatus.valid:
+          submit();
+      }
+    };
+  }
 }
 
 class FormList<C extends AbstractControl<V>, V> extends FormArray<V> {

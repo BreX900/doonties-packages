@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 // ignore: implementation_imports, depend_on_referenced_packages
 import 'package:riverpod/src/framework.dart';
 
@@ -8,77 +7,44 @@ extension FutureOfDataAsyncProviderExtension<T> on ProviderListenable<AsyncValue
   ProviderListenable<FutureOr<T>> get futureOfData => _ProviderListenable(this);
 }
 
-class _ProviderListenable<T> with ProviderListenable<FutureOr<T>> {
+final class _ProviderListenable<T> with SyncProviderTransformerMixin<AsyncValue<T>, FutureOr<T>> {
+  @override
   final ProviderListenable<AsyncValue<T>> source;
 
   _ProviderListenable(this.source);
 
   @override
-  ProviderSubscription<FutureOr<T>> addListener(
-    Node node,
-    void Function(T? previous, T next) listener, {
-    required void Function(Object error, StackTrace stackTrace)? onError,
-    required void Function()? onDependencyMayHaveChanged,
-    required bool fireImmediately,
-  }) {
-    var fire = fireImmediately;
-    AsyncData<T>? current;
-
-    final subscription = source.addListener(
-      node,
-      (a, b) {
-        final previous = a?.asData;
-        final next = b.asData;
-
-        current ??= previous?.asData;
-        if (next != null) {
-          if (fire && current != next) listener(current?.requireValue, next.requireValue);
-          current = next;
+  ProviderTransformer<AsyncValue<T>, FutureOr<T>> transform(
+    ProviderTransformerContext<AsyncValue<T>, FutureOr<T>> context,
+  ) {
+    var completer = Completer<T>.sync();
+    return ProviderTransformer(
+      initState: (self) {
+        final current = context.sourceState.requireValue;
+        if (current.hasValue) {
+          completer.complete(current.requireValue);
+          return current.requireValue;
         }
-
-        fire = true;
+        return completer.future;
       },
-      onError: onError,
-      onDependencyMayHaveChanged: onDependencyMayHaveChanged,
-      fireImmediately: true,
-    );
-    return _Subscription(node, () => read(node), subscription.close);
-  }
+      listener: (self, previousResult, nextResult) {
+        final previous = previousResult.requireValue;
+        final next = nextResult.requireValue;
 
-  @override
-  FutureOr<T> read(Node node) {
-    final state = source.read(node);
-    if (state.hasValue) return state.requireValue;
+        switch (next) {
+          case AsyncLoading<T>():
+          case AsyncError<T>():
+            if (completer.isCompleted) completer = Completer.sync();
 
-    final completer = Completer<T>.sync();
-    late final ProviderSubscription<AsyncValue<T>> subscription;
-    subscription = source.addListener(
-      node,
-      (_, state) {
-        if (!state.hasValue) return;
-        completer.complete(state.requireValue);
-        subscription.close();
+          case AsyncData<T>(value: final nextValue):
+            if (completer.isCompleted) {
+              if (previous.hasValue && previous.requireValue == nextValue) return;
+              self.state = AsyncData(next.requireValue);
+            } else {
+              completer.complete(nextValue);
+            }
+        }
       },
-      onError: null,
-      onDependencyMayHaveChanged: null,
-      fireImmediately: true,
     );
-    return completer.future;
-  }
-}
-
-class _Subscription<T> extends ProviderSubscription<T> {
-  final T Function() reader;
-  final void Function() listenerRemover;
-
-  _Subscription(super.source, this.reader, this.listenerRemover);
-
-  @override
-  T read() => reader();
-
-  @override
-  void close() {
-    super.close();
-    listenerRemover();
   }
 }

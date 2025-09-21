@@ -59,7 +59,6 @@ export 'src/riverpod/refreshable_consumer.dart';
 export 'src/riverpod/riverpod_extensions.dart';
 export 'src/riverpod/state_notifier_extensions.dart';
 export 'src/riverpod/subscribe_extensions.dart';
-export 'src/shared/disposer.dart';
 export 'src/shared/flutter_extensions.dart';
 export 'src/shared/handle_callback.dart';
 export 'src/shared/mek_utils.dart';

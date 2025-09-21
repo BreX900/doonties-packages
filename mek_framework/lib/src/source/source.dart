@@ -4,7 +4,8 @@ import 'dart:collection';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+// ignore: implementation_imports
+import 'package:flutter_riverpod/src/internals.dart';
 import 'package:mek/src/reactive_forms/controls/form_control_typed.dart';
 import 'package:mek/src/reactive_forms/reactive_forms.dart';
 import 'package:meta/meta.dart';
@@ -57,21 +58,21 @@ class SourceNotifier<T> {
   }
 
   @protected
-  set state(T next) {
+  set state(T state) {
     assert(_debugIsMounted());
 
-    final previous = _state;
-    _state = next;
+    final previousState = _state;
+    _state = state;
 
-    if (previous == next) return;
+    if (previousState == state) return;
     if (_listeners.isEmpty) return;
 
-    _ListenersEntry? current = _listeners.first;
-    while (current != null) {
-      final previous = current;
-      current = previous.next;
+    _ListenersEntry<T>? currentEntry = _listeners.first;
+    while (currentEntry != null) {
+      final previousEntry = currentEntry;
+      currentEntry = previousEntry.next;
       try {
-        previous.listener(previous, next);
+        previousEntry.listener(previousState, state);
       } catch (error, stackTrace) {
         Source.observer.onListenerError(this, error, stackTrace);
       }

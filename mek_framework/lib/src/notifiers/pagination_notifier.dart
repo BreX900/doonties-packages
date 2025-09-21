@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:meta/meta.dart';
 
 abstract class PaginationModel<T extends PaginationModel<T>> {
@@ -41,28 +42,30 @@ class PaginationValue<T> extends Equatable {
 typedef PaginationFetcher<T, Arg> = Future<IList<T>> Function(PaginationRef ref, Arg arg);
 
 class PaginationNotifier<T, Arg extends PaginationModel<Arg>>
-    extends FamilyAsyncNotifier<PaginationValue<T>, Arg> {
+    extends AsyncNotifier<PaginationValue<T>> {
+  final Arg _arg;
   final PaginationFetcher<T, Arg> _fetcher;
   final FutureOr<void> Function(Ref ref)? _onCreate;
 
   late int _size;
   var _token = Object();
 
-  PaginationNotifier(this._fetcher, this._onCreate);
+  PaginationNotifier(this._arg, this._fetcher, this._onCreate);
 
   Future<void> loadMore() {
     if (state.isLoading) throw StateError('Is loading. Please wait load!');
-    final value = state.valueOrNull;
+    final value = state.value;
     if (value == null) throw StateError('Value is null. Please refresh the provider!');
     final index = value.currentIndex + 1;
 
+    // ignore: invalid_use_of_internal_member
     state = AsyncValue<PaginationValue<T>>.loading().copyWithPrevious(state);
     return _loadMore(_token, value, index);
   }
 
   Future<void> _loadMore(Object token, PaginationValue<T> value, int index) async {
     final state = await AsyncValue.guard(() async {
-      final models = await _fetcher(_ref(), arg.copyWith(pageSize: _size, pageIndex: index));
+      final models = await _fetcher(_ref(), _arg.copyWith(pageSize: _size, pageIndex: index));
 
       return PaginationValue(
         currentIndex: models.isNotEmpty ? index : index - 1,
@@ -76,16 +79,16 @@ class PaginationNotifier<T, Arg extends PaginationModel<Arg>>
   }
 
   @override
-  Future<PaginationValue<T>> build(Arg arg) {
-    assert(arg.pageSize != null && arg.pageSize! > 0,
+  Future<PaginationValue<T>> build() {
+    assert(_arg.pageSize != null && _arg.pageSize! > 0,
         'Missing $Arg.pageSize field. Pass it to correct handling a fetches.');
-    assert(arg.pageIndex == null,
+    assert(_arg.pageIndex == null,
         'Exists $Arg.pageIndex field. Do not pass it to avoid duplicated states.');
 
     ref.onDispose(() => _token = Object());
-    _size = arg.pageSize ?? 50;
+    _size = _arg.pageSize ?? 50;
 
-    return _build(arg);
+    return _build(_arg);
   }
 
   Future<PaginationValue<T>> _build(Arg arg) async {
@@ -130,14 +133,14 @@ class PaginationRef {
   T watch<T>(ProviderListenable<T> provider) => _ref.watch(provider);
 }
 
-// ignore: subtype_of_sealed_class
-class PaginationNotifierProvider<T, Arg extends PaginationModel<Arg>>
-    extends AsyncNotifierProviderFamily<PaginationNotifier<T, Arg>, PaginationValue<T>, Arg> {
-  PaginationNotifierProvider(
-    PaginationFetcher<T, Arg> fetcher, {
-    FutureOr<void> Function(Ref ref)? onCreate,
-  }) : super(() => PaginationNotifier<T, Arg>(fetcher, onCreate));
-}
+// // ignore: subtype_of_sealed_class
+// class PaginationNotifierProvider<T, Arg extends PaginationModel<Arg>>
+//     extends AsyncNotifierProvider<PaginationNotifier<T, Arg>, PaginationValue<T>> {
+//   PaginationNotifierProvider(
+//     PaginationFetcher<T, Arg> fetcher, {
+//     FutureOr<void> Function(Ref ref)? onCreate,
+//   }) : super(() => PaginationNotifier<T, Arg>(fetcher, onCreate));
+// }
 
 extension AsyncPaginationValueExtensions on AsyncValue<PaginationValue> {
   bool get canRefresh => !isLoading;

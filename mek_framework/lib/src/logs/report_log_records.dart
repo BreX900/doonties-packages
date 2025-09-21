@@ -41,7 +41,7 @@ class _LogReporter {
   _LogReporter(this.onErrorDetails);
 
   void reportToConsole(LogRecord record) {
-    if (record.time.isAfter(_lastReportAt)) {
+    if (record.time.isAfter(_lastReportAt) || record.error == null) {
       _canReportAgain = true;
     } else if (_canReportAgain) {
       _canReportAgain = false;

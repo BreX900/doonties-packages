@@ -94,8 +94,7 @@ class MutationBloc<TArg, TResult> extends SourceNotifier<MutationState<TResult>>
     await _tryCall1(_onStart, arg);
     if (!mounted) return;
 
-    // ignore: use_build_context_synchronously
-    final ref = MutationRefImpl(ProviderScope.containerOf(_ref.context, listen: false), this, arg);
+    final ref = MutationRefImpl(_ref.container, this, arg);
     try {
       final result = await _mutator(ref, arg);
       ref.dispose();

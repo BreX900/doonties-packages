@@ -21,42 +21,33 @@ abstract final class Observers {
   }
 }
 
-class _ProviderObserver extends ProviderObserver {
+final class _ProviderObserver extends ProviderObserver {
   const _ProviderObserver();
 
-  @override
-  void didUpdateProvider(
-    ProviderBase<Object?> provider,
-    Object? previousValue,
-    Object? newValue,
-    ProviderContainer container,
-  ) {
-    super.didUpdateProvider(provider, previousValue, newValue, container);
-
-    if (newValue is! AsyncError) return;
-
-    lg.severe(
-      'Exception caught by $provider'
-      '\npreviousValue: ${_stringifyData(previousValue)}'
-      '\nnewValue: ${_stringifyData(newValue)}',
-      newValue.error,
-      newValue.stackTrace,
-    );
-  }
+  // @override
+  // void didUpdateProvider(
+  //   ProviderObserverContext context,
+  //   Object? previousValue,
+  //   Object? newValue,
+  // ) {
+  //   if (newValue is! AsyncError) return;
+  //
+  //   lg.severe(
+  //     'Exception caught by $provider'
+  //     '\npreviousValue: ${_stringifyData(previousValue)}'
+  //     '\nnewValue: ${_stringifyData(newValue)}',
+  //     newValue.error,
+  //     newValue.stackTrace,
+  //   );
+  // }
 
   @override
-  void providerDidFail(
-    ProviderBase<Object?> provider,
-    Object error,
-    StackTrace stackTrace,
-    ProviderContainer container,
-  ) {
-    super.providerDidFail(provider, error, stackTrace, container);
-
-    lg.severe('Exception caught by $provider', error, stackTrace);
+  void providerDidFail(ProviderObserverContext context, Object error, StackTrace stackTrace) {
+    print('providerDidFail');
+    lg.severe('Exception caught by ${context.provider}', error, stackTrace);
   }
 
-  String _stringifyData(Object? data) {
-    return data.toString().split('\n').take(32).join(' ');
-  }
+  // String _stringifyData(Object? data) {
+  //   return data.toString().split('\n').take(32).join(' ');
+  // }
 }
