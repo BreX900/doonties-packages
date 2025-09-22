@@ -43,7 +43,6 @@ final class _ProviderObserver extends ProviderObserver {
 
   @override
   void providerDidFail(ProviderObserverContext context, Object error, StackTrace stackTrace) {
-    print('providerDidFail');
     lg.severe('Exception caught by ${context.provider}', error, stackTrace);
   }
 

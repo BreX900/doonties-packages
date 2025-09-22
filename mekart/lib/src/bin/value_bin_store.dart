@@ -33,6 +33,13 @@ abstract class CachedValueBinStore<T> {
 
   // void Function() listen(void Function(T value) listener) =>
   //     stream.listen((_) => listener()).cancel;
+
+  CachedValueBinStore<R> withSerialization<R>({
+    required R Function(T) deserializer,
+    required T Function(R) serializer,
+  }) {
+    return _SerializableCachedValueBinStore(this, deserializer, serializer);
+  }
 }
 
 class _CachedMapValueBin<T> extends CachedValueBinStore<T> {
@@ -73,4 +80,28 @@ class _CachedIMapValueBin<T> extends CachedValueBinStore<T> {
 
   @override
   Future<void> write(T value) async => await _bin.set(_key, value);
+}
+
+class _SerializableCachedValueBinStore<T, R> extends CachedValueBinStore<R> {
+  final CachedValueBinStore<T> _delegate;
+  final R Function(T) _deserializer;
+  final T Function(R) _serializer;
+
+  _SerializableCachedValueBinStore(this._delegate, this._deserializer, this._serializer);
+
+  @override
+  Stream<R> get onChanges => _delegate.onChanges.map(_deserializer);
+
+  @override
+  R read() {
+    return _deserializer(_delegate.read());
+  }
+
+  @override
+  Stream<R> get stream => _delegate.stream.map(_deserializer);
+
+  @override
+  Future<void> write(R value) {
+    return _delegate.write(_serializer(value));
+  }
 }
