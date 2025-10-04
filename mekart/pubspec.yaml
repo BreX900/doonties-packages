@@ -10,8 +10,7 @@ scripts:
   bootstrap: dart pub global activate rps 0.7.0
 
   # To generate library file: https://pub.dev/packages/index_generator
-  generate-library: >-
-    dart pub global activate index_generator 4.0.0 &&
+  generate-library: dart pub global activate index_generator 4.0.0 &&
     dart pub global run index_generator
 
   # Integration tools

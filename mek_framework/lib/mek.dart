@@ -85,5 +85,6 @@ export 'src/widgets/material/material_bar.dart';
 export 'src/widgets/material/material_surface.dart';
 export 'src/widgets/material/navigation_baril.dart';
 export 'src/widgets/material/popup_menu.dart';
+export 'src/widgets/material/popup_menu_area.dart';
 export 'src/widgets/material/table.dart';
 export 'src/widgets/mek/app_theme.dart';
