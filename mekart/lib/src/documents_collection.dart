@@ -52,9 +52,9 @@ extension type const Collection<T extends Document>._(IList<T> _self) implements
     }).toIList());
   }
 
-  Object toJson(Object? Function(T) toJsonT) => _self.map((document) {
+  Map<String, dynamic> toJson(Object? Function(T) toJsonT) => Map.fromEntries(_self.map((document) {
         return MapEntry(document.id, (toJsonT(document)! as Map<String, dynamic>)..remove('id'));
-      });
+      }));
 
   int _indexOf(T document) => _self.indexWhere(document.equals);
 }

@@ -13,6 +13,12 @@ extension IterableIExtensions<E> on Iterable<E> {
 extension IListExtensions<T> on IList<T> {
   // ignore: avoid_positional_boolean_parameters
   IList<T> toggle(bool isAdding, T value) => isAdding ? add(value) : remove(value);
+
+  IList<T> move(T target, T destination, {bool after = false}) {
+    final fixedList = remove(target);
+    final index = fixedList.indexOf(destination);
+    return fixedList.insert(after ? index + 1 : index, target);
+  }
 }
 
 extension ISetExtensions<T> on ISet<T> {
