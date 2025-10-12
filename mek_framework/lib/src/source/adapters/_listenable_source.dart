@@ -10,7 +10,7 @@ extension SourceValueListenableExtension<T> on ValueListenable<T> {
   static T _selectValue<T>(ValueListenable<T> listenable) => listenable.value;
 }
 
-class _ListenableSource<T extends Listenable, R> with EquatableMixin implements Source<R> {
+class _ListenableSource<T extends Listenable, R> extends Source<R> with EquatableMixin {
   final T listenable;
   final R Function(T listenable) selector;
 

@@ -10,8 +10,8 @@ class _BinIoEngine implements BinEngine {
   final String _directoryPath;
   final _controller = StreamController<MapEntry<String, String?>>.broadcast(sync: true);
 
-  _BinIoEngine({required String? directoryPath}) :
-        assert(directoryPath != null, 'Directory Path must be passed!'),
+  _BinIoEngine({required String? directoryPath})
+      : assert(directoryPath != null, 'Directory Path must be passed!'),
         _directoryPath = directoryPath!;
 
   @override

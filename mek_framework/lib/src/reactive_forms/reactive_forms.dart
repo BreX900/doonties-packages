@@ -13,6 +13,17 @@ extension ControlStatusExtensions on ControlStatus {
 extension AbstractControlExtensions<T> on AbstractControl<T> {
   Stream<T?> get valueHotChanges => valueChanges.startWith(value);
 
+  Stream<T?> onValueChanges({bool distinct = true, bool fireImmediately = false}) async* {
+    var current = value;
+    if (fireImmediately) yield current;
+    await for (final next in valueChanges) {
+      final previous = current;
+      current = next;
+      if (distinct && previous == next) continue;
+      yield current;
+    }
+  }
+
   void markAsReset({
     bool updateParent = true,
     bool removeFocus = false,
@@ -84,47 +95,71 @@ extension ReactiveFormConfigExtensions on ReactiveFormConfig? {
 }
 
 extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
-  void Function(T arg) handleSubmit<T>(
-    Future<void> Function(T arg) submit, {
+  void Function() handleSubmit(void Function() onSubmit) {
+    return () {
+      if (!_canSubmit()) return;
+      onSubmit();
+    };
+  }
+
+  void Function() handleSubmitAsync(
+    Future<bool?> Function() submit, {
     bool keepDisabled = false,
   }) {
-    return (arg) async {
-      switch (status) {
-        case ControlStatus.disabled:
-          return;
-        case ControlStatus.pending:
-          return;
-        case ControlStatus.invalid:
-          markAllAsTouched();
-        case ControlStatus.valid:
-          try {
-            markAsDisabled();
+    return () async {
+      if (!_canSubmit()) return;
+      markAsDisabled();
 
-            await submit(arg);
+      try {
+        final isSuccessState = await submit();
+        if (isSuccessState == null) return;
 
-            if (keepDisabled) return;
-            markAsEnabled();
-          } catch (_) {
-            markAsEnabled();
-            rethrow;
-          }
+        if (isSuccessState && keepDisabled) return;
+        markAsEnabled();
+      } catch (_) {
+        markAsEnabled();
+        rethrow;
       }
     };
   }
 
-  void Function() handleVoidSubmit(void Function() submit) {
-    return () async {
-      switch (status) {
-        case ControlStatus.disabled:
-          return;
-        case ControlStatus.pending:
-          return;
-        case ControlStatus.invalid:
-          markAllAsTouched();
-        case ControlStatus.valid:
-          submit();
+  void Function(T arg) handleSubmitWith<T>(
+    Future<void> Function(T arg) submit, {
+    bool keepDisabled = false,
+  }) {
+    return (arg) async {
+      if (!_canSubmit()) return;
+      try {
+        markAsDisabled();
+
+        await submit(arg);
+
+        if (keepDisabled) return;
+        _ignoreError(markAsEnabled);
+      } catch (_) {
+        _ignoreError(markAsEnabled);
+        rethrow;
       }
     };
+  }
+
+  bool _canSubmit() {
+    switch (status) {
+      case ControlStatus.disabled:
+      case ControlStatus.pending:
+        return false;
+      case ControlStatus.invalid:
+        markAllAsTouched();
+        return false;
+      case ControlStatus.valid:
+        return true;
+    }
+  }
+
+  void _ignoreError(void Function() body) {
+    try {
+      body();
+    } catch (_) {}
   }
 }
 

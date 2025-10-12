@@ -58,8 +58,8 @@ class _SignInScreenState extends SourceConsumerState<SignInScreenBase> {
   Widget build(BuildContext context) {
     final isIdle = !scope.watchIsMutating([_signIn, _sendPasswordResetEmail]);
 
-    final signIn = _form.handleSubmit(_signIn.run, keepDisabled: true);
-    final sendPasswordResetEmail = _emailFb.handleSubmit(_sendPasswordResetEmail.run);
+    final signIn = _form.handleSubmitWith(_signIn.run, keepDisabled: true);
+    final sendPasswordResetEmail = _emailFb.handleSubmitWith(_sendPasswordResetEmail.run);
 
     List<Widget> buildFields() {
       return [

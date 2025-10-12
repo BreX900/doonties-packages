@@ -5,6 +5,17 @@ import 'package:mek/mek.dart';
 import 'package:mek/src/core/_log.dart';
 import 'package:mek/src/riverpod/notifiers/_mutation.dart';
 
+extension MutationNotififierExtension on ConsumerScope {
+  MutationNotifier<A, R> mutationV2<A, R>(Future<R> Function(MutationRef ref, A arg) mutator) {
+    final mutation = MutationNotifier<A, R>(
+      () => ref.container,
+      mutator,
+    );
+    onDispose(mutation.dispose);
+    return mutation;
+  }
+}
+
 typedef ErrorMutationListenerV2 = FutureOr<void> Function(Object error);
 typedef DataMutationListenerV2<Result> = FutureOr<void> Function(Result result);
 typedef ResultMutationListenerV2<Result> = FutureOr<void> Function(Object? error, Result? result);
@@ -18,18 +29,32 @@ class MutationNotifier<TArg, TResult> extends SourceNotifier<MutationState<TResu
 
   void call(
     TArg arg, {
-    ErrorMutationListenerV2? onError,
-    DataMutationListenerV2<TResult>? onData,
+    required ErrorMutationListenerV2? onError,
+    DataMutationListenerV2<TResult>? onSuccess,
     ResultMutationListenerV2<TResult>? onSettled,
-  }) {
-    // ignore: discarded_futures
-    run(arg, onError: onError, onData: onData, onSettled: onSettled).ignore();
+  }) =>
+      unawaited(run(arg, onError: onError, onSuccess: onSuccess, onSettled: onSettled)..ignore());
+
+  Future<bool?> execute(
+    TArg arg, {
+    required ErrorMutationListenerV2? onError,
+    DataMutationListenerV2<TResult>? onSuccess,
+    ResultMutationListenerV2<TResult>? onSettled,
+  }) async {
+    try {
+      await run(arg, onError: onError, onSuccess: onSuccess, onSettled: onSettled);
+      if (!mounted) return null;
+      return true;
+    } catch (_) {
+      if (!mounted) return null;
+      return false;
+    }
   }
 
-  Future<void> run(
+  Future<TResult> run(
     TArg arg, {
     ErrorMutationListenerV2? onError,
-    DataMutationListenerV2<TResult>? onData,
+    DataMutationListenerV2<TResult>? onSuccess,
     ResultMutationListenerV2<TResult>? onSettled,
   }) async {
     if (!mounted) throw StateError("Can't mutate if bloc is closed!");
@@ -40,28 +65,21 @@ class MutationNotifier<TArg, TResult> extends SourceNotifier<MutationState<TResu
     try {
       final result = await _mutator(ref, arg);
       ref.dispose();
-      if (!mounted) return;
+      if (!mounted) return result;
 
-      await _tryCall1(onData, result);
-      if (!mounted) return;
-
-      await _tryCall2(onSettled, null, result);
-      if (!mounted) return;
+      unawaited(_tryCall1(onSuccess, result));
+      unawaited(_tryCall2(onSettled, null, result));
 
       state = state.toSuccess(arg: arg, data: result);
+      return result;
     } catch (error) {
-      // addError(error, stackTrace);
       ref.dispose();
-      if (!mounted) return;
+      if (!mounted) rethrow;
 
-      await _tryCall1(onError, error);
-      if (!mounted) return;
-
-      await _tryCall2(onSettled, error, null);
-      if (!mounted) return;
+      unawaited(_tryCall1(onError, error));
+      unawaited(_tryCall2(onSettled, error, null));
 
       state = state.toFailed(arg: arg, error: error);
-
       rethrow;
     }
   }
@@ -75,7 +93,7 @@ class MutationNotifier<TArg, TResult> extends SourceNotifier<MutationState<TResu
     state = state.toLoading(arg: arg, progress: value);
   }
 
-  FutureOr<void> _tryCall1<T1>(FutureOr<void> Function(T1)? fn, T1 $1) async {
+  Future<void>? _tryCall1<T1>(FutureOr<void> Function(T1)? fn, T1 $1) async {
     if (fn == null) return;
     try {
       await fn($1);
@@ -84,7 +102,7 @@ class MutationNotifier<TArg, TResult> extends SourceNotifier<MutationState<TResu
     }
   }
 
-  FutureOr<void> _tryCall2<T1, T2>(FutureOr<void> Function(T1, T2)? fn, T1 $1, T2 $2) async {
+  Future<void>? _tryCall2<T1, T2>(FutureOr<void> Function(T1, T2)? fn, T1 $1, T2 $2) async {
     if (fn == null) return;
     try {
       await fn($1, $2);

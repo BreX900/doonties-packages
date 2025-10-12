@@ -54,7 +54,7 @@ class _UserDeleteScreenState extends SourceConsumerState<UserDeleteScreenBase> {
   }
 
   Widget _buildBody({required bool isIdle}) {
-    final deleteUser = _form.handleSubmit(_deleteUser.run);
+    final deleteUser = _form.handleSubmitWith(_deleteUser.run);
 
     List<Widget> buildFields() {
       return [

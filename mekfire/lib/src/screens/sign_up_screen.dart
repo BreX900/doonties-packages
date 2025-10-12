@@ -49,7 +49,7 @@ class _SignUpScreenState extends SourceConsumerState<SignUpScreenBase> {
   @override
   Widget build(BuildContext context) {
     final isIdle = !scope.watchIsMutating([_signUp]);
-    final signUp = _form.handleSubmit(_signUp.run, keepDisabled: true);
+    final signUp = _form.handleSubmitWith(_signUp.run, keepDisabled: true);
 
     return Scaffold(
       appBar: AppBar(

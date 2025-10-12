@@ -20,6 +20,8 @@ part 'adapters/_source_selector.dart';
 
 typedef SourceListener<T> = void Function(T previous, T state);
 
+typedef SourceImmediatelyListener<T> = void Function(T? previous, T state);
+
 mixin class SourceObserver {
   const SourceObserver();
 
@@ -33,10 +35,18 @@ mixin class SourceObserver {
 }
 
 @immutable
-abstract interface class Source<T> {
+abstract class Source<T> {
   static SourceObserver observer = const SourceObserver();
 
   SourceSubscription<T> listen(SourceListener<T> onChange);
+
+  // SourceSubscription<T> listenImmediately(SourceImmediatelyListener<T> onChange);
+
+  SourceSubscription<T> listenImmediately(SourceImmediatelyListener<T> listener) {
+    final subscription = listen(listener);
+    Zone.current.runBinaryGuarded(listener, null, subscription.read());
+    return subscription;
+  }
 }
 
 class SourceNotifier<T> {

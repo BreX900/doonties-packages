@@ -33,7 +33,7 @@ class _SourceArgSelector<T, R, A> extends _SourceTransformer<T, R> {
   List<Object?> get props => [source, arg, selector];
 }
 
-abstract class _SourceTransformer<T, R> with EquatableMixin implements Source<R> {
+abstract class _SourceTransformer<T, R> extends Source<R> with EquatableMixin {
   final Source<T> source;
 
   _SourceTransformer(this.source);

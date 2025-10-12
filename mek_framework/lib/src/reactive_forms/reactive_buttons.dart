@@ -22,7 +22,8 @@ class ReactiveSaveButton extends SourceConsumerWidget {
     final isPristine = scope.watch(field.control.source.pristine);
     if (isPristine) return const SizedBox.shrink();
 
-    final submit = field.control.handleSubmit<Future<void> Function()>((submit) async => submit());
+    final submit =
+        field.control.handleSubmitWith<Future<void> Function()>((submit) async => submit());
     return IconButton(
       onPressed: onSubmit != null ? () => submit(onSubmit) : null,
       icon: const Icon(Icons.save),
@@ -47,7 +48,7 @@ class ReactiveAddButton extends SourceConsumerWidget {
     final isPristine = scope.watch(field.control.source.pristine);
     if (isPristine) return const SizedBox.shrink();
 
-    final submit = field.control.handleSubmit<FutureOr<void> Function()>((submit) async {
+    final submit = field.control.handleSubmitWith<FutureOr<void> Function()>((submit) async {
       await submit();
       field.control.reset();
     });
@@ -95,7 +96,7 @@ class ReactiveEditButton extends SourceConsumerWidget {
     final config = scope.watch(controller.source);
 
     final readOnly = config.readOnly;
-    final submit = field.control.handleSubmit<FutureOr<void> Function()>((submit) async {
+    final submit = field.control.handleSubmitWith<FutureOr<void> Function()>((submit) async {
       await submit();
       controller.value = config.copyWith(readOnly: true);
     });

@@ -26,7 +26,7 @@ extension MutationsGroupProviderListenableExtensions on Source<Iterable<Mutation
   static bool _isMutating(Iterable<MutationState> states) => states.any((e) => e.isMutating);
 }
 
-class _GroupSource<T> with EquatableMixin implements Source<List<T>> {
+class _GroupSource<T> extends Source<List<T>> with EquatableMixin {
   final Iterable<Source<T>> sources;
 
   _GroupSource(this.sources);
