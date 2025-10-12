@@ -128,8 +128,10 @@ abstract base class SourceSubscription<T> {
   }
 
   static bool debugIsCancelled(SourceSubscription subscription) {
-    assert(!subscription._isCancelled,
-        'Tried to use ${subscription.runtimeType} after `cancel` was called.');
+    assert(
+      !subscription._isCancelled,
+      'Tried to use ${subscription.runtimeType} after `cancel` was called.',
+    );
     return true;
   }
 }

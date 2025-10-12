@@ -7,10 +7,7 @@ import 'package:mek/src/riverpod/notifiers/_mutation.dart';
 
 extension MutationNotififierExtension on ConsumerScope {
   MutationNotifier<A, R> mutationV2<A, R>(Future<R> Function(MutationRef ref, A arg) mutator) {
-    final mutation = MutationNotifier<A, R>(
-      () => ref.container,
-      mutator,
-    );
+    final mutation = MutationNotifier<A, R>(() => ref.container, mutator);
     onDispose(mutation.dispose);
     return mutation;
   }
@@ -32,8 +29,7 @@ class MutationNotifier<TArg, TResult> extends SourceNotifier<MutationState<TResu
     required ErrorMutationListenerV2? onError,
     DataMutationListenerV2<TResult>? onSuccess,
     ResultMutationListenerV2<TResult>? onSettled,
-  }) =>
-      unawaited(run(arg, onError: onError, onSuccess: onSuccess, onSettled: onSettled)..ignore());
+  }) => unawaited(run(arg, onError: onError, onSuccess: onSuccess, onSettled: onSettled)..ignore());
 
   Future<bool?> execute(
     TArg arg, {

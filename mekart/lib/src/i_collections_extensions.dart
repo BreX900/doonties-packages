@@ -36,23 +36,23 @@ extension IMapExtensions<K, V> on IMap<K, V> {
 
 extension NonNullsIMapExtensions<K extends Object, V extends Object> on IMap<K?, V?> {
   IMap<K, V> get nonNulls => <K, V>{
-        for (final MapEntry(:key, :value) in entries)
-          if (key != null && value != null) key: value
-      }.lockUnsafe;
+    for (final MapEntry(:key, :value) in entries)
+      if (key != null && value != null) key: value,
+  }.lockUnsafe;
 }
 
 extension NonNullValuesIMapExtensions<K, V extends Object> on IMap<K, V?> {
   IMap<K, V> get nonNullValues => <K, V>{
-        for (final MapEntry(:key, :value) in entries)
-          if (value != null) key: value
-      }.lockUnsafe;
+    for (final MapEntry(:key, :value) in entries)
+      if (value != null) key: value,
+  }.lockUnsafe;
 }
 
 extension NonNullKeysIMapExtensions<K extends Object, V> on IMap<K?, V> {
   IMap<K, V> get nonNullKeys => <K, V>{
-        for (final MapEntry(:key, :value) in entries)
-          if (key != null) key: value
-      }.lockUnsafe;
+    for (final MapEntry(:key, :value) in entries)
+      if (key != null) key: value,
+  }.lockUnsafe;
 }
 
 extension EntriesIMapExtensions<K, V> on Iterable<MapEntry<K, V>> {

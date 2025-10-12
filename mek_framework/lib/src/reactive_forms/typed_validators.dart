@@ -15,8 +15,10 @@ abstract final class ValidationCodes {
 }
 
 abstract final class ValidatorsTyped {
-  static Validator<T> from<T>(Object? Function(AbstractControl<T> control) validator,
-      {String code = ValidationCodes.invalid}) {
+  static Validator<T> from<T>(
+    Object? Function(AbstractControl<T> control) validator, {
+    String code = ValidationCodes.invalid,
+  }) {
     return _ReactiveErrorAdapter(InvalidValidationError(code: code), (control) {
       final error = validator(control);
       if (error == null) return null;
@@ -35,13 +37,15 @@ abstract final class ValidatorsTyped {
     T? greaterOrEqualThan,
     T? greaterThan,
   }) {
-    return _ValidationAdapter(NumberValidation(
-      errorCode: code,
-      lessThan: lessThan,
-      lessOrEqualThan: lessOrEqualThan,
-      greaterOrEqualThan: greaterOrEqualThan,
-      greaterThan: greaterThan,
-    ));
+    return _ValidationAdapter(
+      NumberValidation(
+        errorCode: code,
+        lessThan: lessThan,
+        lessOrEqualThan: lessOrEqualThan,
+        greaterOrEqualThan: greaterOrEqualThan,
+        greaterThan: greaterThan,
+      ),
+    );
   }
 
   static Validator<String> text({
@@ -51,13 +55,15 @@ abstract final class ValidatorsTyped {
     RegExp? match,
     RegExp? notMatch,
   }) {
-    return _ValidationAdapter(TextValidation(
-      errorCode: code,
-      minLength: minLength,
-      maxLength: maxLength,
-      match: match,
-      notMatch: notMatch,
-    ));
+    return _ValidationAdapter(
+      TextValidation(
+        errorCode: code,
+        minLength: minLength,
+        maxLength: maxLength,
+        match: match,
+        notMatch: notMatch,
+      ),
+    );
   }
 
   static Validator<R> iterable<R extends Iterable>({
@@ -68,14 +74,18 @@ abstract final class ValidatorsTyped {
     R? whereIn,
     R? whereNotIn,
   }) {
-    return _ReactiveTypeAdapter(_ValidationAdapter(OptionsValidation(
-      errorCode: code,
-      lengths: lengths,
-      minLength: minLength,
-      maxLength: maxLength,
-      whereIn: whereIn?.toList(),
-      whereNotIn: whereNotIn?.toList(),
-    )));
+    return _ReactiveTypeAdapter(
+      _ValidationAdapter(
+        OptionsValidation(
+          errorCode: code,
+          lengths: lengths,
+          minLength: minLength,
+          maxLength: maxLength,
+          whereIn: whereIn?.toList(),
+          whereNotIn: whereNotIn?.toList(),
+        ),
+      ),
+    );
   }
 
   static Validator<String> email({String message = ValidationCodes.email}) {
@@ -88,8 +98,9 @@ abstract final class ValidatorsTyped {
       text(
         code: ValidationCodes.password,
         match: RegExp(
-            r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*^[a-zA-Z])([a-zA-Z\d]|[^a-zA-Z\d]){8,14}$'),
-      )
+          r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*^[a-zA-Z])([a-zA-Z\d]|[^a-zA-Z\d]){8,14}$',
+        ),
+      ),
     ]);
   }
 

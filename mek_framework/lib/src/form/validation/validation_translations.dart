@@ -7,11 +7,9 @@ class ValidationFormats {
   final ValidationFormats? _formats;
   final Formatter<DateTime>? _dateTimeFormatter;
 
-  const ValidationFormats({
-    ValidationFormats? formats,
-    Formatter<DateTime>? dateTimeFormatter,
-  })  : _formats = formats,
-        _dateTimeFormatter = dateTimeFormatter;
+  const ValidationFormats({ValidationFormats? formats, Formatter<DateTime>? dateTimeFormatter})
+    : _formats = formats,
+      _dateTimeFormatter = dateTimeFormatter;
 
   String format(Object value) {
     if (value is DateTime) {
@@ -23,13 +21,8 @@ class ValidationFormats {
   String formatDateTime(DateTime value) =>
       _dateTimeFormatter?.call(value) ?? _formats?.formatDateTime(value) ?? '$value';
 
-  ValidationFormats copyWith({
-    Formatter<DateTime>? dateTimeFormatter,
-  }) {
-    return ValidationFormats(
-      formats: this,
-      dateTimeFormatter: dateTimeFormatter,
-    );
+  ValidationFormats copyWith({Formatter<DateTime>? dateTimeFormatter}) {
+    return ValidationFormats(formats: this, dateTimeFormatter: dateTimeFormatter);
   }
 }
 
@@ -43,9 +36,7 @@ abstract class ValidationTranslations {
 
   Set<String> get languageCodes;
 
-  const ValidationTranslations({
-    this.formats = const ValidationFormats(),
-  });
+  const ValidationTranslations({this.formats = const ValidationFormats()});
 
   String invalid();
 
@@ -80,9 +71,7 @@ class ValidationEnTranslations extends ValidationTranslations {
   @override
   Set<String> get languageCodes => const {'en'};
 
-  const ValidationEnTranslations({
-    super.formats,
-  });
+  const ValidationEnTranslations({super.formats});
 
   @override
   String invalid() => 'It not valid.';
@@ -121,9 +110,7 @@ class ValidationEnTranslations extends ValidationTranslations {
 
   @override
   ValidationTranslations copyWith({ValidationFormats? formats}) {
-    return ValidationEnTranslations(
-      formats: formats ?? this.formats,
-    );
+    return ValidationEnTranslations(formats: formats ?? this.formats);
   }
 }
 
@@ -131,9 +118,7 @@ class ValidationItTranslations extends ValidationEnTranslations {
   @override
   Set<String> get languageCodes => const {'it'};
 
-  const ValidationItTranslations({
-    super.formats,
-  });
+  const ValidationItTranslations({super.formats});
 
   @override
   String invalid() => 'Non è valido.';
@@ -171,8 +156,6 @@ class ValidationItTranslations extends ValidationEnTranslations {
 
   @override
   ValidationTranslations copyWith({ValidationFormats? formats}) {
-    return ValidationItTranslations(
-      formats: formats ?? this.formats,
-    );
+    return ValidationItTranslations(formats: formats ?? this.formats);
   }
 }

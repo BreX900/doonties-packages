@@ -4,10 +4,7 @@ class NavigationDestinationBaril {
   final Widget icon;
   final String label;
 
-  const NavigationDestinationBaril({
-    required this.icon,
-    required this.label,
-  });
+  const NavigationDestinationBaril({required this.icon, required this.label});
 }
 
 // TODO: Try this package https://pub.dev/packages/flutter_adaptive_scaffold
@@ -45,44 +42,40 @@ class _NavigationBarilState extends State<NavigationBaril> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      if (_canShowRail(constraints.biggest)) {
-        final isExtended = _canExtendRail(constraints.biggest);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (_canShowRail(constraints.biggest)) {
+          final isExtended = _canExtendRail(constraints.biggest);
 
-        return Row(
+          return Row(
+            children: [
+              Expanded(child: widget.child),
+              NavigationRail(
+                extended: isExtended,
+                labelType: isExtended ? null : NavigationRailLabelType.all,
+                selectedIndex: widget.selectedIndex,
+                onDestinationSelected: widget.onDestinationSelected,
+                destinations: widget.destinations.map((e) {
+                  return NavigationRailDestination(icon: e.icon, label: Text(e.label));
+                }).toList(),
+              ),
+            ],
+          );
+        }
+
+        return Column(
           children: [
             Expanded(child: widget.child),
-            NavigationRail(
-              extended: isExtended,
-              labelType: isExtended ? null : NavigationRailLabelType.all,
+            NavigationBar(
               selectedIndex: widget.selectedIndex,
               onDestinationSelected: widget.onDestinationSelected,
               destinations: widget.destinations.map((e) {
-                return NavigationRailDestination(
-                  icon: e.icon,
-                  label: Text(e.label),
-                );
+                return NavigationDestination(icon: e.icon, label: e.label);
               }).toList(),
             ),
           ],
         );
-      }
-
-      return Column(
-        children: [
-          Expanded(child: widget.child),
-          NavigationBar(
-            selectedIndex: widget.selectedIndex,
-            onDestinationSelected: widget.onDestinationSelected,
-            destinations: widget.destinations.map((e) {
-              return NavigationDestination(
-                icon: e.icon,
-                label: e.label,
-              );
-            }).toList(),
-          ),
-        ],
-      );
-    });
+      },
+    );
   }
 }

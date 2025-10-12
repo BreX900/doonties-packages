@@ -43,22 +43,26 @@ class BinTransaction implements BinSession {
 
   Future<void> flush() async {
     try {
-      await Future.wait(_writes.mapTo((name, data) async {
-        if (data != null) {
-          await engine.write(name, data);
-        } else {
-          await engine.delete(name);
-        }
-      }));
+      await Future.wait(
+        _writes.mapTo((name, data) async {
+          if (data != null) {
+            await engine.write(name, data);
+          } else {
+            await engine.delete(name);
+          }
+        }),
+      );
     } catch (_) {
-      await Future.wait(_writes.keys.map((name) async {
-        final data = _reads[name];
-        if (data != null) {
-          await engine.write(name, data);
-        } else {
-          await engine.delete(name);
-        }
-      }));
+      await Future.wait(
+        _writes.keys.map((name) async {
+          final data = _reads[name];
+          if (data != null) {
+            await engine.write(name, data);
+          } else {
+            await engine.delete(name);
+          }
+        }),
+      );
       rethrow;
     } finally {
       _reads = const {};

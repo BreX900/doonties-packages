@@ -36,15 +36,18 @@ class _SignUpScreenState extends SourceConsumerState<SignUpScreenBase> {
     super.dispose();
   }
 
-  late final _signUp = scope.mutation((ref, None _) async {
-    await UserAuthProviders.signUp(
-      email: _emailFb.value,
-      password: _passwordFb.value,
-      passwordConfirmation: _passwordConfirmationFb.value,
-    );
-  }, onError: (_, error) {
-    widget.asyncHandler.showError(context, error);
-  });
+  late final _signUp = scope.mutation(
+    (ref, None _) async {
+      await UserAuthProviders.signUp(
+        email: _emailFb.value,
+        password: _passwordFb.value,
+        passwordConfirmation: _passwordConfirmationFb.value,
+      );
+    },
+    onError: (_, error) {
+      widget.asyncHandler.showError(context, error);
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +55,7 @@ class _SignUpScreenState extends SourceConsumerState<SignUpScreenBase> {
     final signUp = _form.handleSubmitWith(_signUp.run, keepDisabled: true);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign Up!'),
-      ),
+      appBar: AppBar(title: const Text('Sign Up!')),
       bottomNavigationBar: BottomButtonBar(
         children: [
           Expanded(
@@ -72,9 +73,7 @@ class _SignUpScreenState extends SourceConsumerState<SignUpScreenBase> {
             ReactiveTypedTextField(
               formControl: _emailFb,
               variant: const TextFieldVariant.email(),
-              decoration: const InputDecoration(
-                labelText: 'Email',
-              ),
+              decoration: const InputDecoration(labelText: 'Email'),
             ),
             ReactiveTypedTextField(
               formControl: _passwordFb,
@@ -91,8 +90,9 @@ class _SignUpScreenState extends SourceConsumerState<SignUpScreenBase> {
               config: _passwordConfirmationConfigController,
               decoration: InputDecoration(
                 labelText: 'Password Confirmation',
-                suffixIcon:
-                    ReactiveVisibilityButton(controller: _passwordConfirmationConfigController),
+                suffixIcon: ReactiveVisibilityButton(
+                  controller: _passwordConfirmationConfigController,
+                ),
               ),
             ),
           ],

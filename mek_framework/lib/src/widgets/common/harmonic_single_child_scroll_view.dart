@@ -51,33 +51,35 @@ class HarmonicSingleChildScrollView extends StatelessWidget {
 
     final scrollViewPadding = (viewInsets?.add(padding) ?? padding).add(viewPadding);
 
-    return LayoutBuilder(builder: (context, constraints) {
-      return SingleChildScrollView(
-        padding: scrollViewPadding,
-        scrollDirection: scrollDirection,
-        reverse: reverse,
-        controller: controller,
-        primary: primary,
-        physics: physics,
-        dragStartBehavior: dragStartBehavior,
-        clipBehavior: clipBehavior,
-        hitTestBehavior: hitTestBehavior,
-        restorationId: restorationId,
-        keyboardDismissBehavior: keyboardDismissBehavior,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: switch (scrollDirection) {
-              Axis.vertical => constraints.maxHeight - scrollViewPadding.vertical,
-              Axis.horizontal => 0.0,
-            },
-            minWidth: switch (scrollDirection) {
-              Axis.vertical => 0.0,
-              Axis.horizontal => constraints.maxWidth - scrollViewPadding.horizontal,
-            },
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          padding: scrollViewPadding,
+          scrollDirection: scrollDirection,
+          reverse: reverse,
+          controller: controller,
+          primary: primary,
+          physics: physics,
+          dragStartBehavior: dragStartBehavior,
+          clipBehavior: clipBehavior,
+          hitTestBehavior: hitTestBehavior,
+          restorationId: restorationId,
+          keyboardDismissBehavior: keyboardDismissBehavior,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: switch (scrollDirection) {
+                Axis.vertical => constraints.maxHeight - scrollViewPadding.vertical,
+                Axis.horizontal => 0.0,
+              },
+              minWidth: switch (scrollDirection) {
+                Axis.vertical => 0.0,
+                Axis.horizontal => constraints.maxWidth - scrollViewPadding.horizontal,
+              },
+            ),
+            child: child,
           ),
-          child: child,
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }

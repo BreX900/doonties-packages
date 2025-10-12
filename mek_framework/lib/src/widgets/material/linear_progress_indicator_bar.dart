@@ -6,11 +6,7 @@ class FlexibleLinearProgressBar extends StatefulWidget {
   final bool visible;
   final double? value;
 
-  const FlexibleLinearProgressBar({
-    super.key,
-    this.visible = true,
-    this.value,
-  });
+  const FlexibleLinearProgressBar({super.key, this.visible = true, this.value});
 
   @override
   State<FlexibleLinearProgressBar> createState() => _FlexibleLinearProgressBarState();
@@ -49,10 +45,9 @@ class _FlexibleLinearProgressBarState extends State<FlexibleLinearProgressBar>
       _currentExtent = settings.currentExtent;
       _linearMinHeight = linearMinHeight;
 
-      _topPaddingAnimation = _animationController.drive(Tween(
-        begin: _currentExtent,
-        end: _currentExtent - _linearMinHeight,
-      ));
+      _topPaddingAnimation = _animationController.drive(
+        Tween(begin: _currentExtent, end: _currentExtent - _linearMinHeight),
+      );
     }
   }
 
@@ -112,10 +107,7 @@ class _FlexibleLinearProgressBarState extends State<FlexibleLinearProgressBar>
 
     return Padding(
       padding: EdgeInsets.only(top: topPaddingSize),
-      child: LinearProgressIndicator(
-        minHeight: _linearMinHeight,
-        value: value,
-      ),
+      child: LinearProgressIndicator(minHeight: _linearMinHeight, value: value),
     );
   }
 }

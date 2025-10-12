@@ -13,28 +13,40 @@ abstract class EmailVerificationScreenBase extends SourceConsumerStatefulWidget 
 }
 
 class _SignEmailScreenState extends SourceConsumerState<EmailVerificationScreenBase> {
-  late final _sendEmailVerification = scope.mutation((ref, arg) async {
-    await UserAuthProviders.sendEmailVerification();
-  }, onError: (_, error) {
-    widget.asyncHandler.showError(context, error);
-  }, onSuccess: (_, __) {
-    ScaffoldMessenger.of(context).showMaterialBanner(const MaterialBanner(
-      content: Text('Verification email sent!'),
-      actions: [HideBannerButton()],
-    ));
-  });
+  late final _sendEmailVerification = scope.mutation(
+    (ref, arg) async {
+      await UserAuthProviders.sendEmailVerification();
+    },
+    onError: (_, error) {
+      widget.asyncHandler.showError(context, error);
+    },
+    onSuccess: (_, __) {
+      ScaffoldMessenger.of(context).showMaterialBanner(
+        const MaterialBanner(
+          content: Text('Verification email sent!'),
+          actions: [HideBannerButton()],
+        ),
+      );
+    },
+  );
 
-  late final _reload = scope.mutation((ref, arg) async {
-    await UserAuthProviders.checkEmailVerification();
-  }, onError: (_, error) {
-    widget.asyncHandler.showError(context, error);
-  });
+  late final _reload = scope.mutation(
+    (ref, arg) async {
+      await UserAuthProviders.checkEmailVerification();
+    },
+    onError: (_, error) {
+      widget.asyncHandler.showError(context, error);
+    },
+  );
 
-  late final _signOut = scope.mutation((ref, arg) async {
-    await UserAuthProviders.signOut();
-  }, onError: (_, error) {
-    widget.asyncHandler.showError(context, error);
-  });
+  late final _signOut = scope.mutation(
+    (ref, arg) async {
+      await UserAuthProviders.signOut();
+    },
+    onError: (_, error) {
+      widget.asyncHandler.showError(context, error);
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +70,10 @@ class _SignEmailScreenState extends SourceConsumerState<EmailVerificationScreenB
       body: InfoView(
         onTap: isIdle ? () => _reload(null) : null,
         icon: const Icon(Icons.mark_email_unread_outlined),
-        title: Text('Please verify your email:\n'
-            '${UserAuthProviders.current!.email}'),
+        title: Text(
+          'Please verify your email:\n'
+          '${UserAuthProviders.current!.email}',
+        ),
         description: const Text('Tap to verify that you have reset the email'),
       ),
       bottomNavigationBar: BottomButtonBar(

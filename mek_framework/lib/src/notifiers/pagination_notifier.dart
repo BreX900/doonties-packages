@@ -29,7 +29,8 @@ class PaginationValue<T> extends Equatable {
   });
 
   @override
-  String toString() => 'PaginationValue<$T>(\n'
+  String toString() =>
+      'PaginationValue<$T>(\n'
       '  currentIndex: $currentIndex,\n'
       '  canLoadMore: $canLoadMore,\n'
       '  pages: {${pages.mapTo((index, models) => '    $index: ${models.unlockView}\n')}},\n'
@@ -80,10 +81,14 @@ class PaginationNotifier<T, Arg extends PaginationModel<Arg>>
 
   @override
   Future<PaginationValue<T>> build() {
-    assert(_arg.pageSize != null && _arg.pageSize! > 0,
-        'Missing $Arg.pageSize field. Pass it to correct handling a fetches.');
-    assert(_arg.pageIndex == null,
-        'Exists $Arg.pageIndex field. Do not pass it to avoid duplicated states.');
+    assert(
+      _arg.pageSize != null && _arg.pageSize! > 0,
+      'Missing $Arg.pageSize field. Pass it to correct handling a fetches.',
+    );
+    assert(
+      _arg.pageIndex == null,
+      'Exists $Arg.pageIndex field. Do not pass it to avoid duplicated states.',
+    );
 
     ref.onDispose(() => _token = Object());
     _size = _arg.pageSize ?? 50;

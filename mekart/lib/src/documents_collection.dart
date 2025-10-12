@@ -43,18 +43,19 @@ extension type const Collection<T extends Document>._(IList<T> _self) implements
   Collection<T> remove(String id) => Collection._(_self.removeWhere((e) => e.id == id));
 
   /// Converts from JSon. Json serialization support for json_serializable with @JsonSerializable.
-  factory Collection.fromJson(
-    Map<String, Object?> json,
-    T Function(Object?) fromJsonT,
-  ) {
-    return Collection._(json.mapTo((key, value) {
-      return fromJsonT({'id': key, ...(value! as Map<String, dynamic>)});
-    }).toIList());
+  factory Collection.fromJson(Map<String, Object?> json, T Function(Object?) fromJsonT) {
+    return Collection._(
+      json.mapTo((key, value) {
+        return fromJsonT({'id': key, ...(value! as Map<String, dynamic>)});
+      }).toIList(),
+    );
   }
 
-  Map<String, dynamic> toJson(Object? Function(T) toJsonT) => Map.fromEntries(_self.map((document) {
-        return MapEntry(document.id, (toJsonT(document)! as Map<String, dynamic>)..remove('id'));
-      }));
+  Map<String, dynamic> toJson(Object? Function(T) toJsonT) => Map.fromEntries(
+    _self.map((document) {
+      return MapEntry(document.id, (toJsonT(document)! as Map<String, dynamic>)..remove('id'));
+    }),
+  );
 
   int _indexOf(T document) => _self.indexWhere(document.equals);
 }

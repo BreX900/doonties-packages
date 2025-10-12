@@ -26,9 +26,7 @@ base class AsyncHandler {
     return const LimitedBox(
       maxWidth: 256.0,
       maxHeight: 256.0,
-      child: Center(
-        child: CircularProgressIndicator(),
-      ),
+      child: Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -43,8 +41,9 @@ base class AsyncHandler {
   void showError(BuildContext context, Object error) {
     MekUtils.showErrorSnackBar(
       context: context,
-      description:
-          error is TextualError ? Text(error.message) : const Text('🤖 My n_m_ _s r_b_t! 🤖'),
+      description: error is TextualError
+          ? Text(error.message)
+          : const Text('🤖 My n_m_ _s r_b_t! 🤖'),
     );
   }
 }

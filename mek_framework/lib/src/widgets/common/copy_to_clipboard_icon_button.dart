@@ -7,9 +7,6 @@ class CopyToClipboardButtonIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: onPressed,
-      icon: const Icon(Icons.copy),
-    );
+    return IconButton(onPressed: onPressed, icon: const Icon(Icons.copy));
   }
 }

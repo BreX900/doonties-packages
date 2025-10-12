@@ -41,8 +41,5 @@ Future<T?> showTypedDialog<T>({
   required BuildContext context,
   required TypedWidgetMixin<T> Function(BuildContext context) builder,
 }) async {
-  return await showDialog<T>(
-    context: context,
-    builder: builder,
-  );
+  return await showDialog<T>(context: context, builder: builder);
 }

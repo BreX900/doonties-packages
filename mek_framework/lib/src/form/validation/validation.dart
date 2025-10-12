@@ -59,18 +59,12 @@ class _InlineValidation<T> extends Validation<T> {
 class RequiredValidation<T extends Object> extends ValidationBase<T?> {
   final List<ValidatorCallback<T>> validators;
 
-  const RequiredValidation({
-    String? errorCode,
-    this.validators = const [],
-  }) : super(errorCode);
+  const RequiredValidation({String? errorCode, this.validators = const []}) : super(errorCode);
 
   @override
   Object? call(T? value) {
     if (value == null) {
-      return RequiredValidationError(
-        validation: this,
-        code: errorCode,
-      );
+      return RequiredValidationError(validation: this, code: errorCode);
     }
     return CompositeValidation.validateEvery(validators, value);
   }
@@ -90,11 +84,8 @@ class ValidationParser<I, O> extends ValidationBase<I> {
   final O Function(I value) converter;
   final List<ValidatorCallback<O>> validators;
 
-  const ValidationParser(
-    this.converter, {
-    String? errorCode,
-    this.validators = const [],
-  }) : super(errorCode);
+  const ValidationParser(this.converter, {String? errorCode, this.validators = const []})
+    : super(errorCode);
 
   @override
   Object? call(I value) {
@@ -116,26 +107,14 @@ class EqualityValidation<T extends Object> extends ValidationBase<T> {
   final T? equals;
   final T? identical;
 
-  const EqualityValidation({
-    String? errorCode,
-    this.equals,
-    this.identical,
-  }) : super(errorCode);
+  const EqualityValidation({String? errorCode, this.equals, this.identical}) : super(errorCode);
 
   @override
   Object? call(T value) {
     if (equals != null && equals == value) {
-      return EqualityValidationError<T>(
-        validation: this,
-        code: errorCode,
-        equals: equals,
-      );
+      return EqualityValidationError<T>(validation: this, code: errorCode, equals: equals);
     } else if (identical != null && core.identical(identical, value)) {
-      return EqualityValidationError<T>(
-        validation: this,
-        code: errorCode,
-        identical: identical,
-      );
+      return EqualityValidationError<T>(validation: this, code: errorCode, identical: identical);
     }
     return null;
   }
@@ -164,29 +143,13 @@ class TextValidation extends ValidationBase<String> {
   @override
   Object? call(String value) {
     if (minLength != null && value.length < minLength!) {
-      return TextValidationError(
-        validation: this,
-        code: errorCode,
-        minLength: minLength,
-      );
+      return TextValidationError(validation: this, code: errorCode, minLength: minLength);
     } else if (maxLength != null && value.length > maxLength!) {
-      return TextValidationError(
-        validation: this,
-        code: errorCode,
-        maxLength: maxLength,
-      );
+      return TextValidationError(validation: this, code: errorCode, maxLength: maxLength);
     } else if (match != null && !match!.hasMatch(value)) {
-      return TextValidationError(
-        validation: this,
-        code: errorCode,
-        match: match?.pattern,
-      );
+      return TextValidationError(validation: this, code: errorCode, match: match?.pattern);
     } else if (notMatch != null && notMatch!.hasMatch(value)) {
-      return TextValidationError(
-        validation: this,
-        code: errorCode,
-        notMatch: notMatch?.pattern,
-      );
+      return TextValidationError(validation: this, code: errorCode, notMatch: notMatch?.pattern);
     }
     return null;
   }
@@ -215,24 +178,16 @@ class NumberValidation<T extends Comparable<Object>> extends ValidationBase<T> {
     this.lessThan,
     this.greaterOrEqualThan,
     this.lessOrEqualThan,
-  })  : assert(greaterThan == null || greaterOrEqualThan == null),
-        assert(lessThan == null || lessOrEqualThan == null),
-        super(errorCode);
+  }) : assert(greaterThan == null || greaterOrEqualThan == null),
+       assert(lessThan == null || lessOrEqualThan == null),
+       super(errorCode);
 
   @override
   Object? call(T value) {
     if (greaterThan != null && greaterThan!.compareTo(value) >= 0) {
-      return NumberValidationError<T>(
-        validation: this,
-        code: errorCode,
-        greaterThan: greaterThan,
-      );
+      return NumberValidationError<T>(validation: this, code: errorCode, greaterThan: greaterThan);
     } else if (lessThan != null && lessThan!.compareTo(value) <= 0) {
-      return NumberValidationError<T>(
-        validation: this,
-        code: errorCode,
-        lessThan: lessThan,
-      );
+      return NumberValidationError<T>(validation: this, code: errorCode, lessThan: lessThan);
     } else if (greaterOrEqualThan != null && greaterOrEqualThan!.compareTo(value) > 0) {
       return NumberValidationError<T>(
         validation: this,
@@ -259,26 +214,14 @@ class DateTimeValidation extends ValidationBase<DateTime> {
   final DateTime? before;
   final DateTime? after;
 
-  const DateTimeValidation({
-    String? errorCode,
-    this.before,
-    this.after,
-  }) : super(errorCode);
+  const DateTimeValidation({String? errorCode, this.before, this.after}) : super(errorCode);
 
   @override
   Object? call(DateTime value) {
     if (before != null && !value.isBefore(before!)) {
-      return DateTimeValidationError(
-        validation: this,
-        code: errorCode,
-        before: before,
-      );
+      return DateTimeValidationError(validation: this, code: errorCode, before: before);
     } else if (after != null && !value.isAfter(after!)) {
-      return DateTimeValidationError(
-        validation: this,
-        code: errorCode,
-        after: after,
-      );
+      return DateTimeValidationError(validation: this, code: errorCode, after: after);
     }
     return null;
   }
@@ -305,35 +248,15 @@ class OptionsValidation<T> extends ValidationBase<Iterable<T>> {
   @override
   Object? call(Iterable<T> value) {
     if (lengths != null && !lengths!.contains(value.length)) {
-      return OptionsValidationError(
-        validation: this,
-        code: errorCode,
-        lengths: lengths,
-      );
+      return OptionsValidationError(validation: this, code: errorCode, lengths: lengths);
     } else if (minLength != null && value.length < minLength!) {
-      return OptionsValidationError(
-        validation: this,
-        code: errorCode,
-        minLength: minLength,
-      );
+      return OptionsValidationError(validation: this, code: errorCode, minLength: minLength);
     } else if (maxLength != null && value.length > maxLength!) {
-      return OptionsValidationError(
-        validation: this,
-        code: errorCode,
-        maxLength: maxLength,
-      );
+      return OptionsValidationError(validation: this, code: errorCode, maxLength: maxLength);
     } else if (whereIn != null && whereIn!.any((v) => !value.contains(v))) {
-      return OptionsValidationError(
-        validation: this,
-        code: errorCode,
-        whereIn: whereIn,
-      );
+      return OptionsValidationError(validation: this, code: errorCode, whereIn: whereIn);
     } else if (whereNotIn != null && whereNotIn!.any((v) => value.contains(v))) {
-      return OptionsValidationError(
-        validation: this,
-        code: errorCode,
-        whereNotIn: whereNotIn,
-      );
+      return OptionsValidationError(validation: this, code: errorCode, whereNotIn: whereNotIn);
     }
     return null;
   }

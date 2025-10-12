@@ -1,8 +1,8 @@
 part of '../source.dart';
 
 typedef FormArrayState<C extends AbstractControl, V> = _FormCollectionState<List<C>, List<V?>>;
-typedef FormGroupState<C extends AbstractControl, V>
-    = _FormCollectionState<Map<String, C>, Map<String, V?>>;
+typedef FormGroupState<C extends AbstractControl, V> =
+    _FormCollectionState<Map<String, C>, Map<String, V?>>;
 
 extension FormArrayStateSource<V> on FormArray<V> {
   Source<FormArrayState<AbstractControl, V>> get source => _FormArrayStateSource(this);
@@ -18,8 +18,7 @@ extension FormArrayStateSourceExtensions<C extends AbstractControl, V>
   static bool _containsControl<C extends AbstractControl, V>(
     FormControl<V> control,
     FormArrayState<C, V> state,
-  ) =>
-      state.controls.contains(control);
+  ) => state.controls.contains(control);
 }
 
 extension FormGroupStateSource on FormGroup {
@@ -68,8 +67,13 @@ class _FormArrayStateSource<V>
 }
 
 // ignore: missing_override_of_must_be_overridden
-class _FormGroupStateSource extends _FormCollectionStateSource<FormGroup,
-    Map<String, AbstractControl<Object?>>, Map<String, Object?>> {
+class _FormGroupStateSource
+    extends
+        _FormCollectionStateSource<
+          FormGroup,
+          Map<String, AbstractControl<Object?>>,
+          Map<String, Object?>
+        > {
   _FormGroupStateSource(super.control);
 
   @override

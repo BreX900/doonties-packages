@@ -8,10 +8,7 @@ import 'package:reactive_forms/reactive_forms.dart';
 class ReactiveSaveButton extends SourceConsumerWidget {
   final Future<void> Function()? onSubmit;
 
-  const ReactiveSaveButton({
-    super.key,
-    required this.onSubmit,
-  });
+  const ReactiveSaveButton({super.key, required this.onSubmit});
 
   @override
   Widget build(BuildContext context, ConsumerScope scope) {
@@ -22,8 +19,9 @@ class ReactiveSaveButton extends SourceConsumerWidget {
     final isPristine = scope.watch(field.control.source.pristine);
     if (isPristine) return const SizedBox.shrink();
 
-    final submit =
-        field.control.handleSubmitWith<Future<void> Function()>((submit) async => submit());
+    final submit = field.control.handleSubmitWith<Future<void> Function()>(
+      (submit) async => submit(),
+    );
     return IconButton(
       onPressed: onSubmit != null ? () => submit(onSubmit) : null,
       icon: const Icon(Icons.save),
@@ -34,10 +32,7 @@ class ReactiveSaveButton extends SourceConsumerWidget {
 class ReactiveAddButton extends SourceConsumerWidget {
   final FutureOr<void> Function()? onSubmit;
 
-  const ReactiveAddButton({
-    super.key,
-    required this.onSubmit,
-  });
+  const ReactiveAddButton({super.key, required this.onSubmit});
 
   @override
   Widget build(BuildContext context, ConsumerScope scope) {

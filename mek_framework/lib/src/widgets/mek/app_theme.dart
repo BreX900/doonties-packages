@@ -31,19 +31,13 @@ abstract class MekTheme {
     );
   }
 
-  static ThemeData build({
-    required BuildContext context,
-    ColorScheme? colorScheme,
-  }) {
+  static ThemeData build({required BuildContext context, ColorScheme? colorScheme}) {
     colorScheme ??= buildColorScheme(context);
 
     final platform = defaultTargetPlatform;
     const buttonSize = Size(kMinInteractiveDimension * 2, kMinInteractiveDimension);
 
-    return ThemeData.from(
-      useMaterial3: true,
-      colorScheme: colorScheme,
-    ).copyWith(
+    return ThemeData.from(useMaterial3: true, colorScheme: colorScheme).copyWith(
       canvasColor: colorScheme.surfaceContainerHigh,
       // textTheme: Typography.tall2018.apply(fontSizeFactor: 1.1),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -55,15 +49,9 @@ abstract class MekTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(minimumSize: buttonSize),
       ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(minimumSize: buttonSize),
-      ),
-      listTileTheme: const ListTileThemeData(
-        titleAlignment: ListTileTitleAlignment.center,
-      ),
-      popupMenuTheme: const PopupMenuThemeData(
-        position: PopupMenuPosition.under,
-      ),
+      textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(minimumSize: buttonSize)),
+      listTileTheme: const ListTileThemeData(titleAlignment: ListTileTitleAlignment.center),
+      popupMenuTheme: const PopupMenuThemeData(position: PopupMenuPosition.under),
       appBarTheme: AppBarTheme(
         centerTitle: switch (platform) {
           TargetPlatform.android || TargetPlatform.iOS => false,
@@ -72,9 +60,7 @@ abstract class MekTheme {
         backgroundColor: colorScheme.surfaceContainer,
         surfaceTintColor: colorScheme.surfaceContainer,
       ),
-      bannerTheme: MaterialBannerThemeData(
-        backgroundColor: colorScheme.secondaryContainer,
-      ),
+      bannerTheme: MaterialBannerThemeData(backgroundColor: colorScheme.secondaryContainer),
       inputDecorationTheme: const InputDecorationTheme(
         errorMaxLines: 5,
         contentPadding: EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 8.0),
@@ -84,8 +70,9 @@ abstract class MekTheme {
       dialogTheme: DialogThemeData(backgroundColor: colorScheme.surfaceContainer),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
-          TargetPlatform.iOS:
-              kIsWeb ? _HorizontalPageTransitionsBuilder() : CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: kIsWeb
+              ? _HorizontalPageTransitionsBuilder()
+              : CupertinoPageTransitionsBuilder(),
         },
       ),
       snackBarTheme: SnackBarThemeData(
@@ -109,9 +96,7 @@ abstract class MekTheme {
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         linearTrackColor: Colors.transparent,
       ),
-      sliderTheme: SliderThemeData(
-        inactiveTrackColor: colorScheme.primary.withValues(alpha: 0.2),
-      ),
+      sliderTheme: SliderThemeData(inactiveTrackColor: colorScheme.primary.withValues(alpha: 0.2)),
     );
   }
 }
@@ -145,10 +130,7 @@ class _HorizontalPageTransitionsBuilder extends PageTransitionsBuilder {
     final primaryAnimation = CurvedAnimation(
       parent: animation,
       curve: Curves.fastEaseInToSlowEaseOut,
-    ).drive(Tween<Offset>(
-      begin: const Offset(1.0, 0.0),
-      end: Offset.zero,
-    ));
+    ).drive(Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero));
 
     return SlideTransition(
       position: primaryAnimation,

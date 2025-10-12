@@ -24,11 +24,7 @@ extension AbstractControlExtensions<T> on AbstractControl<T> {
     }
   }
 
-  void markAsReset({
-    bool updateParent = true,
-    bool removeFocus = false,
-    bool? disabled,
-  }) {
+  void markAsReset({bool updateParent = true, bool removeFocus = false, bool? disabled}) {
     markAsPristine(updateParent: updateParent);
     markAsUntouched(updateParent: updateParent);
     if (disabled != null) (disabled ? markAsDisabled : markAsEnabled)(emitEvent: false);
@@ -38,13 +34,7 @@ extension AbstractControlExtensions<T> on AbstractControl<T> {
   @Deprecated('In favour of markAsReset')
   void markAsClean({bool? disabled}) => markAsReset(disabled: disabled);
 
-  void markAs({
-    bool? disabled,
-    bool? pristine,
-    bool? touched,
-    bool? allTouched,
-    bool? focus,
-  }) {
+  void markAs({bool? disabled, bool? pristine, bool? touched, bool? allTouched, bool? focus}) {
     if (pristine != null) (pristine ? markAsPristine : markAsDirty)();
     if (touched != null) (touched ? markAsTouched : markAsUntouched)();
     if (disabled != null) (disabled ? markAsDisabled : markAsEnabled)();
@@ -102,10 +92,7 @@ extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
     };
   }
 
-  void Function() handleSubmitAsync(
-    Future<bool?> Function() submit, {
-    bool keepDisabled = false,
-  }) {
+  void Function() handleSubmitAsync(Future<bool?> Function() submit, {bool keepDisabled = false}) {
     return () async {
       if (!_canSubmit()) return;
       markAsDisabled();
@@ -221,14 +208,18 @@ class FormMap<C extends AbstractControl<V>, V> extends FormGroup {
   set value(covariant Map<String, V?>? value) => super.value = value;
 
   @override
-  void updateValue(covariant Map<String, V?>? value,
-          {bool updateParent = true, bool emitEvent = true}) =>
-      super.updateValue(value, updateParent: updateParent, emitEvent: emitEvent);
+  void updateValue(
+    covariant Map<String, V?>? value, {
+    bool updateParent = true,
+    bool emitEvent = true,
+  }) => super.updateValue(value, updateParent: updateParent, emitEvent: emitEvent);
 
   @override
-  void patchValue(covariant Map<String, V?>? value,
-          {bool updateParent = true, bool emitEvent = true}) =>
-      super.patchValue(value, updateParent: updateParent, emitEvent: emitEvent);
+  void patchValue(
+    covariant Map<String, V?>? value, {
+    bool updateParent = true,
+    bool emitEvent = true,
+  }) => super.patchValue(value, updateParent: updateParent, emitEvent: emitEvent);
 
   @override
   late final Stream<List<C>> collectionChanges = super.collectionChanges.map((e) => e.cast());

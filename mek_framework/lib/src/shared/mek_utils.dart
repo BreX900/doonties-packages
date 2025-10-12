@@ -7,10 +7,7 @@ import 'package:flutter/material.dart';
 typedef ProgressEmitter = void Function(double value);
 
 abstract final class MekUtils {
-  static void showErrorSnackBar({
-    required BuildContext context,
-    required Widget description,
-  }) {
+  static void showErrorSnackBar({required BuildContext context, required Widget description}) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -24,19 +21,21 @@ abstract final class MekUtils {
     );
 
     late final ScaffoldFeatureController<SnackBar, SnackBarClosedReason> controller;
-    controller = scaffoldMessenger.showSnackBar(SnackBar(
-      padding: EdgeInsets.zero,
-      duration: const Duration(minutes: 5),
-      showCloseIcon: false,
-      closeIconColor: foregroundColor,
-      backgroundColor: backgroundColor,
-      onVisible: () async => progressController.forward().whenComplete(controller.close),
-      content: _ErrorSnackBarContent(
-        autoCloseController: progressController,
-        foregroundColor: foregroundColor,
-        child: description,
+    controller = scaffoldMessenger.showSnackBar(
+      SnackBar(
+        padding: EdgeInsets.zero,
+        duration: const Duration(minutes: 5),
+        showCloseIcon: false,
+        closeIconColor: foregroundColor,
+        backgroundColor: backgroundColor,
+        onVisible: () async => progressController.forward().whenComplete(controller.close),
+        content: _ErrorSnackBarContent(
+          autoCloseController: progressController,
+          foregroundColor: foregroundColor,
+          child: description,
+        ),
       ),
-    ));
+    );
 
     unawaited(controller.closed.whenComplete(progressController.dispose));
   }
@@ -80,17 +79,19 @@ abstract final class MekUtils {
   ) async {
     final progresses = <int, double>{};
     var elementsCount = 0;
-    await Future.wait(elements.mapIndexed((index, element) async {
-      elementsCount += 1;
+    await Future.wait(
+      elements.mapIndexed((index, element) async {
+        elementsCount += 1;
 
-      void emitTaskProgress(double value) {
-        progresses[index] = value;
-        progressEmitter(progresses.values.sum / elementsCount);
-      }
+        void emitTaskProgress(double value) {
+          progresses[index] = value;
+          progressEmitter(progresses.values.sum / elementsCount);
+        }
 
-      await tasker(element, emitTaskProgress);
-      emitTaskProgress(1.0);
-    }));
+        await tasker(element, emitTaskProgress);
+        emitTaskProgress(1.0);
+      }),
+    );
   }
 
   static RelativeRect getMenuPosition(BuildContext context, Offset offset) {
@@ -98,8 +99,10 @@ abstract final class MekUtils {
     final renderBox = context.findRenderObject()! as RenderBox;
 
     final startBoxOffset = renderBox.localToGlobal(offset, ancestor: overlay);
-    final endBoxOffset =
-        renderBox.localToGlobal(renderBox.size.bottomRight(Offset.zero), ancestor: overlay);
+    final endBoxOffset = renderBox.localToGlobal(
+      renderBox.size.bottomRight(Offset.zero),
+      ancestor: overlay,
+    );
 
     return RelativeRect.fromLTRB(
       startBoxOffset.dx,
@@ -171,10 +174,7 @@ class _ErrorSnackBarContent extends StatelessWidget {
                     child: child,
                   ),
                 ),
-                IconButton(
-                  onPressed: () => _close(context),
-                  icon: const Icon(Icons.close),
-                ),
+                IconButton(onPressed: () => _close(context), icon: const Icon(Icons.close)),
               ],
             ),
           ),

@@ -45,9 +45,16 @@ extension DateTimeExtensions on DateTime {
     int second = 0,
     int millisecond = 0,
     int microsecond = 0,
-  }) =>
-      (isUtc ? DateTime.utc : DateTime.new)(year ?? this.year, month ?? this.month, day ?? this.day,
-          hour, minute, second, millisecond, microsecond);
+  }) => (isUtc ? DateTime.utc : DateTime.new)(
+    year ?? this.year,
+    month ?? this.month,
+    day ?? this.day,
+    hour,
+    minute,
+    second,
+    millisecond,
+    microsecond,
+  );
 
   /// The day of the week [monday]..[sunday].
   ///
@@ -71,15 +78,15 @@ extension DateTimeExtensions on DateTime {
   }
 
   DateTime copyAdding({int? years, int? months, int? days}) => copyWith(
-        year: years != null ? year + years : null,
-        month: months != null ? month + months : null,
-        day: days != null ? day + days : null,
-      );
+    year: years != null ? year + years : null,
+    month: months != null ? month + months : null,
+    day: days != null ? day + days : null,
+  );
 
   DateTime copySubtracting({int? years, int? months}) => copyWith(
-        year: years != null ? year - years : null,
-        month: months != null ? month - months : null,
-      );
+    year: years != null ? year - years : null,
+    month: months != null ? month - months : null,
+  );
 
   @Deprecated('In favour of inMonths')
   double differenceMonths(DateTime other) {
@@ -93,10 +100,23 @@ extension DateTimeExtensions on DateTime {
   }
 
   double get inMonths {
-    final firstMonthDate =
-        copyWith(day: 1, hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0);
+    final firstMonthDate = copyWith(
+      day: 1,
+      hour: 0,
+      minute: 0,
+      second: 0,
+      millisecond: 0,
+      microsecond: 0,
+    );
     final lastMonthDate = copyWith(
-        month: month + 1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: -1);
+      month: month + 1,
+      day: 1,
+      hour: 0,
+      minute: 0,
+      second: 0,
+      millisecond: 0,
+      microsecond: -1,
+    );
     final distance = lastMonthDate.difference(firstMonthDate);
     final gap = difference(firstMonthDate);
 
@@ -117,8 +137,13 @@ extension DurationExtensions on Duration {
   int get seconds => inSeconds % Duration.secondsPerMinute;
   int get milliseconds => inMilliseconds % Duration.millisecondsPerSecond;
 
-  String toShortString(
-      {bool? days, bool? hours, bool? minutes, bool? seconds, bool? milliseconds}) {
+  String toShortString({
+    bool? days,
+    bool? hours,
+    bool? minutes,
+    bool? seconds,
+    bool? milliseconds,
+  }) {
     return [
       if (days ?? this.days > 0) '${this.days}d',
       if (hours ?? this.hours > 0) '${this.hours}h',
@@ -288,11 +313,13 @@ FutureOr<List<T>> waitAll<T>(Iterable<FutureOr<T>> entries) {
       values.add(null);
       final pos = index;
       remaining++;
-      unawaited(futureOrValue.then((value) {
-        values[pos] = value;
-        remaining--;
-        if (remaining == 0) xCompleter.complete(List<T>.from(values));
-      }, onError: xCompleter.completeError));
+      unawaited(
+        futureOrValue.then((value) {
+          values[pos] = value;
+          remaining--;
+          if (remaining == 0) xCompleter.complete(List<T>.from(values));
+        }, onError: xCompleter.completeError),
+      );
     }
     index++;
   }

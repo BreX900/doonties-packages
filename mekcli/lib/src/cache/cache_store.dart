@@ -22,7 +22,7 @@ class CacheDocument {
       'url': url,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
-      'data': data
+      'data': data,
     };
   }
 
@@ -94,8 +94,10 @@ class MultiCacheStore implements CacheStore {
 
   @override
   Future<void> write(Uri uri, Object? data) async {
-    await Future.wait(_stores.map((store) async {
-      await store.write(uri, data);
-    }));
+    await Future.wait(
+      _stores.map((store) async {
+        await store.write(uri, data);
+      }),
+    );
   }
 }

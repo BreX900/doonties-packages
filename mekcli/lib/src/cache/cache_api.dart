@@ -16,8 +16,9 @@ class CacheApi {
 
   CacheApi(this.store);
 
-  static Map<String, dynamic> extra([DateTime? validity]) =>
-      {_validityExtraKey: validity ?? DateTime(0)};
+  static Map<String, dynamic> extra([DateTime? validity]) => {
+    _validityExtraKey: validity ?? DateTime(0),
+  };
 
   Future<CacheResponse?> read(Map<String, dynamic> extra, Uri uri) async {
     final validity = extra[_validityExtraKey] as DateTime?;

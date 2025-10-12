@@ -34,9 +34,6 @@ class _MekReactiveFormConfigState extends State<MekReactiveFormConfig> {
 
   @override
   Widget build(BuildContext context) {
-    return ReactiveFormConfig(
-      validationMessages: _validationMessages,
-      child: widget.child,
-    );
+    return ReactiveFormConfig(validationMessages: _validationMessages, child: widget.child);
   }
 }

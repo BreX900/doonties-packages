@@ -8,9 +8,6 @@ class Surface extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Material(
-      color: theme.scaffoldBackgroundColor,
-      child: child,
-    );
+    return Material(color: theme.scaffoldBackgroundColor, child: child);
   }
 }

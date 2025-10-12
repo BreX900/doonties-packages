@@ -8,11 +8,7 @@ extension InheritedValueBuildContextExtension on BuildContext {
 class InheritedValue<T> extends InheritedWidget implements SingleChildWidget {
   final T value;
 
-  const InheritedValue({
-    super.key,
-    required this.value,
-    super.child = const SizedBox.shrink(),
-  });
+  const InheritedValue({super.key, required this.value, super.child = const SizedBox.shrink()});
 
   static T of<T>(BuildContext context) {
     final widget = _maybeWidgetOf<T>(context);

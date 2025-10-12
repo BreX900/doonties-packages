@@ -24,10 +24,12 @@ class PopupMenuArea<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onSecondaryTapDown:
-          items.isNotEmpty ? (details) => _show(context, details.globalPosition) : null,
-      onLongPressStart:
-          items.isNotEmpty ? (details) => _show(context, details.globalPosition) : null,
+      onSecondaryTapDown: items.isNotEmpty
+          ? (details) => _show(context, details.globalPosition)
+          : null,
+      onLongPressStart: items.isNotEmpty
+          ? (details) => _show(context, details.globalPosition)
+          : null,
       child: child,
     );
   }

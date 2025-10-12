@@ -91,10 +91,10 @@ class _NumericTextInputFormatter implements TextInputFormatter {
       selection: text.length == newValue.text.length
           ? newValue.selection
           : text.length - 1 == newValue.text.length
-              ? TextSelection.collapsed(offset: newValue.selection.baseOffset + 1)
-              : text.length + 1 == newValue.text.length
-                  ? TextSelection.collapsed(offset: newValue.selection.baseOffset - 1)
-                  : TextSelection.collapsed(offset: text.length),
+          ? TextSelection.collapsed(offset: newValue.selection.baseOffset + 1)
+          : text.length + 1 == newValue.text.length
+          ? TextSelection.collapsed(offset: newValue.selection.baseOffset - 1)
+          : TextSelection.collapsed(offset: text.length),
     );
   }
 }
@@ -107,7 +107,7 @@ class _EmailTextFieldVariant extends TextFieldVariant {
     return data.mergeWith(
       inputFormatters: [
         FilteringTextInputFormatter.singleLineFormatter,
-        FilteringTextInputFormatter.deny(' ')
+        FilteringTextInputFormatter.deny(' '),
       ],
     );
   }
@@ -124,7 +124,7 @@ class _PasswordTextFieldVariant extends TextFieldVariant {
       autocorrect: false,
       inputFormatters: [
         FilteringTextInputFormatter.singleLineFormatter,
-        FilteringTextInputFormatter.deny(' ')
+        FilteringTextInputFormatter.deny(' '),
       ],
     );
   }
@@ -141,7 +141,7 @@ class _SecretTextFieldType extends TextFieldVariant {
       autocorrect: false,
       inputFormatters: [
         FilteringTextInputFormatter.singleLineFormatter,
-        FilteringTextInputFormatter.deny(' ')
+        FilteringTextInputFormatter.deny(' '),
       ],
     );
   }

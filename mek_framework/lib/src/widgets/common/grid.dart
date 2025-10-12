@@ -5,11 +5,7 @@ class Grid extends StatelessWidget {
   final int crossAxisCount;
   final List<Widget> children;
 
-  const Grid({
-    super.key,
-    required this.crossAxisCount,
-    required this.children,
-  });
+  const Grid({super.key, required this.crossAxisCount, required this.children});
 
   @override
   Widget build(BuildContext context) {

@@ -7,9 +7,7 @@ import 'package:mek/src/form/validation/validation_translator.dart';
 class ValidationLocalizations extends LocalizationsDelegate<ValidationTranslations> {
   final ValidationTranslator translator;
 
-  const ValidationLocalizations({
-    this.translator = const ValidationTranslator(),
-  });
+  const ValidationLocalizations({this.translator = const ValidationTranslator()});
 
   @override
   bool isSupported(Locale locale) {

@@ -104,8 +104,10 @@ class _CronJob extends CronJob {
       if (startAt.isBefore(now)) startAt = startAt.copyAdding(days: 1);
 
       final wait = startAt.difference(now);
-      lg.config('Scheduled at ${startAt.toSimpleString()} and start '
-          'in ${wait.toShortString(milliseconds: false)}...\n');
+      lg.config(
+        'Scheduled at ${startAt.toSimpleString()} and start '
+        'in ${wait.toShortString(milliseconds: false)}...\n',
+      );
       await Future<void>.delayed(wait);
 
       await _run(runner);
@@ -128,7 +130,8 @@ extension on DateTime {
 abstract class AppMiddlewareBase {
   const AppMiddlewareBase();
 
-  AppHandler call(AppHandler handler) => (ref) => onCall(ref, handler);
+  AppHandler call(AppHandler handler) =>
+      (ref) => onCall(ref, handler);
 
   Future<void> onCall(ProviderRef ref, AppHandler handler);
 }
@@ -145,8 +148,10 @@ class TimerMiddleware extends AppMiddlewareBase {
       await handler(ref);
     } finally {
       final completedAt = DateTime.timestamp();
-      lg.config('Finished at ${completedAt.toSimpleString()} '
-          'in ${completedAt.difference(startedAt).toShortString()}');
+      lg.config(
+        'Finished at ${completedAt.toSimpleString()} '
+        'in ${completedAt.difference(startedAt).toShortString()}',
+      );
     }
   }
 }

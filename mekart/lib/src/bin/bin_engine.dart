@@ -1,5 +1,6 @@
 import 'package:mekart/src/bin/_bin_io_engine.dart'
-    if (dart.library.html) 'package:mekart/src/bin/_bin_web_engine.dart' as platform;
+    if (dart.library.html) 'package:mekart/src/bin/_bin_web_engine.dart'
+    as platform;
 
 abstract interface class BinEngine {
   static late BinEngine instance;

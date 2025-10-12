@@ -24,70 +24,68 @@ class ReactiveDecoratedSlider<T extends num> extends ReactiveFocusableFormField<
     Color? secondaryActiveColor,
     WidgetStateProperty<Color?>? overlayColor,
     InputDecoration decoration = const InputDecoration(),
-  })  : assert(decoration.contentPadding == null),
-        super(
-          builder: (field) {
-            field as _ReactiveDecoratedSliderState;
+  }) : assert(decoration.contentPadding == null),
+       super(
+         builder: (field) {
+           field as _ReactiveDecoratedSliderState;
 
-            var value = field.value;
-            if (value == null) {
-              value = min;
-            } else if (value < min) {
-              value = min;
-            } else if (value > max) {
-              value = max;
-            }
+           var value = field.value;
+           if (value == null) {
+             value = min;
+           } else if (value < min) {
+             value = min;
+           } else if (value > max) {
+             value = max;
+           }
 
-            final slider = Slider(
-              value: value,
-              min: min,
-              max: max,
-              divisions: divisions,
-              secondaryTrackValue: secondaryTrackValue,
-              secondaryActiveColor: secondaryActiveColor,
-              overlayColor: overlayColor,
-              label: labelBuilder != null ? labelBuilder(field.value ?? min) : null,
-              activeColor: activeColor,
-              inactiveColor: inactiveColor,
-              thumbColor: thumbColor,
-              semanticFormatterCallback: semanticFormatterCallback,
-              mouseCursor: mouseCursor,
-              autofocus: autofocus,
-              focusNode: field.focusNode,
-              onChangeEnd:
-                  onChangeEnd != null ? (_) => onChangeEnd(field.control as FormControl<T>) : null,
-              onChangeStart: onChangeStart != null
-                  ? (_) => onChangeStart(field.control as FormControl<T>)
-                  : null,
-              onChanged: field.control.enabled
-                  ? (value) {
-                      field.didChange(value);
-                      onChanged?.call(field.control as FormControl<T>);
-                    }
-                  : null,
-            );
+           final slider = Slider(
+             value: value,
+             min: min,
+             max: max,
+             divisions: divisions,
+             secondaryTrackValue: secondaryTrackValue,
+             secondaryActiveColor: secondaryActiveColor,
+             overlayColor: overlayColor,
+             label: labelBuilder != null ? labelBuilder(field.value ?? min) : null,
+             activeColor: activeColor,
+             inactiveColor: inactiveColor,
+             thumbColor: thumbColor,
+             semanticFormatterCallback: semanticFormatterCallback,
+             mouseCursor: mouseCursor,
+             autofocus: autofocus,
+             focusNode: field.focusNode,
+             onChangeEnd: onChangeEnd != null
+                 ? (_) => onChangeEnd(field.control as FormControl<T>)
+                 : null,
+             onChangeStart: onChangeStart != null
+                 ? (_) => onChangeStart(field.control as FormControl<T>)
+                 : null,
+             onChanged: field.control.enabled
+                 ? (value) {
+                     field.didChange(value);
+                     onChanged?.call(field.control as FormControl<T>);
+                   }
+                 : null,
+           );
 
-            return InputDecorator(
-              isFocused: field.hasFocus,
-              decoration: decoration.copyWith(
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                focusedErrorBorder: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                contentPadding: const EdgeInsets.only(top: 8.0),
-                isDense: true,
-                enabled: decoration.enabled && field.control.enabled,
-                errorText: field.errorText,
-              ),
-              child: SizedBox(
-                height: 32.0,
-                child: slider,
-              ),
-            );
-          },
-        );
+           return InputDecorator(
+             isFocused: field.hasFocus,
+             decoration: decoration.copyWith(
+               border: InputBorder.none,
+               focusedBorder: InputBorder.none,
+               focusedErrorBorder: InputBorder.none,
+               enabledBorder: InputBorder.none,
+               disabledBorder: InputBorder.none,
+               errorBorder: InputBorder.none,
+               contentPadding: const EdgeInsets.only(top: 8.0),
+               isDense: true,
+               enabled: decoration.enabled && field.control.enabled,
+               errorText: field.errorText,
+             ),
+             child: SizedBox(height: 32.0, child: slider),
+           );
+         },
+       );
   @override
   ReactiveFormFieldState<num, double> createState() => _ReactiveDecoratedSliderState();
 }

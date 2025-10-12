@@ -11,8 +11,8 @@ class _BinIoEngine implements BinEngine {
   final _controller = StreamController<MapEntry<String, String?>>.broadcast(sync: true);
 
   _BinIoEngine({required String? directoryPath})
-      : assert(directoryPath != null, 'Directory Path must be passed!'),
-        _directoryPath = directoryPath!;
+    : assert(directoryPath != null, 'Directory Path must be passed!'),
+      _directoryPath = directoryPath!;
 
   @override
   Stream<MapEntry<String, String?>> get onChanges => _controller.stream;

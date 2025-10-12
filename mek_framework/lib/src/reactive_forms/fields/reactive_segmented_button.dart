@@ -8,23 +8,24 @@ class ReactiveChipsButton<T> extends ReactiveFormField<T, T> {
     required FormControl<T> super.formControl,
     required List<ButtonSegment<T>> segments,
   }) : super(
-          builder: (field) {
-            return Row(
-              children: segments.map((e) {
-                return ActionChip.elevated(
-                  // selected: e.value == field.value,
-                  // onSelected:
-                  //     e.value != field.value && e.enabled ? (_) => field.didChange(e.value) : null,
-                  onPressed:
-                      e.value != field.value && e.enabled ? () => field.didChange(e.value) : null,
-                  tooltip: e.tooltip,
-                  avatar: e.icon,
-                  label: e.label ?? const SizedBox.shrink(),
-                );
-              }).toList(),
-            );
-          },
-        );
+         builder: (field) {
+           return Row(
+             children: segments.map((e) {
+               return ActionChip.elevated(
+                 // selected: e.value == field.value,
+                 // onSelected:
+                 //     e.value != field.value && e.enabled ? (_) => field.didChange(e.value) : null,
+                 onPressed: e.value != field.value && e.enabled
+                     ? () => field.didChange(e.value)
+                     : null,
+                 tooltip: e.tooltip,
+                 avatar: e.icon,
+                 label: e.label ?? const SizedBox.shrink(),
+               );
+             }).toList(),
+           );
+         },
+       );
 }
 
 class ReactiveSegmentedButton<T> extends ReactiveFormField<Object?, Set<T?>> {
@@ -43,16 +44,16 @@ class ReactiveSegmentedButton<T> extends ReactiveFormField<Object?, Set<T?>> {
     bool showSelectedIcon = true,
     Widget? selectedIcon,
   }) : this._(
-          key: key,
-          formControl: formControl,
-          emptySelectionAllowed: emptySelectionAllowed,
-          multiSelectionEnabled: false,
-          segments: segments,
-          expandedInsets: expandedInsets,
-          style: style,
-          showSelectedIcon: showSelectedIcon,
-          selectedIcon: selectedIcon,
-        );
+         key: key,
+         formControl: formControl,
+         emptySelectionAllowed: emptySelectionAllowed,
+         multiSelectionEnabled: false,
+         segments: segments,
+         expandedInsets: expandedInsets,
+         style: style,
+         showSelectedIcon: showSelectedIcon,
+         selectedIcon: selectedIcon,
+       );
 
   ReactiveSegmentedButton.multi({
     Key? key,
@@ -66,16 +67,16 @@ class ReactiveSegmentedButton<T> extends ReactiveFormField<Object?, Set<T?>> {
     bool showSelectedIcon = true,
     Widget? selectedIcon,
   }) : this._(
-          key: key,
-          formControl: formControl,
-          emptySelectionAllowed: emptySelectionAllowed,
-          multiSelectionEnabled: true,
-          segments: segments,
-          expandedInsets: expandedInsets,
-          style: style,
-          showSelectedIcon: showSelectedIcon,
-          selectedIcon: selectedIcon,
-        );
+         key: key,
+         formControl: formControl,
+         emptySelectionAllowed: emptySelectionAllowed,
+         multiSelectionEnabled: true,
+         segments: segments,
+         expandedInsets: expandedInsets,
+         style: style,
+         showSelectedIcon: showSelectedIcon,
+         selectedIcon: selectedIcon,
+       );
 
   ReactiveSegmentedButton._({
     super.key,
@@ -89,23 +90,23 @@ class ReactiveSegmentedButton<T> extends ReactiveFormField<Object?, Set<T?>> {
     bool showSelectedIcon = true,
     Widget? selectedIcon,
   }) : super(
-          builder: (field) {
-            final value = field.value ?? <T?>{};
-            final hasNullItem = segments.any((e) => e.value == null);
+         builder: (field) {
+           final value = field.value ?? <T?>{};
+           final hasNullItem = segments.any((e) => e.value == null);
 
-            return SegmentedButton<T?>(
-              selected: value.isEmpty && hasNullItem ? <T?>{null} : value,
-              onSelectionChanged: field.didChange,
-              segments: segments,
-              multiSelectionEnabled: multiSelectionEnabled,
-              emptySelectionAllowed: emptySelectionAllowed || (!hasNullItem && value.isEmpty),
-              expandedInsets: expandedInsets,
-              style: style,
-              showSelectedIcon: showSelectedIcon,
-              selectedIcon: selectedIcon,
-            );
-          },
-        );
+           return SegmentedButton<T?>(
+             selected: value.isEmpty && hasNullItem ? <T?>{null} : value,
+             onSelectionChanged: field.didChange,
+             segments: segments,
+             multiSelectionEnabled: multiSelectionEnabled,
+             emptySelectionAllowed: emptySelectionAllowed || (!hasNullItem && value.isEmpty),
+             expandedInsets: expandedInsets,
+             style: style,
+             showSelectedIcon: showSelectedIcon,
+             selectedIcon: selectedIcon,
+           );
+         },
+       );
 
   @override
   ReactiveFormFieldState<Object?, Set<T?>> createState() => _ReactiveSegmentedButtonState<T>();

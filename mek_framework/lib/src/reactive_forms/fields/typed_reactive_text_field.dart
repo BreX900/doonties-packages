@@ -85,9 +85,7 @@ class _ReactiveTypedTextFieldState<T> extends State<ReactiveTypedTextField<T>> {
     if (value.text == text) return;
     _controller.value = TextEditingValue(
       text: text,
-      selection: TextSelection.collapsed(
-        offset: min(value.selection.baseOffset, text.length),
-      ),
+      selection: TextSelection.collapsed(offset: min(value.selection.baseOffset, text.length)),
     );
   }
 

@@ -29,24 +29,28 @@ class _SignInScreenState extends SourceConsumerState<SignInScreenBase> {
 
   late final _form = FormArray([_emailFb, _passwordFb]);
 
-  late final _signIn = scope.mutation((ref, None _) async {
-    await UserAuthProviders.signIn(
-      email: _emailFb.value,
-      password: _passwordFb.value,
-    );
-  }, onError: (_, error) {
-    widget.asyncHandler.showError(context, error);
-  });
+  late final _signIn = scope.mutation(
+    (ref, None _) async {
+      await UserAuthProviders.signIn(email: _emailFb.value, password: _passwordFb.value);
+    },
+    onError: (_, error) {
+      widget.asyncHandler.showError(context, error);
+    },
+  );
 
-  late final _sendPasswordResetEmail = scope.mutation((ref, None _) async {
-    await UserAuthProviders.sendPasswordResetEmail(_emailFb.value);
-  }, onError: (_, error) {
-    widget.asyncHandler.showError(context, error);
-  }, onSuccess: (_, __) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('Sent password reset email to ${_emailFb.value}!'),
-    ));
-  });
+  late final _sendPasswordResetEmail = scope.mutation(
+    (ref, None _) async {
+      await UserAuthProviders.sendPasswordResetEmail(_emailFb.value);
+    },
+    onError: (_, error) {
+      widget.asyncHandler.showError(context, error);
+    },
+    onSuccess: (_, __) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Sent password reset email to ${_emailFb.value}!')));
+    },
+  );
 
   @override
   void dispose() {
@@ -92,9 +96,7 @@ class _SignInScreenState extends SourceConsumerState<SignInScreenBase> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        title: const Text('Sign In'),
-      ),
+      appBar: AppBar(title: const Text('Sign In')),
       body: SafeArea(
         minimum: const EdgeInsets.all(16.0),
         child: Column(

@@ -5,11 +5,7 @@ class PopupMenuTileBar extends PopupMenuEntry<Never> {
   final double height;
   final Widget title;
 
-  const PopupMenuTileBar({
-    super.key,
-    this.height = 32.0,
-    required this.title,
-  });
+  const PopupMenuTileBar({super.key, this.height = 32.0, required this.title});
 
   @override
   bool represents(void value) => false;
@@ -25,10 +21,7 @@ class _PopupMenuDecorationState extends State<PopupMenuTileBar> {
       height: widget.height,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: widget.title,
-        ),
+        child: Align(alignment: AlignmentDirectional.centerStart, child: widget.title),
       ),
     );
   }

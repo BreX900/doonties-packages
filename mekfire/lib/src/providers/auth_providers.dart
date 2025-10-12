@@ -11,10 +11,7 @@ abstract final class UserAuthProviders {
 
   static Stream<UserAuthDto?> get onCurrentChange => UserAuthRepository.instance.onChange;
 
-  static Future<void> signIn({
-    required String email,
-    required String password,
-  }) async {
+  static Future<void> signIn({required String email, required String password}) async {
     await UserAuthRepository.instance.signIn(email: email, password: password);
   }
 

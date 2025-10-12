@@ -20,11 +20,14 @@ sealed class Either<L, R> {
     FutureOr<TL> Function(L value) left,
     FutureOr<TR> Function(R value) right,
   ) {
-    return when((value) async {
-      return Either.left(await left(value));
-    }, (value) async {
-      return Either.right(await right(value));
-    });
+    return when(
+      (value) async {
+        return Either.left(await left(value));
+      },
+      (value) async {
+        return Either.right(await right(value));
+      },
+    );
   }
 }
 

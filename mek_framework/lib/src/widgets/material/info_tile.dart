@@ -42,10 +42,7 @@ class InfoView extends StatelessWidget {
               ),
               const SizedBox(height: 8.0),
               if (description != null)
-                DefaultTextStyle.merge(
-                  textAlign: TextAlign.center,
-                  child: description!,
-                ),
+                DefaultTextStyle.merge(textAlign: TextAlign.center, child: description!),
               if (actions.isNotEmpty) ...[
                 const SizedBox(height: 16.0),
                 Column(
@@ -53,7 +50,7 @@ class InfoView extends StatelessWidget {
                     if (index == 0) yield const SizedBox(height: 16.0);
                     yield child;
                   }).toList(),
-                )
+                ),
               ],
             ],
           ),

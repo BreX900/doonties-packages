@@ -8,20 +8,20 @@ class ReactiveFormFieldDecorated<T> extends ReactiveFocusableFormField<T, T> {
     InputDecoration decoration = const InputDecoration(),
     required ReactiveFormFieldBuilder<T, T> builder,
   }) : super(
-          builder: (field) {
-            final child = builder(field);
-            final styledDecoration = decoration.applyDefaults(const InputDecorationTheme(
-              contentPadding: EdgeInsets.zero,
-            ));
+         builder: (field) {
+           final child = builder(field);
+           final styledDecoration = decoration.applyDefaults(
+             const InputDecorationTheme(contentPadding: EdgeInsets.zero),
+           );
 
-            return Focus(
-              focusNode: field.focusNode,
-              child: InputDecorator(
-                isFocused: field.focusNode?.hasFocus ?? false,
-                decoration: styledDecoration.copyWith(errorText: field.errorText),
-                child: child,
-              ),
-            );
-          },
-        );
+           return Focus(
+             focusNode: field.focusNode,
+             child: InputDecorator(
+               isFocused: field.focusNode?.hasFocus ?? false,
+               decoration: styledDecoration.copyWith(errorText: field.errorText),
+               child: child,
+             ),
+           );
+         },
+       );
 }

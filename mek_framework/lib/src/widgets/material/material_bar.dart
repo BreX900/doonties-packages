@@ -10,17 +10,11 @@ class MaterialBar extends StatefulWidget {
 
   final Widget child;
 
-  const MaterialBar.primary({
-    super.key,
-    this.forceElevated,
-    required this.child,
-  }) : _variant = _MaterialBarVariant.primary;
+  const MaterialBar.primary({super.key, this.forceElevated, required this.child})
+    : _variant = _MaterialBarVariant.primary;
 
-  const MaterialBar.secondary({
-    super.key,
-    this.forceElevated,
-    required this.child,
-  }) : _variant = _MaterialBarVariant.secondary;
+  const MaterialBar.secondary({super.key, this.forceElevated, required this.child})
+    : _variant = _MaterialBarVariant.secondary;
 
   @override
   State<MaterialBar> createState() => _MaterialBarState();

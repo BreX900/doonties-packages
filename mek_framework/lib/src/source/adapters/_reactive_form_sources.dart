@@ -147,8 +147,12 @@ class _FormControlStateSource<V>
   }
 }
 
-abstract class _AbstractControlStateSourceBase<TControl extends AbstractControl<Object?>,
-    TState extends AbstractControlState<Object?>> extends Source<TState> with EquatableMixin {
+abstract class _AbstractControlStateSourceBase<
+  TControl extends AbstractControl<Object?>,
+  TState extends AbstractControlState<Object?>
+>
+    extends Source<TState>
+    with EquatableMixin {
   final TControl control;
 
   _AbstractControlStateSourceBase(this.control);

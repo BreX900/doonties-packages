@@ -61,10 +61,7 @@ class _LogReporter {
       );
     } else if (error is FlutterErrorDetails) {
       final entry = _mapErrorAndStackTrace(error.exception, error.stack ?? StackTrace.current);
-      final details = error.copyWith(
-        exception: entry.error,
-        stack: entry.stackTrace,
-      );
+      final details = error.copyWith(exception: entry.error, stack: entry.stackTrace);
       FlutterError.dumpErrorToConsole(forceReport: true, details);
     } else {
       final entry = _mapErrorAndStackTrace(record.error!, record.stackTrace!);
@@ -86,10 +83,7 @@ class _LogReporter {
     if (error == null) {
       await crashlytics.log('[${record.level}] ${record.time}: ${record.message}');
     } else if (error is FlutterErrorDetails) {
-      await crashlytics.reportFlutterError(
-        message: record.message,
-        error: error,
-      );
+      await crashlytics.reportFlutterError(message: record.message, error: error);
     } else {
       await crashlytics.reportError(
         message: record.message,

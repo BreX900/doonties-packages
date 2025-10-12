@@ -19,12 +19,7 @@ class MekRow {
   bool get isSelected => false;
   bool get isDisabled => false;
 
-  const MekRow({
-    this.onTap,
-    this.onDoubleTap,
-    this.onSecondaryTap,
-    required this.children,
-  });
+  const MekRow({this.onTap, this.onDoubleTap, this.onSecondaryTap, required this.children});
 
   bool get hasGestures => onTap != null || onDoubleTap != null || onSecondaryTap != null;
 }
@@ -46,39 +41,41 @@ class MekTable extends StatelessWidget {
   final List<Widget> columns;
   final List<MekRow> rows;
 
-  const MekTable({
-    super.key,
-    required this.columns,
-    required this.rows,
-  });
+  const MekTable({super.key, required this.columns, required this.rows});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final dataTableTheme = DataTableTheme.of(context);
 
-    final effectiveHorizontalMargin = dataTableTheme.horizontalMargin ??
+    final effectiveHorizontalMargin =
+        dataTableTheme.horizontalMargin ??
         theme.dataTableTheme.horizontalMargin ??
         _horizontalMargin;
     final effectiveColumnSpacing =
         dataTableTheme.columnSpacing ?? theme.dataTableTheme.columnSpacing ?? _columnSpacing;
 
     // DataTable._buildHeadingCell
-    final effectiveHeadingTextStyle = dataTableTheme.headingTextStyle ??
+    final effectiveHeadingTextStyle =
+        dataTableTheme.headingTextStyle ??
         theme.dataTableTheme.headingTextStyle ??
         theme.textTheme.titleSmall!;
-    final effectiveHeadingRowHeight = dataTableTheme.headingRowHeight ??
+    final effectiveHeadingRowHeight =
+        dataTableTheme.headingRowHeight ??
         theme.dataTableTheme.headingRowHeight ??
         _headingRowHeight;
 
     // DataTable._buildDataCell
-    final effectiveDataTextStyle = dataTableTheme.dataTextStyle ??
+    final effectiveDataTextStyle =
+        dataTableTheme.dataTextStyle ??
         theme.dataTableTheme.dataTextStyle ??
         theme.textTheme.bodyMedium!;
-    final effectiveDataRowMinHeight = dataTableTheme.dataRowMinHeight ??
+    final effectiveDataRowMinHeight =
+        dataTableTheme.dataRowMinHeight ??
         theme.dataTableTheme.dataRowMinHeight ??
         kMinInteractiveDimension;
-    final effectiveDataRowMaxHeight = dataTableTheme.dataRowMaxHeight ??
+    final effectiveDataRowMaxHeight =
+        dataTableTheme.dataRowMaxHeight ??
         theme.dataTableTheme.dataRowMaxHeight ??
         kMinInteractiveDimension;
 
@@ -98,7 +95,8 @@ class MekTable extends StatelessWidget {
     });
     final borderSide = Divider.createBorderSide(
       context,
-      width: dataTableTheme.dividerThickness ??
+      width:
+          dataTableTheme.dividerThickness ??
           theme.dataTableTheme.dividerThickness ??
           _dividerThickness,
     );
@@ -116,10 +114,7 @@ class MekTable extends StatelessWidget {
               padding: resolvePadding(isFirst: isFirst, isLast: isLast),
               height: effectiveHeadingRowHeight,
               alignment: AlignmentDirectional.centerStart,
-              child: DefaultTextStyle(
-                style: effectiveHeadingTextStyle,
-                child: e,
-              ),
+              child: DefaultTextStyle(style: effectiveHeadingTextStyle, child: e),
             );
           }).toList(),
         ),
@@ -145,10 +140,7 @@ class MekTable extends StatelessWidget {
                   maxHeight: effectiveDataRowMaxHeight,
                 ),
                 alignment: AlignmentDirectional.centerStart,
-                child: DefaultTextStyle(
-                  style: effectiveDataTextStyle,
-                  child: e,
-                ),
+                child: DefaultTextStyle(style: effectiveDataTextStyle, child: e),
               );
 
               if (row.hasGestures) {
@@ -166,26 +158,18 @@ class MekTable extends StatelessWidget {
       ],
     );
 
-    final children = <Widget>[
-      table,
-      if (rows.isEmpty) const Text('🪫 No Data 🪫'),
-    ];
+    final children = <Widget>[table, if (rows.isEmpty) const Text('🪫 No Data 🪫')];
 
     if (children.length == 1) return children.single;
 
-    return Column(
-      children: children,
-    );
+    return Column(children: children);
   }
 }
 
 class MekTablePagination extends SourceConsumerWidget {
   final CursorBloc cursorBloc;
 
-  const MekTablePagination({
-    super.key,
-    required this.cursorBloc,
-  });
+  const MekTablePagination({super.key, required this.cursorBloc});
 
   @override
   Widget build(BuildContext context, ConsumerScope scope) {

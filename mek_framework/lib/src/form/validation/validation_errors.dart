@@ -11,7 +11,7 @@ abstract class ValidationError {
 
 class InvalidValidationError extends ValidationError {
   const InvalidValidationError({Validation<Object?>? validation, String? code})
-      : super(validation, code);
+    : super(validation, code);
 
   static const String intCode = '${ValidationError.codePrefix}Invalid int.';
   static const String doubleCode = '${ValidationError.codePrefix}Invalid double.';
@@ -24,10 +24,8 @@ class InvalidValidationError extends ValidationError {
 }
 
 class RequiredValidationError extends ValidationError {
-  const RequiredValidationError({
-    Validation<Object?>? validation,
-    String? code,
-  }) : super(validation, code);
+  const RequiredValidationError({Validation<Object?>? validation, String? code})
+    : super(validation, code);
 
   @override
   String toString() {

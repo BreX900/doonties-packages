@@ -7,11 +7,7 @@ class Rotators extends StatefulWidget {
   final bool isRotating;
   final Widget child;
 
-  const Rotators({
-    super.key,
-    required this.isRotating,
-    required this.child,
-  });
+  const Rotators({super.key, required this.isRotating, required this.child});
 
   @override
   State<Rotators> createState() => _RotatorsState();
@@ -53,10 +49,7 @@ class _RotatorsState extends State<Rotators> with TickerProviderStateMixin {
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        return Transform.rotate(
-          angle: _controller.value,
-          child: widget.child,
-        );
+        return Transform.rotate(angle: _controller.value, child: widget.child);
       },
     );
   }

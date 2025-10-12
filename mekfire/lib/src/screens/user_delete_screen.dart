@@ -26,20 +26,26 @@ class _UserDeleteScreenState extends SourceConsumerState<UserDeleteScreenBase> {
 
   late final _form = FormArray([_emailFieldBloc, _passwordFieldBloc]);
 
-  late final _deleteUser = scope.mutation((ref, None _) async {
-    await widget.onDelete(ref, _emailFieldBloc.value, _passwordFieldBloc.value);
-  }, onWillMutate: (_) async {
-    return await showTypedDialog(
-      context: context,
-      builder: (context) => const ConfirmableDialog.delete(
-        title: Text('Delete the user?'),
-        content: Text('This action is not reversible.\n'
-            'All user data will be deleted and cannot be restored.'),
-      ),
-    );
-  }, onError: (_, error) {
-    widget.asyncHandler.showError(context, error);
-  });
+  late final _deleteUser = scope.mutation(
+    (ref, None _) async {
+      await widget.onDelete(ref, _emailFieldBloc.value, _passwordFieldBloc.value);
+    },
+    onWillMutate: (_) async {
+      return await showTypedDialog(
+        context: context,
+        builder: (context) => const ConfirmableDialog.delete(
+          title: Text('Delete the user?'),
+          content: Text(
+            'This action is not reversible.\n'
+            'All user data will be deleted and cannot be restored.',
+          ),
+        ),
+      );
+    },
+    onError: (_, error) {
+      widget.asyncHandler.showError(context, error);
+    },
+  );
 
   @override
   void initState() {
@@ -88,7 +94,7 @@ class _UserDeleteScreenState extends SourceConsumerState<UserDeleteScreenBase> {
               ),
               const SizedBox(height: 16.0),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -101,10 +107,14 @@ class _UserDeleteScreenState extends SourceConsumerState<UserDeleteScreenBase> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Delete user?'),
-        flexibleSpace: SourceConsumer(builder: (context, scope, _) {
-          final progress = scope.watch(_deleteUser.source.select((state) => state.progressOrNull));
-          return FlexibleLinearProgressBar(visible: isMutating, value: progress);
-        }),
+        flexibleSpace: SourceConsumer(
+          builder: (context, scope, _) {
+            final progress = scope.watch(
+              _deleteUser.source.select((state) => state.progressOrNull),
+            );
+            return FlexibleLinearProgressBar(visible: isMutating, value: progress);
+          },
+        ),
       ),
       body: _buildBody(isIdle: !isMutating),
     );

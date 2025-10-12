@@ -1,5 +1,8 @@
 include: package:mek_lints/flutter_package.yaml
 
+formatter:
+  page_width: 100
+
 analyzer:
 #  exclude:
 #    - lib/core.dart

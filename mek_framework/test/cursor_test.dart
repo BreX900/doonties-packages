@@ -3,11 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mek/src/notifiers/cursor_data.dart';
 
 Cursor _cursor(int page, [String? prevPageLastOffset]) {
-  return Cursor(
-    size: CursorBloc.defaultSize,
-    page: page,
-    prevPageLastOffset: prevPageLastOffset,
-  );
+  return Cursor(size: CursorBloc.defaultSize, page: page, prevPageLastOffset: prevPageLastOffset);
 }
 
 void main() {

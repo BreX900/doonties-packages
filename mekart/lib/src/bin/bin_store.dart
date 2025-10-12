@@ -22,11 +22,11 @@ class BinStore<T> {
     required BinDeserializer<T> deserializer,
     BinSerializer<T> serializer = _serialize,
     required T fallbackData,
-  })  : _session = session,
-        _codec = codec,
-        _deserializer = deserializer,
-        _serializer = serializer,
-        _fallbackData = fallbackData;
+  }) : _session = session,
+       _codec = codec,
+       _deserializer = deserializer,
+       _serializer = serializer,
+       _fallbackData = fallbackData;
 
   Stream<T> get onChanges =>
       _session.onChanges.where((e) => e.key == name).map((e) => _deserialize(e.value));

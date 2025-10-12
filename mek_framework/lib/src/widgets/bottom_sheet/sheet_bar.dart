@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class SheetBar extends StatelessWidget {
   final Widget title;
 
-  const SheetBar({
-    super.key,
-    required this.title,
-  });
+  const SheetBar({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +12,8 @@ class SheetBar extends StatelessWidget {
     final appBarTheme = AppBarTheme.of(context);
     final bottomSheetTheme = theme.bottomSheetTheme;
 
-    final shape = bottomSheetTheme.shape ??
+    final shape =
+        bottomSheetTheme.shape ??
         const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(28.0)),
         );
@@ -26,10 +24,7 @@ class SheetBar extends StatelessWidget {
       child: Material(
         shape: shape,
         child: NavigationToolbar(
-          middle: DefaultTextStyle(
-            style: titleTextStyle!,
-            child: title,
-          ),
+          middle: DefaultTextStyle(style: titleTextStyle!, child: title),
           trailing: const CloseButton(),
         ),
       ),

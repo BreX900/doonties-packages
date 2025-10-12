@@ -6,9 +6,7 @@ sealed class FieldConfigBase<T extends FieldConfigBase<T>> implements ValueListe
 
   bool get readOnly => _readOnly ?? false;
 
-  const FieldConfigBase({
-    required bool? readOnly,
-  }) : _readOnly = readOnly;
+  const FieldConfigBase({required bool? readOnly}) : _readOnly = readOnly;
 
   FieldConfigBase copyWith({bool? readOnly});
 
@@ -23,15 +21,11 @@ sealed class FieldConfigBase<T extends FieldConfigBase<T>> implements ValueListe
 }
 
 class FieldConfig extends FieldConfigBase<FieldConfig> {
-  const FieldConfig({
-    super.readOnly,
-  });
+  const FieldConfig({super.readOnly});
 
   @override
   FieldConfig copyWith({bool? readOnly}) {
-    return FieldConfig(
-      readOnly: readOnly ?? _readOnly,
-    );
+    return FieldConfig(readOnly: readOnly ?? _readOnly);
   }
 
   @override
@@ -58,11 +52,11 @@ class TextConfig extends FieldConfigBase<TextConfig> {
     List<TextInputFormatter>? inputFormatters,
     bool? enableSuggestions,
     bool? autocorrect,
-  })  : _obscureText = obscureText,
-        _keyboardType = keyboardType,
-        _inputFormatters = inputFormatters,
-        _enableSuggestions = enableSuggestions,
-        _autocorrect = autocorrect;
+  }) : _obscureText = obscureText,
+       _keyboardType = keyboardType,
+       _inputFormatters = inputFormatters,
+       _enableSuggestions = enableSuggestions,
+       _autocorrect = autocorrect;
 
   static const TextConfig password = TextConfig(obscureText: true);
 

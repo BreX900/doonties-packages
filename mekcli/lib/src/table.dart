@@ -37,10 +37,7 @@ class Table {
   final Map<int, Column> columns;
   final String verticalDivisor;
 
-  const Table({
-    this.columns = const <int, Column>{},
-    this.verticalDivisor = ' ',
-  });
+  const Table({this.columns = const <int, Column>{}, this.verticalDivisor = ' '});
 
   String render(List<List<Object?>> rows) {
     final verticalDivisor = this.verticalDivisor;
@@ -55,25 +52,27 @@ class Table {
       columnWidths[columnIndex] = columnWidth;
     }
 
-    return rows.map((cells) {
-      final cellsLines = cells.mapIndexed((columnIndex, cell) {
-        final column = columns[columnIndex] ?? Column.alignToLeft();
-        return column.renderLines('${cell ?? ''}', width: columnWidths[columnIndex]!);
-      }).toList();
-      final linesCount = cellsLines.map((e) => e.length).max;
+    return rows
+        .map((cells) {
+          final cellsLines = cells.mapIndexed((columnIndex, cell) {
+            final column = columns[columnIndex] ?? Column.alignToLeft();
+            return column.renderLines('${cell ?? ''}', width: columnWidths[columnIndex]!);
+          }).toList();
+          final linesCount = cellsLines.map((e) => e.length).max;
 
-      final rowLines = <String>[];
-      for (var lineIndex = 0; lineIndex < linesCount; lineIndex++) {
-        final rowLine = <String>[];
-        for (var columnIndex = 0; columnIndex < cellsLines.length; columnIndex++) {
-          final cellLines = cellsLines[columnIndex];
-          final columnWidth = columnWidths[columnIndex]!;
-          rowLine.add(lineIndex < cellLines.length ? cellLines[lineIndex] : ' ' * columnWidth);
-        }
-        rowLines.add(rowLine.join(verticalDivisor));
-      }
+          final rowLines = <String>[];
+          for (var lineIndex = 0; lineIndex < linesCount; lineIndex++) {
+            final rowLine = <String>[];
+            for (var columnIndex = 0; columnIndex < cellsLines.length; columnIndex++) {
+              final cellLines = cellsLines[columnIndex];
+              final columnWidth = columnWidths[columnIndex]!;
+              rowLine.add(lineIndex < cellLines.length ? cellLines[lineIndex] : ' ' * columnWidth);
+            }
+            rowLines.add(rowLine.join(verticalDivisor));
+          }
 
-      return rowLines.join('\n');
-    }).join('\n');
+          return rowLines.join('\n');
+        })
+        .join('\n');
   }
 }

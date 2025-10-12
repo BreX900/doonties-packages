@@ -6,18 +6,10 @@ class ConfirmableDialog extends StatelessWidget with TypedWidgetMixin<bool> {
   final Widget? content;
   final Widget positive;
 
-  const ConfirmableDialog({
-    super.key,
-    required this.title,
-    this.content,
-    required this.positive,
-  });
+  const ConfirmableDialog({super.key, required this.title, this.content, required this.positive});
 
-  const ConfirmableDialog.delete({
-    super.key,
-    required this.title,
-    this.content,
-  }) : positive = const Text('Delete');
+  const ConfirmableDialog.delete({super.key, required this.title, this.content})
+    : positive = const Text('Delete');
 
   @override
   Widget build(BuildContext context) {
@@ -25,14 +17,8 @@ class ConfirmableDialog extends StatelessWidget with TypedWidgetMixin<bool> {
       title: title,
       content: content,
       actions: [
-        TextButton(
-          onPressed: () => pop(context, false),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: () => pop(context, true),
-          child: positive,
-        ),
+        TextButton(onPressed: () => pop(context, false), child: const Text('Cancel')),
+        ElevatedButton(onPressed: () => pop(context, true), child: positive),
       ],
     );
   }

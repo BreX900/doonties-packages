@@ -16,10 +16,7 @@ class TextIcon extends StatelessWidget {
       child: Center(
         child: Text(
           data,
-          style: TextStyle(
-            color: color ?? theme.color,
-            fontSize: size,
-          ),
+          style: TextStyle(color: color ?? theme.color, fontSize: size),
         ),
       ),
     );

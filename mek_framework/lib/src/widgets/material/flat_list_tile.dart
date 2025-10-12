@@ -12,27 +12,30 @@ class DropdownListTileMenuItem<T> extends DropdownMenuItem<T> {
     Widget? subtitle,
     Widget? trailing,
   }) : super(
-          child: ListTileLayout(
-            leading: leading != null
-                ? Builder(builder: (context) {
-                    final textStyle = DefaultTextStyle.of(context);
-                    final textScaler = MediaQuery.textScalerOf(context);
+         child: ListTileLayout(
+           leading: leading != null
+               ? Builder(
+                   builder: (context) {
+                     final textStyle = DefaultTextStyle.of(context);
+                     final textScaler = MediaQuery.textScalerOf(context);
 
-                    return IconTheme.merge(
-                      data: IconThemeData(
-                        color: textStyle.style.color,
-                        size: textScaler.scale(textStyle.style.fontSize ?? kDefaultFontSize) *
-                            (textStyle.style.height ?? 1.0),
-                      ),
-                      child: leading,
-                    );
-                  })
-                : null,
-            title: title,
-            subtitle: subtitle,
-            trailing: trailing,
-          ),
-        );
+                     return IconTheme.merge(
+                       data: IconThemeData(
+                         color: textStyle.style.color,
+                         size:
+                             textScaler.scale(textStyle.style.fontSize ?? kDefaultFontSize) *
+                             (textStyle.style.height ?? 1.0),
+                       ),
+                       child: leading,
+                     );
+                   },
+                 )
+               : null,
+           title: title,
+           subtitle: subtitle,
+           trailing: trailing,
+         ),
+       );
 }
 
 class ListTileLayout extends StatelessWidget {
@@ -58,10 +61,7 @@ class ListTileLayout extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              title,
-              if (subtitle != null) subtitle!,
-            ],
+            children: [title, if (subtitle != null) subtitle!],
           ),
         ),
         if (trailing != null) trailing!,
@@ -121,8 +121,9 @@ class ParagraphTile extends StatelessWidget {
                   )
                 : null,
             title: DefaultTextStyle(
-              style: (dense ? textTheme.titleMedium : textTheme.titleLarge)!
-                  .copyWith(color: textColor ?? color),
+              style: (dense ? textTheme.titleMedium : textTheme.titleLarge)!.copyWith(
+                color: textColor ?? color,
+              ),
               child: title,
             ),
             subtitle: subtitle != null
@@ -192,8 +193,12 @@ class FlatListTile extends StatelessWidget {
       if (!enabled) WidgetState.disabled,
       if (selected) WidgetState.selected,
     };
-    Color? resolveColor(Color? explicitColor, Color? selectedColor, Color? enabledColor,
-        [Color? disabledColor]) {
+    Color? resolveColor(
+      Color? explicitColor,
+      Color? selectedColor,
+      Color? enabledColor, [
+      Color? disabledColor,
+    ]) {
       return _IndividualOverrides(
         explicitColor: explicitColor,
         selectedColor: selectedColor,
@@ -202,12 +207,20 @@ class FlatListTile extends StatelessWidget {
       ).resolve(states);
     }
 
-    final effectiveColor = resolveColor(textColor, selectedColor, textColor) ??
+    final effectiveColor =
+        resolveColor(textColor, selectedColor, textColor) ??
         resolveColor(tileTheme.textColor, tileTheme.selectedColor, tileTheme.textColor) ??
-        resolveColor(theme.listTileTheme.textColor, theme.listTileTheme.selectedColor,
-            theme.listTileTheme.textColor) ??
         resolveColor(
-            defaults.textColor, defaults.selectedColor, defaults.textColor, theme.disabledColor);
+          theme.listTileTheme.textColor,
+          theme.listTileTheme.selectedColor,
+          theme.listTileTheme.textColor,
+        ) ??
+        resolveColor(
+          defaults.textColor,
+          defaults.selectedColor,
+          defaults.textColor,
+          theme.disabledColor,
+        );
 
     var titleStyle = titleTextStyle ?? tileTheme.titleTextStyle ?? defaults.titleTextStyle!;
     final titleColor = effectiveColor;
@@ -276,13 +289,13 @@ class _IndividualOverrides extends WidgetStateProperty<Color?> {
 
 class _LisTileDefaultsM2 extends ListTileThemeData {
   _LisTileDefaultsM2(this.context, ListTileStyle style)
-      : super(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-          minLeadingWidth: 40,
-          minVerticalPadding: 4,
-          shape: const Border(),
-          style: style,
-        );
+    : super(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+        minLeadingWidth: 40,
+        minVerticalPadding: 4,
+        shape: const Border(),
+        style: style,
+      );
 
   final BuildContext context;
   late final ThemeData _theme = Theme.of(context);
@@ -333,12 +346,12 @@ class _LisTileDefaultsM2 extends ListTileThemeData {
 
 class _LisTileDefaultsM3 extends ListTileThemeData {
   _LisTileDefaultsM3(this.context)
-      : super(
-          contentPadding: const EdgeInsetsDirectional.only(start: 16.0, end: 24.0),
-          minLeadingWidth: 24,
-          minVerticalPadding: 8,
-          shape: const RoundedRectangleBorder(),
-        );
+    : super(
+        contentPadding: const EdgeInsetsDirectional.only(start: 16.0, end: 24.0),
+        minLeadingWidth: 24,
+        minVerticalPadding: 8,
+        shape: const RoundedRectangleBorder(),
+      );
 
   final BuildContext context;
   late final ThemeData _theme = Theme.of(context);

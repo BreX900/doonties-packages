@@ -10,13 +10,9 @@ class CliException implements Exception {
   final int exitCode;
   final CliExceptionType type;
 
-  CliException.executionSkipped()
-      : exitCode = 2,
-        type = CliExceptionType.executionSkipped;
+  CliException.executionSkipped() : exitCode = 2, type = CliExceptionType.executionSkipped;
 
-  CliException.executionEmpty()
-      : exitCode = 3,
-        type = CliExceptionType.executionEmpty;
+  CliException.executionEmpty() : exitCode = 3, type = CliExceptionType.executionEmpty;
 
   @override
   String toString() => 'CliException: ${type.name}';
@@ -95,9 +91,7 @@ class ProviderOverride<T> {
 class ProviderContainer implements ProviderRef {
   var _providers = <Provider<Object?>, ProviderElement<Object?>>{};
 
-  ProviderContainer({
-    List<ProviderOverride<dynamic>> overrides = const [],
-  }) {
+  ProviderContainer({List<ProviderOverride<dynamic>> overrides = const []}) {
     apply(overrides: overrides);
   }
 

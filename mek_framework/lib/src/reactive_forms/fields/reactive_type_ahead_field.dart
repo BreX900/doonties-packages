@@ -48,44 +48,44 @@ class ReactiveTypeAheadField<T> extends ReactiveFormField<Object?, Object?> {
     BoxConstraints? constraints,
     Offset? offset,
   }) : super(
-          builder: (field) {
-            field as ReactiveTypeAheadFieldState<T>;
+         builder: (field) {
+           field as ReactiveTypeAheadFieldState<T>;
 
-            return TypeAheadField<T>(
-              animationDuration: animationDuration,
-              autoFlipDirection: autoFlipDirection,
-              autoFlipMinHeight: autoFlipMinHeight,
-              builder: field._build,
-              controller: field.controller,
-              debounceDuration: debounceDuration,
-              direction: direction,
-              errorBuilder: errorBuilder,
-              focusNode: field.focusNode,
-              hideKeyboardOnDrag: hideKeyboardOnDrag,
-              hideOnEmpty: hideOnEmpty,
-              hideOnError: hideOnError,
-              hideOnLoading: hideOnLoading,
-              showOnFocus: showOnFocus,
-              hideOnUnfocus: hideOnUnfocus,
-              hideWithKeyboard: hideWithKeyboard,
-              hideOnSelect: hideOnSelect,
-              itemBuilder: itemBuilder,
-              itemSeparatorBuilder: itemSeparatorBuilder,
-              retainOnLoading: retainOnLoading,
-              loadingBuilder: loadingBuilder,
-              emptyBuilder: emptyBuilder,
-              onSelected: field._onSelect,
-              scrollController: scrollController,
-              suggestionsController: field._suggestionsController,
-              suggestionsCallback: suggestionsCallback,
-              transitionBuilder: transitionBuilder,
-              decorationBuilder: decorationBuilder ?? _buildDecoration,
-              listBuilder: listBuilder,
-              constraints: constraints,
-              offset: offset,
-            );
-          },
-        );
+           return TypeAheadField<T>(
+             animationDuration: animationDuration,
+             autoFlipDirection: autoFlipDirection,
+             autoFlipMinHeight: autoFlipMinHeight,
+             builder: field._build,
+             controller: field.controller,
+             debounceDuration: debounceDuration,
+             direction: direction,
+             errorBuilder: errorBuilder,
+             focusNode: field.focusNode,
+             hideKeyboardOnDrag: hideKeyboardOnDrag,
+             hideOnEmpty: hideOnEmpty,
+             hideOnError: hideOnError,
+             hideOnLoading: hideOnLoading,
+             showOnFocus: showOnFocus,
+             hideOnUnfocus: hideOnUnfocus,
+             hideWithKeyboard: hideWithKeyboard,
+             hideOnSelect: hideOnSelect,
+             itemBuilder: itemBuilder,
+             itemSeparatorBuilder: itemSeparatorBuilder,
+             retainOnLoading: retainOnLoading,
+             loadingBuilder: loadingBuilder,
+             emptyBuilder: emptyBuilder,
+             onSelected: field._onSelect,
+             scrollController: scrollController,
+             suggestionsController: field._suggestionsController,
+             suggestionsCallback: suggestionsCallback,
+             transitionBuilder: transitionBuilder,
+             decorationBuilder: decorationBuilder ?? _buildDecoration,
+             listBuilder: listBuilder,
+             constraints: constraints,
+             offset: offset,
+           );
+         },
+       );
 
   static Widget _buildDecoration(BuildContext context, Widget child) {
     return Material(
@@ -147,9 +147,9 @@ class ReactiveTypeAheadFieldState<T> extends ReactiveFocusableFormFieldState<Obj
   }
 
   InputDecoration get decoration => InputDecoration(
-        suffixIcon: ReactiveClearButton(onClear: _onClear),
-        errorText: errorText,
-      );
+    suffixIcon: ReactiveClearButton(onClear: _onClear),
+    errorText: errorText,
+  );
 
   Widget _build(BuildContext context, TextEditingController _, FocusNode __) =>
       widget.builder(context, this);

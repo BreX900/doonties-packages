@@ -26,9 +26,10 @@ sealed class MutationState<TData> with EquatableAndDescribable {
   }
 
   const factory MutationState.idle() = IdleMutation<TData>;
-  const factory MutationState.loading(
-      {required ISet<Object?> args,
-      required IMap<Object?, double?> status}) = LoadingMutation<TData>;
+  const factory MutationState.loading({
+    required ISet<Object?> args,
+    required IMap<Object?, double?> status,
+  }) = LoadingMutation<TData>;
   const factory MutationState.failed({required ISet<Object?> args, required Object error}) =
       FailedMutation<TData>;
   const factory MutationState.success({required ISet<Object?> args, required TData data}) =
@@ -39,17 +40,11 @@ sealed class MutationState<TData> with EquatableAndDescribable {
   MutationState<TData> toLoading({required Object? arg, double? progress}) =>
       LoadingMutation<TData>(args: args.add(arg), status: status.add(arg, progress));
 
-  MutationState<TData> toFailed({
-    required Object? arg,
-    required Object error,
-  }) {
+  MutationState<TData> toFailed({required Object? arg, required Object error}) {
     return FailedMutation(args: args.remove(arg), error: error);
   }
 
-  MutationState<TData> toSuccess({
-    required Object? arg,
-    required TData data,
-  }) {
+  MutationState<TData> toSuccess({required Object? arg, required TData data}) {
     return SuccessMutation(args: args.remove(arg), data: data);
   }
 

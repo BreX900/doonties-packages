@@ -24,8 +24,8 @@ typedef StartMutationListener<Arg> = FutureOr<void> Function(Arg arg);
 typedef WillStartMutationListener<Arg> = FutureOr<bool?> Function(Arg arg);
 typedef ErrorMutationListener<Arg> = FutureOr<void> Function(Arg arg, Object error);
 typedef DataMutationListener<Arg, Result> = FutureOr<void> Function(Arg arg, Result result);
-typedef ResultMutationListener<Arg, Result> = FutureOr<void> Function(
-    Arg arg, Object? error, Result? result);
+typedef ResultMutationListener<Arg, Result> =
+    FutureOr<void> Function(Arg arg, Object? error, Result? result);
 
 extension MutationBlocExtension on ConsumerScope {
   MutationBloc<A, R> mutation<A, R>(
@@ -68,12 +68,12 @@ class MutationBloc<TArg, TResult> extends SourceNotifier<MutationState<TResult>>
     required ErrorMutationListener<TArg>? onError,
     required DataMutationListener<TArg, TResult>? onData,
     required ResultMutationListener<TArg, TResult>? onFinish,
-  })  : _onStart = onStart,
-        _onWillMutate = onWillMutate,
-        _onError = onError,
-        _onData = onData,
-        _onFinish = onFinish,
-        super(IdleMutation<TResult>());
+  }) : _onStart = onStart,
+       _onWillMutate = onWillMutate,
+       _onError = onError,
+       _onData = onData,
+       _onFinish = onFinish,
+       super(IdleMutation<TResult>());
 
   // ignore: discarded_futures
   void call(TArg arg) => run(arg).ignore();
