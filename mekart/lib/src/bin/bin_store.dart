@@ -164,14 +164,14 @@ abstract class SerializableKey<Fine, Raw> {
   }
 }
 
-extension on SerializableKey<String, String> {
-  SerializableKey<R, String> mapJson<R>(
-    R Function(Object data) deserializer,
-    Object Function(R data) serializer,
-  ) {
-    return _JsonStorageKey(this, deserializer, serializer);
-  }
-}
+// extension on SerializableKey<String, String> {
+//   SerializableKey<R, String> mapJson<R>(
+//     R Function(Object data) deserializer,
+//     Object Function(R data) serializer,
+//   ) {
+//     return _JsonStorageKey(this, deserializer, serializer);
+//   }
+// }
 
 class _SimpleSerializableKey<T> extends SerializableKey<T, T> {
   @override
@@ -201,18 +201,18 @@ class _MappedStorageKey<Fine, T, Raw> extends SerializableKey<Fine, Raw> {
   Raw serialize(Fine instance) => _key.serialize(_serializer(instance));
 }
 
-class _JsonStorageKey<Fine> extends SerializableKey<Fine, String> {
-  final SerializableKey<String, String> _key;
-  final Fine Function(Object json) _deserializer;
-  final Object Function(Fine instance) _serializer;
-
-  @override
-  String get name => _key.name;
-
-  const _JsonStorageKey(this._key, this._deserializer, this._serializer);
-
-  @override
-  Fine deserialize(String data) => _deserializer(jsonDecode(_key.deserialize(data)) as Object);
-  @override
-  String serialize(Fine instance) => _key.serialize(jsonEncode(_serializer(instance)));
-}
+// class _JsonStorageKey<Fine> extends SerializableKey<Fine, String> {
+//   final SerializableKey<String, String> _key;
+//   final Fine Function(Object json) _deserializer;
+//   final Object Function(Fine instance) _serializer;
+//
+//   @override
+//   String get name => _key.name;
+//
+//   const _JsonStorageKey(this._key, this._deserializer, this._serializer);
+//
+//   @override
+//   Fine deserialize(String data) => _deserializer(jsonDecode(_key.deserialize(data)) as Object);
+//   @override
+//   String serialize(Fine instance) => _key.serialize(jsonEncode(_serializer(instance)));
+// }

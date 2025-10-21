@@ -5,6 +5,11 @@ import 'package:meta/meta.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 abstract final class MekAccessors {
+  static ControlValueAccessor<ModelDataType, ViewDataType> delegate<ModelDataType, ViewDataType>({
+    required ViewDataType? Function(ModelDataType value) toView,
+    required ModelDataType? Function(ViewDataType value) toModel,
+  }) => _DelegateAccessor(toView: toView, toModel: toModel);
+
   static ControlValueAccessor<Decimal, String> decimalToString(NumberFormat format) =>
       _ControlDecimalAccessor(DecimalFormatter(format));
 
@@ -16,6 +21,26 @@ abstract final class MekAccessors {
 
   static ControlValueAccessor<double, String> doublePercentToString(NumberFormat format) =>
       ControlDoubleAccessor.percent(format);
+}
+
+class _DelegateAccessor<ModelDataType, ViewDataType>
+    extends ControlValueAccessor<ModelDataType, ViewDataType> {
+  final ViewDataType? Function(ModelDataType value) toView;
+  final ModelDataType? Function(ViewDataType value) toModel;
+
+  _DelegateAccessor({required this.toView, required this.toModel});
+
+  @override
+  ViewDataType? modelToViewValue(ModelDataType? modelValue) {
+    if (modelValue == null) return null;
+    return toView(modelValue);
+  }
+
+  @override
+  ModelDataType? viewToModelValue(ViewDataType? viewValue) {
+    if (viewValue == null) return null;
+    return toModel(viewValue);
+  }
 }
 
 class _ControlDecimalAccessor extends ControlValueAccessor<Decimal, String> {

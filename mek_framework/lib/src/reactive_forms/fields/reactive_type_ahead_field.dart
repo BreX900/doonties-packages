@@ -1,118 +1,113 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
-// ignore: implementation_imports
-import 'package:flutter_typeahead/src/common/base/types.dart';
-import 'package:mek/src/reactive_forms/reactive_buttons.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:mek/mek.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-typedef TextFieldBuilder = Widget Function(BuildContext context, ReactiveTypeAheadFieldState field);
+typedef FieldViewBuilder<T extends Object> =
+    Widget Function(BuildContext context, TypeAheadConfig<T> field);
 
-class ReactiveTypeAheadField<T> extends ReactiveFormField<Object?, Object?> {
+class TypeAheadConfig<T extends Object> {
+  final T? value;
+  final bool enabled;
+  final String? errorText;
+
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final void Function() _onSubmitted;
+
+  void onSubmitted(String _) => _onSubmitted();
+
+  void submit() => _onSubmitted();
+
+  const TypeAheadConfig({
+    required this.value,
+    required this.enabled,
+    required this.errorText,
+    required this.controller,
+    required this.focusNode,
+    required void Function() onSubmitted,
+  }) : _onSubmitted = onSubmitted;
+}
+
+// , ViewValue extends Object
+class ReactiveTypeAheadField<T extends Object> extends ReactiveFormField<T, T> {
   final TextEditingController? controller;
-  final TextFieldBuilder builder;
-  final SuggestionsController<T>? suggestionsController;
-  final void Function(ReactiveTypeAheadFieldState field, T suggestion) onSelected;
+  // final TextFieldBuilder builder;
+  // final void Function(ReactiveTypeAheadFieldState field, T suggestion) onSelected;
+  final AutocompleteOptionToString<T> displayStringForOption;
 
   ReactiveTypeAheadField({
     super.key,
-    required FormControl<Object?> super.formControl,
-    Duration animationDuration = const Duration(milliseconds: 200),
-    bool autoFlipDirection = false,
-    double autoFlipMinHeight = 144,
-    required this.builder,
+    required FormControl<T> super.formControl,
+    required this.displayStringForOption,
     this.controller,
-    Duration debounceDuration = const Duration(milliseconds: 300),
-    VerticalDirection direction = VerticalDirection.down,
-    SuggestionsErrorBuilder? errorBuilder,
-    super.focusNode,
-    bool hideKeyboardOnDrag = false,
-    bool hideOnEmpty = false,
-    bool hideOnError = false,
-    bool hideOnLoading = false,
-    bool showOnFocus = true,
-    bool hideOnUnfocus = true,
-    bool hideWithKeyboard = true,
-    bool hideOnSelect = true,
-    required SuggestionsItemBuilder<T> itemBuilder,
-    IndexedWidgetBuilder? itemSeparatorBuilder,
-    bool retainOnLoading = true,
-    WidgetBuilder? loadingBuilder,
-    WidgetBuilder? emptyBuilder,
-    required this.onSelected,
-    ScrollController? scrollController,
-    this.suggestionsController,
-    required SuggestionsCallback<T> suggestionsCallback,
-    AnimationTransitionBuilder? transitionBuilder,
-    DecorationBuilder? decorationBuilder,
-    ListBuilder? listBuilder,
-    BoxConstraints? constraints,
-    Offset? offset,
+    required FutureOr<Iterable<T>> Function(String text) optionsBuilder,
+    required FieldViewBuilder<T> fieldViewBuilder,
   }) : super(
+         // valueAccessor: MekAccessors.delegate(toView: displayStringForOption, toModel: (_) => null),
          builder: (field) {
            field as ReactiveTypeAheadFieldState<T>;
 
-           return TypeAheadField<T>(
-             animationDuration: animationDuration,
-             autoFlipDirection: autoFlipDirection,
-             autoFlipMinHeight: autoFlipMinHeight,
-             builder: field._build,
-             controller: field.controller,
-             debounceDuration: debounceDuration,
-             direction: direction,
-             errorBuilder: errorBuilder,
+           return Autocomplete<T>(
+             optionsBuilder: (value) => optionsBuilder(value.text),
+             onSelected: field.didChange,
+             textEditingController: field.controller,
              focusNode: field.focusNode,
-             hideKeyboardOnDrag: hideKeyboardOnDrag,
-             hideOnEmpty: hideOnEmpty,
-             hideOnError: hideOnError,
-             hideOnLoading: hideOnLoading,
-             showOnFocus: showOnFocus,
-             hideOnUnfocus: hideOnUnfocus,
-             hideWithKeyboard: hideWithKeyboard,
-             hideOnSelect: hideOnSelect,
-             itemBuilder: itemBuilder,
-             itemSeparatorBuilder: itemSeparatorBuilder,
-             retainOnLoading: retainOnLoading,
-             loadingBuilder: loadingBuilder,
-             emptyBuilder: emptyBuilder,
-             onSelected: field._onSelect,
-             scrollController: scrollController,
-             suggestionsController: field._suggestionsController,
-             suggestionsCallback: suggestionsCallback,
-             transitionBuilder: transitionBuilder,
-             decorationBuilder: decorationBuilder ?? _buildDecoration,
-             listBuilder: listBuilder,
-             constraints: constraints,
-             offset: offset,
+             displayStringForOption: displayStringForOption,
+             fieldViewBuilder: (context, controller, focusNode, onSubmitted) {
+               final config = TypeAheadConfig<T>(
+                 value: field.value,
+                 enabled: field.control.enabled,
+                 errorText: field.errorText,
+                 controller: controller,
+                 focusNode: focusNode,
+                 onSubmitted: onSubmitted,
+               );
+               return fieldViewBuilder(context, config);
+               // return TextField(
+               //   controller: controller,
+               //   focusNode: focusNode,
+               //   onSubmitted: (_) => onSubmitted(),
+               // );
+             },
            );
          },
        );
 
-  static Widget _buildDecoration(BuildContext context, Widget child) {
-    return Material(
-      elevation: 8.0,
-      borderRadius: const BorderRadius.all(Radius.circular(2.0)),
-      child: child,
-    );
-  }
+  // static Widget _buildDecoration(BuildContext context, Widget child) {
+  //   return Material(
+  //     elevation: 8.0,
+  //     borderRadius: const BorderRadius.all(Radius.circular(2.0)),
+  //     child: child,
+  //   );
+  // }
 
   @override
-  ReactiveFormFieldState<Object?, Object?> createState() => ReactiveTypeAheadFieldState<T>();
+  ReactiveFormFieldState<T, T> createState() => ReactiveTypeAheadFieldState();
 }
 
-class ReactiveTypeAheadFieldState<T> extends ReactiveFocusableFormFieldState<Object?, Object?> {
+class ReactiveTypeAheadFieldState<T extends Object> extends ReactiveFocusableFormFieldState<T, T> {
   late TextEditingController _textController;
-  late SuggestionsController<T> _suggestionsController;
+  // late SuggestionsController<T> _suggestionsController;
 
   @override
   ReactiveTypeAheadField<T> get widget => super.widget as ReactiveTypeAheadField<T>;
 
   TextEditingController get controller => _textController;
 
+  String get initialText {
+    final value = this.value;
+    if (value == null) return '';
+    return widget.displayStringForOption(value);
+  }
+
   @override
   void initState() {
     super.initState();
-    _textController = widget.controller ?? TextEditingController();
-    _suggestionsController = widget.suggestionsController ?? SuggestionsController();
+    _textController = widget.controller ?? TextEditingController(text: initialText);
+    // _suggestionsController = widget.suggestionsController ?? SuggestionsController();
   }
 
   @override
@@ -120,25 +115,31 @@ class ReactiveTypeAheadFieldState<T> extends ReactiveFocusableFormFieldState<Obj
     super.didUpdateWidget(oldWidget);
     if (widget.controller != oldWidget.controller) {
       if (oldWidget.controller == null) _textController.dispose();
-      _textController = widget.controller ?? TextEditingController();
+      _textController = widget.controller ?? TextEditingController(text: initialText);
     }
-    if (widget.suggestionsController != oldWidget.suggestionsController) {
-      if (oldWidget.controller == null) _textController.dispose();
-      _suggestionsController = widget.suggestionsController ?? SuggestionsController();
-    }
+    // if (widget.suggestionsController != oldWidget.suggestionsController) {
+    //   if (oldWidget.controller == null) _textController.dispose();
+    //   _suggestionsController = widget.suggestionsController ?? SuggestionsController();
+    // }
   }
 
   @override
   void dispose() {
     if (widget.controller == null) _textController.dispose();
-    if (widget.suggestionsController == null) _suggestionsController.dispose();
+    // if (widget.suggestionsController == null) _suggestionsController.dispose();
     super.dispose();
   }
 
-  void _onSelect(T suggestion) {
-    _suggestionsController.close();
-    widget.onSelected(this, suggestion);
+  @override
+  void onControlValueChanged(Object? value) {
+    super.onControlValueChanged(value);
+    _textController.text = initialText;
   }
+
+  // void _onSelect(T suggestion) {
+  //   // _suggestionsController.close();
+  //   // widget.onSelected(this, suggestion);
+  // }
 
   void _onClear() {
     controller.clear();
@@ -151,6 +152,127 @@ class ReactiveTypeAheadFieldState<T> extends ReactiveFocusableFormFieldState<Obj
     errorText: errorText,
   );
 
-  Widget _build(BuildContext context, TextEditingController _, FocusNode __) =>
-      widget.builder(context, this);
+  // Widget _build(BuildContext context, TextEditingController _, FocusNode __) =>
+  //     widget.builder(context, this);
+}
+
+class TypeAheadOptionsView<T extends Object> extends StatelessWidget {
+  const TypeAheadOptionsView({
+    super.key,
+    required this.optionBuilder,
+    required this.onSelected,
+    this.openDirection = OptionsViewOpenDirection.down,
+    required this.options,
+    this.optionsMaxHeight = 200.0,
+  });
+
+  final Widget Function(BuildContext context, T value) optionBuilder;
+  final AutocompleteOnSelected<T> onSelected;
+  final OptionsViewOpenDirection openDirection;
+  final Iterable<T> options;
+  final double optionsMaxHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    final highlightedIndex = AutocompleteHighlightedOption.of(context);
+
+    final optionsAlignment = switch (openDirection) {
+      OptionsViewOpenDirection.up => AlignmentDirectional.bottomStart,
+      OptionsViewOpenDirection.down => AlignmentDirectional.topStart,
+    };
+
+    return Align(
+      alignment: optionsAlignment,
+      child: Material(
+        elevation: 4.0,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: optionsMaxHeight),
+          child: _AutocompleteOptionsList<T>(
+            optionBuilder: optionBuilder,
+            highlightedIndex: highlightedIndex,
+            onSelected: onSelected,
+            options: options,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AutocompleteOptionsList<T extends Object> extends StatefulWidget {
+  const _AutocompleteOptionsList({
+    required this.optionBuilder,
+    required this.highlightedIndex,
+    required this.onSelected,
+    required this.options,
+  });
+
+  final Widget Function(BuildContext context, T value) optionBuilder;
+  final int highlightedIndex;
+  final AutocompleteOnSelected<T> onSelected;
+  final Iterable<T> options;
+
+  @override
+  State<_AutocompleteOptionsList<T>> createState() => _AutocompleteOptionsListState<T>();
+}
+
+class _AutocompleteOptionsListState<T extends Object> extends State<_AutocompleteOptionsList<T>> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void didUpdateWidget(_AutocompleteOptionsList<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.highlightedIndex != oldWidget.highlightedIndex) {
+      SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
+        if (!mounted) {
+          return;
+        }
+        final highlightedContext = GlobalObjectKey(
+          widget.options.elementAt(widget.highlightedIndex),
+        ).currentContext;
+        if (highlightedContext == null) {
+          _scrollController.jumpTo(
+            widget.highlightedIndex == 0 ? 0.0 : _scrollController.position.maxScrollExtent,
+          );
+        } else {
+          unawaited(Scrollable.ensureVisible(highlightedContext, alignment: 0.5));
+        }
+      }, debugLabel: 'AutocompleteOptions.ensureVisible');
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final highlightedIndex = AutocompleteHighlightedOption.of(context);
+
+    return ListView.builder(
+      padding: EdgeInsets.zero,
+      shrinkWrap: true,
+      controller: _scrollController,
+      itemCount: widget.options.length,
+      itemBuilder: (BuildContext context, int index) {
+        final option = widget.options.elementAt(index);
+        return InkWell(
+          key: GlobalObjectKey(option),
+          onTap: () => widget.onSelected(option),
+          child: Builder(
+            builder: (BuildContext context) {
+              final highlight = highlightedIndex == index;
+              return ColoredBox(
+                color: highlight ? Theme.of(context).focusColor : Colors.transparent,
+                child: widget.optionBuilder(context, option),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
 }

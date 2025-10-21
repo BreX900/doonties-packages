@@ -156,12 +156,6 @@ extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
         return true;
     }
   }
-
-  void _ignoreError(void Function() body) {
-    try {
-      body();
-    } catch (_) {}
-  }
 }
 
 class FormList<C extends AbstractControl<V>, V> extends FormArray<V> {
