@@ -92,13 +92,26 @@ extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
     };
   }
 
-  void Function() handleSubmitAsync(Future<bool?> Function() submit, {bool keepDisabled = false}) {
+  void Function(T arg) handleSubmitWith<T>(
+    void Function(T arg) onSubmit, {
+    bool keepDisabled = false,
+  }) {
+    return (arg) {
+      if (!_canSubmit()) return;
+      onSubmit(arg);
+    };
+  }
+
+  void Function() handleSubmitAsync(
+    Future<bool?> Function() onSubmit, {
+    bool keepDisabled = false,
+  }) {
     return () async {
       if (!_canSubmit()) return;
       markAsDisabled();
 
       try {
-        final isSuccessState = await submit();
+        final isSuccessState = await onSubmit();
         if (isSuccessState == null) return;
 
         if (isSuccessState && keepDisabled) return;
@@ -110,21 +123,22 @@ extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
     };
   }
 
-  void Function(T arg) handleSubmitWith<T>(
-    Future<void> Function(T arg) submit, {
+  void Function(T arg) handleSubmitAsyncWith<T>(
+    Future<bool?> Function(T arg) onSubmit, {
     bool keepDisabled = false,
   }) {
     return (arg) async {
       if (!_canSubmit()) return;
+      markAsDisabled();
+
       try {
-        markAsDisabled();
+        final isSuccessState = await onSubmit(arg);
+        if (isSuccessState == null) return;
 
-        await submit(arg);
-
-        if (keepDisabled) return;
-        _ignoreError(markAsEnabled);
+        if (isSuccessState && keepDisabled) return;
+        markAsEnabled();
       } catch (_) {
-        _ignoreError(markAsEnabled);
+        markAsEnabled();
         rethrow;
       }
     };

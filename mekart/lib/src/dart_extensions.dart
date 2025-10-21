@@ -31,6 +31,8 @@ DateTime parseDate(String source) {
 
 extension StringExtensions on String {
   String? get nullIfEmpty => isEmpty ? null : this;
+
+  String takeLast(int count) => substring(length - count);
 }
 
 extension DateTimeExtensions on DateTime {
@@ -263,6 +265,12 @@ extension ListEntryExtensions<K, V> on Iterable<MapEntry<K, V>> {
     }
   }
 
+  Iterable<MapEntry<K, R>> mapValues<R>(R Function(K key, V value) mapper) sync* {
+    for (final entry in this) {
+      yield MapEntry(entry.key, mapper(entry.key, entry.value));
+    }
+  }
+
   Iterable<K> get keys sync* {
     for (final entry in this) {
       yield entry.key;
@@ -283,6 +291,8 @@ extension SetExtensions<T> on Set<T> {
 }
 
 extension MapExtensions<K, V> on Map<K, V> {
+  Map<V, K> get reversed => {for (final entry in entries) entry.value: entry.key};
+
   Map<K, V> asUnmodifiable() =>
       this is UnmodifiableMapView<K, V> ? this : UnmodifiableMapView(this);
 
