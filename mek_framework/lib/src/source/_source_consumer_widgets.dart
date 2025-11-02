@@ -1,17 +1,11 @@
 part of 'source.dart';
 
-final class ConsumerScope extends SourceScope {
-  WidgetRef get ref => _element as WidgetRef;
-
-  ConsumerScope._(_SourceConsumerStatefulElement super._element) : super._();
-}
-
 class SourceConsumer extends SourceConsumerStatefulWidget {
-  final Widget Function(BuildContext context, ConsumerScope scope, Widget? child) builder;
+  final Widget Function(BuildContext context, WidgetRef ref, WidgetScope scope, Widget? child) builder;
 
   const SourceConsumer({super.key, required this.builder});
 
-  Widget build(BuildContext context, ConsumerScope scope) => builder(context, scope, null);
+  Widget build(BuildContext context, WidgetRef ref, WidgetScope scope) => builder(context, ref, scope, null);
 
   @override
   SourceConsumerState<SourceConsumerStatefulWidget> createState() => _SourceConsumerState();
@@ -20,7 +14,7 @@ class SourceConsumer extends SourceConsumerStatefulWidget {
 abstract class SourceConsumerWidget extends SourceConsumerStatefulWidget {
   const SourceConsumerWidget({super.key});
 
-  Widget build(BuildContext context, ConsumerScope scope);
+  Widget build(BuildContext context, WidgetRef ref, WidgetScope scope);
 
   @override
   SourceConsumerState<SourceConsumerStatefulWidget> createState() => _SourceConsumerState();
@@ -28,7 +22,7 @@ abstract class SourceConsumerWidget extends SourceConsumerStatefulWidget {
 
 class _SourceConsumerState extends SourceConsumerState<SourceConsumerWidget> {
   @override
-  Widget build(BuildContext context) => widget.build(context, scope);
+  Widget build(BuildContext context) => widget.build(context, ref, scope);
 }
 
 abstract class SourceConsumerStatefulWidget extends ConsumerStatefulWidget {
@@ -44,7 +38,7 @@ abstract class SourceConsumerStatefulWidget extends ConsumerStatefulWidget {
 
 abstract class SourceConsumerState<T extends SourceConsumerStatefulWidget>
     extends ConsumerState<T> {
-  late final ConsumerScope scope = ConsumerScope._(context as _SourceConsumerStatefulElement);
+  late final WidgetScope scope = WidgetScope._(context as _SourceConsumerStatefulElement);
 }
 
 // ignore: invalid_use_of_internal_member

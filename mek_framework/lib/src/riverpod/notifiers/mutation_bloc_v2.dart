@@ -5,9 +5,9 @@ import 'package:mek/mek.dart';
 import 'package:mek/src/core/_log.dart';
 import 'package:mek/src/riverpod/notifiers/_mutation.dart';
 
-extension MutationNotififierExtension on ConsumerScope {
+extension MutationNotififierExtension on WidgetScope {
   MutationNotifier<A, R> mutationV2<A, R>(Future<R> Function(MutationRef ref, A arg) mutator) {
-    final mutation = MutationNotifier<A, R>(() => ref.container, mutator);
+    final mutation = MutationNotifier<A, R>(() => ProviderScope.containerOf(context, listen: false), mutator);
     onDispose(mutation.dispose);
     return mutation;
   }

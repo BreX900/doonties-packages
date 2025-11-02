@@ -5,13 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/mek.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-class ReactiveSaveButton extends SourceConsumerWidget {
+class ReactiveSaveButton extends SourceWidget {
   final Future<void> Function()? onSubmit;
 
   const ReactiveSaveButton({super.key, required this.onSubmit});
 
   @override
-  Widget build(BuildContext context, ConsumerScope scope) {
+  Widget build(BuildContext context, WidgetScope scope) {
     final onSubmit = this.onSubmit;
 
     final field = context.findAncestorStateOfType<ReactiveFormFieldState>()!;
@@ -29,13 +29,13 @@ class ReactiveSaveButton extends SourceConsumerWidget {
   }
 }
 
-class ReactiveAddButton extends SourceConsumerWidget {
+class ReactiveAddButton extends SourceWidget {
   final FutureOr<void> Function()? onSubmit;
 
   const ReactiveAddButton({super.key, required this.onSubmit});
 
   @override
-  Widget build(BuildContext context, ConsumerScope scope) {
+  Widget build(BuildContext context, WidgetScope scope) {
     final onSubmit = this.onSubmit;
 
     final field = context.findAncestorStateOfType<ReactiveFormFieldState>()!;
@@ -54,13 +54,13 @@ class ReactiveAddButton extends SourceConsumerWidget {
   }
 }
 
-class ReactiveClearButton extends SourceConsumerWidget {
+class ReactiveClearButton extends SourceWidget {
   final VoidCallback? onClear;
 
   const ReactiveClearButton({super.key, this.onClear});
 
   @override
-  Widget build(BuildContext context, ConsumerScope scope) {
+  Widget build(BuildContext context, WidgetScope scope) {
     final field = context.findAncestorStateOfType<ReactiveFormFieldState>()!;
     final isEnabled = scope.watch(field.control.source.status.enabled);
 
@@ -71,7 +71,7 @@ class ReactiveClearButton extends SourceConsumerWidget {
   }
 }
 
-class ReactiveEditButton extends SourceConsumerWidget {
+class ReactiveEditButton extends SourceWidget {
   final ValueNotifier<FieldConfig> controller;
   final bool toggleableObscureText;
   final FutureOr<void> Function()? onSubmit;
@@ -84,7 +84,7 @@ class ReactiveEditButton extends SourceConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, ConsumerScope scope) {
+  Widget build(BuildContext context, WidgetScope scope) {
     final onSubmit = this.onSubmit;
 
     final field = context.findAncestorStateOfType<ReactiveFormFieldState>()!;
@@ -105,13 +105,13 @@ class ReactiveEditButton extends SourceConsumerWidget {
   }
 }
 
-class ReactiveVisibilityButton extends SourceConsumerWidget {
+class ReactiveVisibilityButton extends SourceWidget {
   final ValueNotifier<TextConfig> controller;
 
   const ReactiveVisibilityButton({super.key, required this.controller});
 
   @override
-  Widget build(BuildContext context, ConsumerScope scope) {
+  Widget build(BuildContext context, WidgetScope scope) {
     final config = scope.watch(controller.source);
     return IconButton(
       onPressed: () => controller.value = config.copyWith(obscureText: !config.obscureText),
@@ -120,14 +120,14 @@ class ReactiveVisibilityButton extends SourceConsumerWidget {
   }
 }
 
-class VisibilityButton extends ConsumerWidget {
+class VisibilityButton extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChange;
 
   const VisibilityButton({super.key, required this.value, required this.onChange});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return IconButton(
       onPressed: () => onChange(!value),
       icon: value ? const Icon(Icons.visibility) : const Icon(Icons.visibility_off),

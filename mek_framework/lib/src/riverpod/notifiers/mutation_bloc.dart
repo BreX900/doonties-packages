@@ -27,7 +27,7 @@ typedef DataMutationListener<Arg, Result> = FutureOr<void> Function(Arg arg, Res
 typedef ResultMutationListener<Arg, Result> =
     FutureOr<void> Function(Arg arg, Object? error, Result? result);
 
-extension MutationBlocExtension on ConsumerScope {
+extension MutationBlocExtension on WidgetScope {
   MutationBloc<A, R> mutation<A, R>(
     Future<R> Function(MutationRef ref, A arg) mutator, {
     StartMutationListener<A>? onStart,
@@ -37,7 +37,7 @@ extension MutationBlocExtension on ConsumerScope {
     ResultMutationListener<A, R>? onFinish,
   }) {
     final mutation = MutationBloc<A, R>(
-      ref,
+      () => ProviderScope.containerOf(context, listen: false),
       mutator,
       onStart: onStart,
       onWillMutate: onWillMutate,
@@ -52,7 +52,7 @@ extension MutationBlocExtension on ConsumerScope {
 
 class MutationBloc<TArg, TResult> extends SourceNotifier<MutationState<TResult>>
     implements Mutation<TArg> {
-  final WidgetRef _ref;
+  final ProviderContainer Function() _containerGetter;
   final FutureOr<TResult> Function(MutationRef ref, TArg arg) _mutator;
   final StartMutationListener<TArg>? _onStart;
   final WillStartMutationListener<TArg>? _onWillMutate;
@@ -61,7 +61,7 @@ class MutationBloc<TArg, TResult> extends SourceNotifier<MutationState<TResult>>
   final ResultMutationListener<TArg, TResult>? _onFinish;
 
   MutationBloc(
-    this._ref,
+    this._containerGetter,
     this._mutator, {
     required StartMutationListener<TArg>? onStart,
     required WillStartMutationListener<TArg>? onWillMutate,
@@ -94,7 +94,7 @@ class MutationBloc<TArg, TResult> extends SourceNotifier<MutationState<TResult>>
     await _tryCall1(_onStart, arg);
     if (!mounted) return;
 
-    final ref = MutationRefImpl(_ref.container, this, arg);
+    final ref = MutationRefImpl(_containerGetter(), this, arg);
     try {
       final result = await _mutator(ref, arg);
       ref.dispose();

@@ -4,7 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:mek/mek.dart';
 
-extension HandleWidgetRef on ConsumerScope {
+extension HandleWidgetRef on WidgetScope {
   bool watchIsMutating(Iterable<SourceNotifier<MutationState<Object?>>> mutations) {
     return watch(mutations.map((e) => e.source).source.isMutating);
   }

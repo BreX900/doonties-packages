@@ -166,13 +166,13 @@ class MekTable extends StatelessWidget {
   }
 }
 
-class MekTablePagination extends SourceConsumerWidget {
+class MekTablePagination extends SourceWidget {
   final CursorBloc cursorBloc;
 
   const MekTablePagination({super.key, required this.cursorBloc});
 
   @override
-  Widget build(BuildContext context, ConsumerScope scope) {
+  Widget build(BuildContext context, WidgetScope scope) {
     final cursorState = scope.watch(cursorBloc.source);
 
     final localizations = MaterialLocalizations.of(context);

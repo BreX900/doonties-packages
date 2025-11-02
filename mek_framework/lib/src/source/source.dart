@@ -11,8 +11,8 @@ import 'package:mek/src/reactive_forms/reactive_forms.dart';
 import 'package:meta/meta.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-part '_source_observer_widget.dart';
-part '_source_widget.dart';
+part '_source_consumer_widgets.dart';
+part '_source_widgets.dart';
 part 'adapters/_listenable_source.dart';
 part 'adapters/_reactive_form_sources.dart';
 part 'adapters/_reactive_form_sources_extra.dart';

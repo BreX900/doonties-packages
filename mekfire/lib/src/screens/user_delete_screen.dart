@@ -107,7 +107,7 @@ class _UserDeleteScreenState extends SourceConsumerState<UserDeleteScreenBase> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Delete user?'),
-        flexibleSpace: SourceConsumer(
+        flexibleSpace: SourceBuilder(
           builder: (context, scope, _) {
             final progress = scope.watch(
               _deleteUser.source.select((state) => state.progressOrNull),

@@ -1,11 +1,13 @@
 part of 'source.dart';
 
-final class SourceScope {
+typedef SourceScope = WidgetScope;
+
+final class WidgetScope {
   final _SourceStatefulElementMixin _element;
 
   BuildContext get context => _element;
 
-  SourceScope._(this._element);
+  WidgetScope._(this._element);
 
   void listen<T>(Source<T> source, SourceListener<T> listener) {
     _assertNotDisposed();
@@ -47,21 +49,19 @@ final class SourceScope {
   }
 }
 
-class SourceBuilder extends SourceStatefulWidget {
-  final Widget Function(BuildContext context, SourceScope scope, Widget? child) builder;
+class SourceBuilder extends SourceWidget {
+  final Widget Function(BuildContext context, WidgetScope scope, Widget? child) builder;
 
   const SourceBuilder({super.key, required this.builder});
 
-  Widget build(BuildContext context, SourceScope scope) => builder(context, scope, null);
-
   @override
-  SourceState<SourceStatefulWidget> createState() => _SourceState();
+  Widget build(BuildContext context, WidgetScope scope) => builder(context, scope, null);
 }
 
 abstract class SourceWidget extends SourceStatefulWidget {
   const SourceWidget({super.key});
 
-  Widget build(BuildContext context, SourceScope scope);
+  Widget build(BuildContext context, WidgetScope scope);
 
   @override
   SourceState<SourceStatefulWidget> createState() => _SourceState();
@@ -83,7 +83,7 @@ abstract class SourceStatefulWidget extends StatefulWidget {
 }
 
 abstract class SourceState<T extends SourceStatefulWidget> extends State<T> {
-  late final SourceScope scope = SourceScope._(context as _SourceStatefulElementMixin);
+  late final WidgetScope scope = WidgetScope._(context as _SourceStatefulElement);
 }
 
 class _SourceStatefulElement extends StatefulElement with _SourceStatefulElementMixin {
