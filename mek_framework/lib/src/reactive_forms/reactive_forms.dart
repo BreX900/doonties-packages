@@ -92,10 +92,7 @@ extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
     };
   }
 
-  void Function(T arg) handleSubmitWith<T>(
-    void Function(T arg) onSubmit, {
-    bool keepDisabled = false,
-  }) {
+  void Function(T arg) handleSubmitWith<T>(void Function(T arg) onSubmit) {
     return (arg) {
       if (!_canSubmit()) return;
       onSubmit(arg);

@@ -10,6 +10,20 @@ extension SourceValueListenableExtension<T> on ValueListenable<T> {
   static T _selectValue<T>(ValueListenable<T> listenable) => listenable.value;
 }
 
+extension SourceTabControllerExtension on TabController {
+  TabControllerSource get source => TabControllerSource(this);
+}
+
+class TabControllerSource {
+  final TabController _controller;
+
+  Source<int> get index => _ListenableSource(_controller, _index);
+
+  TabControllerSource(this._controller);
+
+  static int _index(TabController controller) => controller.index;
+}
+
 class _ListenableSource<T extends Listenable, R> extends Source<R> with EquatableMixin {
   final T listenable;
   final R Function(T listenable) selector;

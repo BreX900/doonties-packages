@@ -31,9 +31,11 @@ class _SignInScreenState extends SourceConsumerState<SignInScreenBase> {
 
   late final _signIn = scope.mutation(
     (ref, None _) async {
+      _form.markAsDisabled();
       await UserAuthProviders.signIn(email: _emailFb.value, password: _passwordFb.value);
     },
     onError: (_, error) {
+      _form.markAsEnabled();
       widget.asyncHandler.showError(context, error);
     },
   );
@@ -62,8 +64,8 @@ class _SignInScreenState extends SourceConsumerState<SignInScreenBase> {
   Widget build(BuildContext context) {
     final isIdle = !scope.watchIsMutating([_signIn, _sendPasswordResetEmail]);
 
-    final signIn = _form.handleSubmitWith(_signIn.run, keepDisabled: true);
-    final sendPasswordResetEmail = _emailFb.handleSubmitWith(_sendPasswordResetEmail.run);
+    final signIn = _form.handleSubmitWith(_signIn);
+    final sendPasswordResetEmail = _emailFb.handleSubmitWith(_sendPasswordResetEmail);
 
     List<Widget> buildFields() {
       return [

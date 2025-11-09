@@ -56,12 +56,6 @@ abstract class _SourceTransformer<T, R> extends Source<R> with EquatableMixin {
   }
 }
 
-class _Optional<T> {
-  final T value;
-
-  _Optional(this.value);
-}
-
 final class _SourceTransformerSubscription<T, R> extends SourceSubscription<R> {
   final SourceSubscription<T> subscription;
   final R Function() reader;

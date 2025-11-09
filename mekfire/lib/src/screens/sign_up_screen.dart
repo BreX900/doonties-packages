@@ -38,21 +38,21 @@ class _SignUpScreenState extends SourceConsumerState<SignUpScreenBase> {
 
   late final _signUp = scope.mutation(
     (ref, None _) async {
+      _form.markAsDisabled();
       await UserAuthProviders.signUp(
         email: _emailFb.value,
         password: _passwordFb.value,
         passwordConfirmation: _passwordConfirmationFb.value,
       );
     },
-    onError: (_, error) {
-      widget.asyncHandler.showError(context, error);
-    },
+    onError: (_, error) => widget.asyncHandler.showError(context, error),
+    onFinish: (_, _, _) => _form.markAsEnabled(),
   );
 
   @override
   Widget build(BuildContext context) {
     final isIdle = !scope.watchIsMutating([_signUp]);
-    final signUp = _form.handleSubmitWith(_signUp.run, keepDisabled: true);
+    final signUp = _form.handleSubmitWith(_signUp);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Sign Up!')),

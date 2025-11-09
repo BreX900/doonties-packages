@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
-import 'package:mek/src/source/source.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:mekart/mekart.dart';
 
 class Cursor with EquatableAndDescribable {
@@ -90,7 +90,7 @@ class CursorState with EquatableAndDescribable {
   }
 }
 
-class CursorBloc extends SourceNotifier<CursorState> {
+class CursorBloc extends StateNotifier<CursorState> {
   static int defaultSize = 20;
 
   CursorBloc({String? debugLabel, int? size})

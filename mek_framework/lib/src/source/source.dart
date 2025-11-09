@@ -3,7 +3,7 @@ import 'dart:collection';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 // ignore: implementation_imports
 import 'package:flutter_riverpod/src/internals.dart';
 import 'package:mek/src/reactive_forms/controls/form_control_typed.dart';
@@ -17,6 +17,7 @@ part 'adapters/_listenable_source.dart';
 part 'adapters/_reactive_form_sources.dart';
 part 'adapters/_reactive_form_sources_extra.dart';
 part 'adapters/_source_selector.dart';
+part 'adapters/_state_notifier_source.dart';
 
 typedef SourceListener<T> = void Function(T previous, T state);
 
@@ -179,4 +180,10 @@ final class _SourceSubscription<T> extends SourceSubscription<T> {
     _listenersEntry.unlink();
     super.cancel();
   }
+}
+
+class _Optional<T> {
+  final T value;
+
+  _Optional(this.value);
 }

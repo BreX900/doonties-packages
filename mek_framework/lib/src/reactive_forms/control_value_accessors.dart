@@ -1,6 +1,6 @@
-import 'package:decimal/decimal.dart';
 import 'package:decimal/intl.dart';
 import 'package:intl/intl.dart';
+import 'package:mekart/mekart.dart';
 import 'package:meta/meta.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
@@ -10,10 +10,10 @@ abstract final class MekAccessors {
     required ModelDataType? Function(ViewDataType value) toModel,
   }) => _DelegateAccessor(toView: toView, toModel: toModel);
 
-  static ControlValueAccessor<Decimal, String> decimalToString(NumberFormat format) =>
+  static ControlValueAccessor<Fixed, String> decimalToString(NumberFormat format) =>
       _ControlDecimalAccessor(DecimalFormatter(format));
 
-  static ControlValueAccessor<Decimal, String> decimalPercentToString(NumberFormat format) =>
+  static ControlValueAccessor<Fixed, String> decimalPercentToString(NumberFormat format) =>
       _ControlDecimalAccessor.percent(DecimalFormatter(format));
 
   static ControlValueAccessor<double, String> doubleToString(NumberFormat format) =>
@@ -43,7 +43,7 @@ class _DelegateAccessor<ModelDataType, ViewDataType>
   }
 }
 
-class _ControlDecimalAccessor extends ControlValueAccessor<Decimal, String> {
+class _ControlDecimalAccessor extends ControlValueAccessor<Fixed, String> {
   final DecimalFormatter format;
   final bool isPercent;
 
@@ -52,17 +52,17 @@ class _ControlDecimalAccessor extends ControlValueAccessor<Decimal, String> {
   _ControlDecimalAccessor.percent(this.format) : isPercent = true;
 
   @override
-  String? modelToViewValue(Decimal? modelValue) {
+  String? modelToViewValue(Fixed? modelValue) {
     if (modelValue == null) return null;
-    return format.format(isPercent ? modelValue * Decimal.fromInt(100) : modelValue);
+    return format.format(isPercent ? modelValue * Fixed.hundred : modelValue);
   }
 
   @override
-  Decimal? viewToModelValue(String? viewValue) {
+  Fixed? viewToModelValue(String? viewValue) {
     if (viewValue == null || viewValue.isEmpty) return null;
     return isPercent
-        ? (format.parse(viewValue) / Decimal.fromInt(100)).toDecimal()
-        : format.parse(viewValue);
+        ? (Fixed(format.parse(viewValue)) / Fixed.hundred)
+        : Fixed(format.parse(viewValue));
   }
 }
 
