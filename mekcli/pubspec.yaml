@@ -5,7 +5,6 @@ publish_to: 'none'
 
 environment:
   sdk: ^3.9.0
-  flutter: ^3.35.0
 
 scripts:
   bootstrap: dart pub global activate rps 0.7.0
