@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:mek/src/data/optional.dart';
-import 'package:mek/src/source/source.dart';
 import 'package:reactive_forms/reactive_forms.dart';
+import 'package:rivertion/rivertion.dart';
 
-extension DebouncedNotifierProviderExtension<T> on Source<DebouncedState<T>> {
-  Source<bool> get isPending => select(_isPending);
-  Source<Optional<T>?> get pending => select(_pending);
-  Source<T> get value => select(_value);
+extension DebouncedNotifierProviderExtension<T> on SourceListenable<DebouncedState<T>> {
+  SourceListenable<bool> get isPending => select(_isPending);
+  SourceListenable<Optional<T>?> get pending => select(_pending);
+  SourceListenable<T> get value => select(_value);
 
   static bool _isPending<T>(DebouncedState<T> state) => state.isPending;
   static Optional<T>? _pending<T>(DebouncedState<T> state) => state.pending;

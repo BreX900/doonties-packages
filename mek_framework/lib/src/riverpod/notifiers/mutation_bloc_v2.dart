@@ -5,9 +5,12 @@ import 'package:mek/mek.dart';
 import 'package:mek/src/core/_log.dart';
 import 'package:mek/src/riverpod/notifiers/_mutation.dart';
 
-extension MutationNotififierExtension on WidgetScope {
+extension MutationNotififierExtension on SourceRef {
   MutationNotifier<A, R> mutationV2<A, R>(Future<R> Function(MutationRef ref, A arg) mutator) {
-    final mutation = MutationNotifier<A, R>(() => ProviderScope.containerOf(context, listen: false), mutator);
+    final mutation = MutationNotifier<A, R>(
+      () => ProviderScope.containerOf(context, listen: false),
+      mutator,
+    );
     onDispose(mutation.dispose);
     return mutation;
   }
@@ -29,7 +32,7 @@ class MutationNotifier<TArg, TResult> extends SourceNotifier<MutationState<TResu
     required ErrorMutationListenerV2? onError,
     DataMutationListenerV2<TResult>? onSuccess,
     ResultMutationListenerV2<TResult>? onSettled,
-  }) => unawaited(run(arg, onError: onError, onSuccess: onSuccess, onSettled: onSettled)..ignore());
+  }) => unawaited(execute(arg, onError: onError, onSuccess: onSuccess, onSettled: onSettled));
 
   Future<bool?> execute(
     TArg arg, {
@@ -41,8 +44,9 @@ class MutationNotifier<TArg, TResult> extends SourceNotifier<MutationState<TResu
       await run(arg, onError: onError, onSuccess: onSuccess, onSettled: onSettled);
       if (!mounted) return null;
       return true;
-    } catch (_) {
+    } catch (error, stackTrace) {
       if (!mounted) return null;
+      SourceObserver.current.onUncaughtError(this, error, stackTrace);
       return false;
     }
   }
@@ -94,7 +98,7 @@ class MutationNotifier<TArg, TResult> extends SourceNotifier<MutationState<TResu
     try {
       await fn($1);
     } catch (error, stackTrace) {
-      Source.observer.onUncaughtError(this, error, stackTrace);
+      SourceObserver.current.onUncaughtError(this, error, stackTrace);
     }
   }
 
@@ -103,7 +107,7 @@ class MutationNotifier<TArg, TResult> extends SourceNotifier<MutationState<TResu
     try {
       await fn($1, $2);
     } catch (error, stackTrace) {
-      Source.observer.onUncaughtError(this, error, stackTrace);
+      SourceObserver.current.onUncaughtError(this, error, stackTrace);
     }
   }
 }

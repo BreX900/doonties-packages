@@ -2,6 +2,8 @@
 
 library;
 
+export 'package:rivertion/rivertion.dart';
+
 export 'src/core/either.dart';
 export 'src/core/typedefs.dart';
 export 'src/data/mek_failure.dart';
@@ -34,6 +36,7 @@ export 'src/reactive_forms/fields/reactive_form_field_decorated.dart';
 export 'src/reactive_forms/fields/reactive_multi_dropdown.dart';
 export 'src/reactive_forms/fields/reactive_segmented_button.dart';
 export 'src/reactive_forms/fields/reactive_type_ahead_field.dart';
+export 'src/reactive_forms/fields/reactive_type_ahead_field_old.dart';
 export 'src/reactive_forms/fields/typed_reactive_text_field.dart';
 export 'src/reactive_forms/form_control_state_provider.dart';
 export 'src/reactive_forms/mek_validation_messages.dart';
@@ -59,7 +62,6 @@ export 'src/shared/flutter_extensions.dart';
 export 'src/shared/handle_callback.dart';
 export 'src/shared/mek_utils.dart';
 export 'src/shared/nav.dart';
-export 'src/source/link_life_to_extensions.dart';
 export 'src/source/source.dart';
 export 'src/widgets/bottom_sheet/sheet_bar.dart';
 export 'src/widgets/common/copy_to_clipboard_icon_button.dart';

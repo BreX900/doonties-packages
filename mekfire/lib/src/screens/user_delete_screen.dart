@@ -26,7 +26,7 @@ class _UserDeleteScreenState extends SourceConsumerState<UserDeleteScreenBase> {
 
   late final _form = FormArray([_emailFieldBloc, _passwordFieldBloc]);
 
-  late final _deleteUser = scope.mutation(
+  late final _deleteUser = ref.mutation(
     (ref, None _) async {
       await widget.onDelete(ref, _emailFieldBloc.value, _passwordFieldBloc.value);
     },
@@ -102,14 +102,14 @@ class _UserDeleteScreenState extends SourceConsumerState<UserDeleteScreenBase> {
 
   @override
   Widget build(BuildContext context) {
-    final isMutating = scope.watchIsMutating([_deleteUser]);
+    final isMutating = ref.watchIsMutating([_deleteUser]);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Delete user?'),
         flexibleSpace: SourceBuilder(
           builder: (context, scope, _) {
-            final progress = scope.watch(
+            final progress = ref.watchSource(
               _deleteUser.source.select((state) => state.progressOrNull),
             );
             return FlexibleLinearProgressBar(visible: isMutating, value: progress);

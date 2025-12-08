@@ -1,8 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:mek/mek.dart';
+import 'package:mek/src/reactive_forms/reactive_forms.dart';
+import 'package:mek/src/reactive_forms/utils/field_config.dart';
+import 'package:mek/src/source/source.dart';
 import 'package:reactive_forms/reactive_forms.dart';
+import 'package:rivertion/rivertion.dart';
 
 class ReactiveSaveButton extends SourceWidget {
   final Future<void> Function()? onSubmit;
@@ -10,12 +13,12 @@ class ReactiveSaveButton extends SourceWidget {
   const ReactiveSaveButton({super.key, required this.onSubmit});
 
   @override
-  Widget build(BuildContext context, WidgetScope scope) {
+  Widget build(BuildContext context, SourceRef ref) {
     final onSubmit = this.onSubmit;
 
     final field = context.findAncestorStateOfType<ReactiveFormFieldState>()!;
 
-    final isPristine = scope.watch(field.control.source.pristine);
+    final isPristine = ref.watchSource(field.control.source.pristine);
     if (isPristine) return const SizedBox.shrink();
 
     final submit = field.control.handleSubmitWith<Future<void> Function()>(
@@ -34,12 +37,12 @@ class ReactiveAddButton extends SourceWidget {
   const ReactiveAddButton({super.key, required this.onSubmit});
 
   @override
-  Widget build(BuildContext context, WidgetScope scope) {
+  Widget build(BuildContext context, SourceRef ref) {
     final onSubmit = this.onSubmit;
 
     final field = context.findAncestorStateOfType<ReactiveFormFieldState>()!;
 
-    final isPristine = scope.watch(field.control.source.pristine);
+    final isPristine = ref.watchSource(field.control.source.pristine);
     if (isPristine) return const SizedBox.shrink();
 
     final submit = field.control.handleSubmitWith<FutureOr<void> Function()>((submit) async {
@@ -59,9 +62,9 @@ class ReactiveClearButton extends SourceWidget {
   const ReactiveClearButton({super.key, this.onClear});
 
   @override
-  Widget build(BuildContext context, WidgetScope scope) {
+  Widget build(BuildContext context, SourceRef ref) {
     final field = context.findAncestorStateOfType<ReactiveFormFieldState>()!;
-    final isEnabled = scope.watch(field.control.source.status.enabled);
+    final isEnabled = ref.watchSource(field.control.source.status.enabled);
 
     return IconButton(
       onPressed: isEnabled ? onClear ?? field.control.reset : null,
@@ -83,11 +86,11 @@ class ReactiveEditButton extends SourceWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetScope scope) {
+  Widget build(BuildContext context, SourceRef ref) {
     final onSubmit = this.onSubmit;
 
     final field = context.findAncestorStateOfType<ReactiveFormFieldState>()!;
-    final config = scope.watch(controller.source);
+    final config = ref.watchSource(controller.source);
 
     final readOnly = config.readOnly;
     final submit = field.control.handleSubmitWith<FutureOr<void> Function()>((submit) async {
@@ -110,8 +113,8 @@ class ReactiveVisibilityButton extends SourceWidget {
   const ReactiveVisibilityButton({super.key, required this.controller});
 
   @override
-  Widget build(BuildContext context, WidgetScope scope) {
-    final config = scope.watch(controller.source);
+  Widget build(BuildContext context, SourceRef ref) {
+    final config = ref.watchSource(controller.source);
     return IconButton(
       onPressed: () => controller.value = config.copyWith(obscureText: !config.obscureText),
       icon: config.obscureText ? const Icon(Icons.visibility) : const Icon(Icons.visibility_off),

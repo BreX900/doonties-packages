@@ -36,7 +36,7 @@ class _SignUpScreenState extends SourceConsumerState<SignUpScreenBase> {
     super.dispose();
   }
 
-  late final _signUp = scope.mutation(
+  late final _signUp = ref.mutation(
     (ref, None _) async {
       _form.markAsDisabled();
       await UserAuthProviders.signUp(
@@ -51,7 +51,7 @@ class _SignUpScreenState extends SourceConsumerState<SignUpScreenBase> {
 
   @override
   Widget build(BuildContext context) {
-    final isIdle = !scope.watchIsMutating([_signUp]);
+    final isIdle = !ref.watchIsMutating([_signUp]);
     final signUp = _form.handleSubmitWith(_signUp);
 
     return Scaffold(

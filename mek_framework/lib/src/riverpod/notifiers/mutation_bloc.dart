@@ -5,16 +5,16 @@ import 'package:mek/mek.dart';
 import 'package:mek/src/core/_log.dart';
 import 'package:mek/src/riverpod/notifiers/_mutation.dart';
 
-extension MutationProviderListenableExtensions on Source<MutationState<Object?>> {
-  Source<MutationState<Object?>?> of(Object? arg) => selectWith(arg, _of);
+extension MutationProviderListenableExtensions on SourceListenable<MutationState<Object?>> {
+  SourceListenable<MutationState<Object?>?> of(Object? arg) => selectWith(arg, _of);
 
   static MutationState<Object?>? _of(Object? arg, MutationState<Object?> state) =>
       state.args.contains(arg) ? state : null;
 }
 
-extension MutationProviderListenableExtensions2 on Source<MutationState<Object?>?> {
-  Source<bool> get isIdle => select(_isIdle);
-  Source<bool> get isMutating => select(_isMutating);
+extension MutationProviderListenableExtensions2 on SourceListenable<MutationState<Object?>?> {
+  SourceListenable<bool> get isIdle => select(_isIdle);
+  SourceListenable<bool> get isMutating => select(_isMutating);
 
   static bool _isIdle(MutationState<Object?>? state) => state?.isIdle ?? true;
   static bool _isMutating(MutationState<Object?>? state) => state?.isMutating ?? false;
@@ -27,7 +27,7 @@ typedef DataMutationListener<Arg, Result> = FutureOr<void> Function(Arg arg, Res
 typedef ResultMutationListener<Arg, Result> =
     FutureOr<void> Function(Arg arg, Object? error, Result? result);
 
-extension MutationBlocExtension on WidgetScope {
+extension MutationBlocExtension on SourceRef {
   MutationBloc<A, R> mutation<A, R>(
     Future<R> Function(MutationRef ref, A arg) mutator, {
     StartMutationListener<A>? onStart,
@@ -108,9 +108,9 @@ class MutationBloc<TArg, TResult> extends SourceNotifier<MutationState<TResult>>
 
       state = state.toSuccess(arg: arg, data: result);
     } catch (error, stackTrace) {
-      Source.observer.onUncaughtError(this, error, stackTrace);
       ref.dispose();
       if (!mounted) return;
+      SourceObserver.current.onUncaughtError(this, error, stackTrace);
 
       await _tryCall2(_onError, arg, error);
       if (!mounted) return;
@@ -142,7 +142,7 @@ class MutationBloc<TArg, TResult> extends SourceNotifier<MutationState<TResult>>
     try {
       await fn($1);
     } catch (error, stackTrace) {
-      Source.observer.onUncaughtError(this, error, stackTrace);
+      SourceObserver.current.onUncaughtError(this, error, stackTrace);
     }
   }
 
@@ -151,7 +151,7 @@ class MutationBloc<TArg, TResult> extends SourceNotifier<MutationState<TResult>>
     try {
       await fn($1, $2);
     } catch (error, stackTrace) {
-      Source.observer.onUncaughtError(this, error, stackTrace);
+      SourceObserver.current.onUncaughtError(this, error, stackTrace);
     }
   }
 
@@ -165,7 +165,7 @@ class MutationBloc<TArg, TResult> extends SourceNotifier<MutationState<TResult>>
     try {
       await fn($1, $2, $3);
     } catch (error, stackTrace) {
-      Source.observer.onUncaughtError(this, error, stackTrace);
+      SourceObserver.current.onUncaughtError(this, error, stackTrace);
     }
   }
 

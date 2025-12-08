@@ -16,6 +16,8 @@ scripts:
   generate-library: dart pub global activate index_generator 4.0.0 &&
     dart pub global run index_generator
 
+  generate-rivertion: dart run rivertion --templates=riverpod,reactive_forms --output=lib/src/source
+
   # Integration tools
   integration: dart pub global run rps check-format && dart pub global run rps analyze && dart pub global run rps test
   check-format: >-
@@ -38,6 +40,7 @@ dependencies:
   equatable: ^2.0.7
   logging: ^1.3.0
   fast_immutable_collections: ^11.0.4
+  rivertion: ^4.2.0
 
   nested: ^1.0.0
   flutter_riverpod: ^3.0.0
@@ -45,7 +48,7 @@ dependencies:
 #  chips_input: ^0.1.0
 #  flutter_typeahead: ^5.2.0
 #  multi_select_flutter: ^4.1.3
-  reactive_forms: ^18.0.1
+  reactive_forms: ^18.2.0
   intl: '>=0.18.0 <0.21.0'
 
 dev_dependencies:
@@ -61,3 +64,5 @@ index_generator:
     - '{_,**/_}*.dart'
   libraries:
     - directory_path: lib
+      exports:
+        - package: package:rivertion/rivertion.dart

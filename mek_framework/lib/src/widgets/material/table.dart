@@ -172,8 +172,8 @@ class MekTablePagination extends SourceWidget {
   const MekTablePagination({super.key, required this.cursorBloc});
 
   @override
-  Widget build(BuildContext context, WidgetScope scope) {
-    final cursorState = scope.watch(cursorBloc.source);
+  Widget build(BuildContext context, SourceRef ref) {
+    final cursorState = ref.watchSource(cursorBloc.source);
 
     final localizations = MaterialLocalizations.of(context);
 

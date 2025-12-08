@@ -13,7 +13,7 @@ abstract class EmailVerificationScreenBase extends SourceConsumerStatefulWidget 
 }
 
 class _SignEmailScreenState extends SourceConsumerState<EmailVerificationScreenBase> {
-  late final _sendEmailVerification = scope.mutation(
+  late final _sendEmailVerification = ref.mutation(
     (ref, arg) async {
       await UserAuthProviders.sendEmailVerification();
     },
@@ -30,7 +30,7 @@ class _SignEmailScreenState extends SourceConsumerState<EmailVerificationScreenB
     },
   );
 
-  late final _reload = scope.mutation(
+  late final _reload = ref.mutation(
     (ref, arg) async {
       await UserAuthProviders.checkEmailVerification();
     },
@@ -39,7 +39,7 @@ class _SignEmailScreenState extends SourceConsumerState<EmailVerificationScreenB
     },
   );
 
-  late final _signOut = scope.mutation(
+  late final _signOut = ref.mutation(
     (ref, arg) async {
       await UserAuthProviders.signOut();
     },
@@ -50,7 +50,7 @@ class _SignEmailScreenState extends SourceConsumerState<EmailVerificationScreenB
 
   @override
   Widget build(BuildContext context) {
-    final isIdle = !scope.watchIsMutating([_sendEmailVerification, _reload, _signOut]);
+    final isIdle = !ref.watchIsMutating([_sendEmailVerification, _reload, _signOut]);
 
     return Scaffold(
       appBar: AppBar(

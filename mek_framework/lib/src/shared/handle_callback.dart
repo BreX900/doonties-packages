@@ -2,31 +2,34 @@ import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import 'package:mek/mek.dart';
+import 'package:mek/src/riverpod/notifiers/mutation_bloc.dart';
+import 'package:mek/src/riverpod/notifiers/mutation_state.dart';
+// ignore: implementation_imports
+import 'package:rivertion/src/internals.dart';
 
-extension HandleWidgetRef on WidgetScope {
+extension HandleWidgetRef on SourceRef {
   bool watchIsMutating(Iterable<SourceNotifier<MutationState<Object?>>> mutations) {
-    return watch(mutations.map((e) => e.source).source.isMutating);
+    return watchSource(mutations.map((e) => e.source).source.isMutating);
   }
 
   VoidCallback? handle<T>(MutationBloc<T, Object?> mutation, T arg) {
-    final isMutating = watch(mutation.source.isMutating);
+    final isMutating = watchSource(mutation.source.isMutating);
     if (isMutating) return null;
     return () => mutation(arg);
   }
 }
 
 extension ProviderGroupStateListenableExtension<T> on Iterable<Source<T>> {
-  Source<List<T>> get source => _GroupSource(this);
+  SourceListenable<List<T>> get source => _GroupSource(this);
 }
 
-extension MutationsGroupProviderListenableExtensions on Source<Iterable<MutationState>> {
-  Source<bool> get isMutating => select(_isMutating);
+extension MutationsGroupProviderListenableExtensions on SourceListenable<Iterable<MutationState>> {
+  SourceListenable<bool> get isMutating => select(_isMutating);
 
   static bool _isMutating(Iterable<MutationState> states) => states.any((e) => e.isMutating);
 }
 
-class _GroupSource<T> extends Source<List<T>> with EquatableMixin {
+final class _GroupSource<T> extends SourceListenable<List<T>> with EquatableMixin {
   final Iterable<Source<T>> sources;
 
   _GroupSource(this.sources);
@@ -35,7 +38,7 @@ class _GroupSource<T> extends Source<List<T>> with EquatableMixin {
   SourceSubscription<List<T>> listen(SourceListener<List<T>> listener) {
     late List<T> current;
     final subscriptions = sources.mapIndexed((index, source) {
-      return source.listen((previousState, state) {
+      return source.listenable.listen((previousState, state) {
         final previous = current;
         current = [...current]..[index] = state;
         if (previous.equals(current)) return;
@@ -44,30 +47,13 @@ class _GroupSource<T> extends Source<List<T>> with EquatableMixin {
     }).toList();
     current = subscriptions.map((e) => e.read()).toList();
 
-    return _GroupSubscription(subscriptions, () => current);
+    return SourceSubscriptionBuilder(() => current, () {
+      for (final subscription in subscriptions) {
+        subscription.cancel();
+      }
+    });
   }
 
   @override
   List<Object?> get props => [sources];
-}
-
-base class _GroupSubscription<T> extends SourceSubscription<List<T>> {
-  final List<SourceSubscription<T>> subscriptions;
-  final List<T> Function() reader;
-
-  _GroupSubscription(this.subscriptions, this.reader);
-
-  @override
-  List<T> read() {
-    SourceSubscription.debugIsCancelled(this);
-    return reader();
-  }
-
-  @override
-  void cancel() {
-    super.cancel();
-    for (final subscription in subscriptions) {
-      subscription.cancel();
-    }
-  }
 }
