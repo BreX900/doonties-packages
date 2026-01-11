@@ -1,7 +1,30 @@
 // ignore_for_file: invalid_use_of_internal_member
-
 // ignore: implementation_imports
 import 'package:flutter_riverpod/src/internals.dart';
+
+extension AsyncIterableExtensions<E> on Iterable<E> {
+  Iterable<R> mapAsync<R>(R Function(E element) mapper) sync* {
+    final states = <AsyncValue<R>>[];
+    for (final element in this) {
+      states.add(_guard(element, mapper));
+    }
+    for (final state in states) {
+      yield state.requireValue;
+    }
+  }
+
+  AsyncValue<R> _guard<R>(E element, R Function(E element) mapper) {
+    try {
+      return AsyncValue.data(mapper(element));
+    } on AsyncValueIsLoadingException {
+      return AsyncValue.loading();
+    } on ProviderException catch (exception) {
+      return AsyncValue.error(exception.exception, exception.stackTrace);
+    } catch (error, stackTrace) {
+      return AsyncValue.error(error, stackTrace);
+    }
+  }
+}
 
 extension RefreshAndInvalidateAncestorsWidgetRefExtension on WidgetRef {
   void invalidateWithAncestors($ProviderBaseImpl<Object?> provider) {

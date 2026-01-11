@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 class BottomButtonBar extends StatelessWidget {
+  final bool expand;
   final List<Widget> children;
 
-  const BottomButtonBar({super.key, required this.children});
+  const BottomButtonBar({super.key, this.expand = false, required this.children});
 
   static final _buttonStyle = ButtonStyle(
     shape: WidgetStateProperty.all(const BeveledRectangleBorder()),
@@ -22,7 +23,9 @@ class BottomButtonBar extends StatelessWidget {
           data: FilledButtonThemeData(
             style: _buttonStyle.merge(FilledButtonTheme.of(context).style),
           ),
-          child: Row(children: children),
+          child: Row(
+            children: expand ? children.map((child) => Expanded(child: child)).toList() : children,
+          ),
         ),
       ),
     );

@@ -10,16 +10,23 @@ final class AbstractControlSource<C extends AbstractControl<T>, T> {
   final C control;
 
   SourceListenable<ControlStatus> get status => _onStatus.select(_status);
+
   SourceListenable<bool> get pristine => _onStatus.select(_pristine);
+
   SourceListenable<bool> get dirty => _onStatus.select(_dirty);
+
   SourceListenable<Map<String, Object>> get errors => _onStatus.select(_errors);
+
   SourceListenable<bool> get hasErrors => _onStatus.select(_hasErrors);
+
   SourceListenable<bool> hasError(String errorCode, [String? path]) =>
       _onStatus.selectWith((errorCode, path), _hasError);
+
   SourceListenable<Object?> getError(String errorCode, [String? path]) =>
       _onStatus.selectWith((errorCode, path), _getError);
 
   SourceListenable<T?> get value => _AbstractControlValueSourceListenable(control);
+
   SourceListenable<bool> get isEmpty => value.select(_isEmpty);
 
   SourceListenable<bool> get touched => _AbstractControlTouchSourceListenable(control);
@@ -30,12 +37,18 @@ final class AbstractControlSource<C extends AbstractControl<T>, T> {
       _AbstractControlStatusSourceListenable(control);
 
   static ControlStatus _status(AbstractControl<Object?> control) => control.status;
+
   static bool _pristine(AbstractControl<Object?> control) => control.pristine;
+
   static bool _dirty(AbstractControl<Object?> control) => control.dirty;
-  static Map<String, Object> _errors(AbstractControl<Object?> control) => control.errors;
+
+  static Map<String, Object> _errors(AbstractControl<Object?> control) => control.errors.cast();
+
   static bool _hasErrors(AbstractControl<Object?> control) => control.hasErrors;
+
   static bool _hasError((String, String?) arg, AbstractControl<Object?> control) =>
       control.hasError(arg.$1, arg.$2);
+
   static Object? _getError((String, String?) arg, AbstractControl<Object?> control) =>
       control.getError(arg.$1, arg.$2);
 
@@ -64,15 +77,23 @@ extension SourcesFormArrayExtensions<T> on AbstractControlSource<FormArray<T>, L
 
 extension ControlStatusSourceExtensions on SourceListenable<ControlStatus> {
   SourceListenable<bool> get pending => select(_pending);
+
   SourceListenable<bool> get valid => select(_valid);
+
   SourceListenable<bool> get invalid => select(_invalid);
+
   SourceListenable<bool> get disabled => select(_disabled);
+
   SourceListenable<bool> get enabled => select(_enabled);
 
   static bool _pending(ControlStatus status) => status == ControlStatus.pending;
+
   static bool _valid(ControlStatus status) => status == ControlStatus.valid;
+
   static bool _invalid(ControlStatus status) => status == ControlStatus.invalid;
+
   static bool _disabled(ControlStatus status) => status == ControlStatus.disabled;
+
   static bool _enabled(ControlStatus status) => !_disabled(status);
 }
 
