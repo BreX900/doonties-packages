@@ -19,6 +19,11 @@ extension IListExtensions<T> on IList<T> {
     final index = fixedList.indexOf(destination);
     return fixedList.insert(after ? index + 1 : index, target);
   }
+
+  IList<T> replaceOrAdd({required T from, required T to}) {
+    final index = indexOf(from);
+    return index == -1 ? add(to) : replace(index, to);
+  }
 }
 
 extension ISetExtensions<T> on ISet<T> {

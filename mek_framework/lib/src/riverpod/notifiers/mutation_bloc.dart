@@ -14,9 +14,11 @@ extension MutationProviderListenableExtensions on SourceListenable<MutationState
 
 extension MutationProviderListenableExtensions2 on SourceListenable<MutationState<Object?>?> {
   SourceListenable<bool> get isIdle => select(_isIdle);
+
   SourceListenable<bool> get isMutating => select(_isMutating);
 
   static bool _isIdle(MutationState<Object?>? state) => state?.isIdle ?? true;
+
   static bool _isMutating(MutationState<Object?>? state) => state?.isMutating ?? false;
 }
 
@@ -51,7 +53,7 @@ extension MutationBlocExtension on SourceRef {
 }
 
 class MutationBloc<TArg, TResult> extends SourceNotifier<MutationState<TResult>>
-    implements Mutation<TArg> {
+    implements MutationDelegate<TArg> {
   final ProviderContainer Function() _containerGetter;
   final FutureOr<TResult> Function(MutationRef ref, TArg arg) _mutator;
   final StartMutationListener<TArg>? _onStart;
@@ -73,7 +75,7 @@ class MutationBloc<TArg, TResult> extends SourceNotifier<MutationState<TResult>>
        _onError = onError,
        _onData = onData,
        _onFinish = onFinish,
-       super(IdleMutation<TResult>());
+       super(MutationIdle<TResult>());
 
   // ignore: discarded_futures
   void call(TArg arg) => run(arg).ignore();
@@ -118,7 +120,7 @@ class MutationBloc<TArg, TResult> extends SourceNotifier<MutationState<TResult>>
       await _tryCall3(_onFinish, arg, error, null);
       if (!mounted) return;
 
-      state = state.toFailed(arg: arg, error: error);
+      state = state.toFailed(arg: arg, error: error, stackTrace: stackTrace);
 
       rethrow;
     }
@@ -126,7 +128,7 @@ class MutationBloc<TArg, TResult> extends SourceNotifier<MutationState<TResult>>
 
   @override
   void updateProgress(TArg arg, double value) {
-    if (state is! LoadingMutation<TResult>) {
+    if (state is! MutationPending<TResult>) {
       lg.info("Bloc isn't mutating! Cant update progress state. $this");
       return;
     }

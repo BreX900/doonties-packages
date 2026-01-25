@@ -22,6 +22,7 @@ extension type Fixed(Decimal _decimal) implements Decimal {
 
   static final Fixed zero = Fixed(Decimal.zero);
   static final Fixed one = Fixed(Decimal.one);
+  static final Fixed ten = Fixed.fromInt(10);
   static final Fixed hundred = Fixed.fromInt(100);
 
   factory Fixed.fromInt(int value) => Fixed(Decimal.fromInt(value));

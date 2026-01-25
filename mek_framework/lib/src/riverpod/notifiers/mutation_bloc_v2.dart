@@ -21,11 +21,11 @@ typedef DataMutationListenerV2<Result> = FutureOr<void> Function(Result result);
 typedef ResultMutationListenerV2<Result> = FutureOr<void> Function(Object? error, Result? result);
 
 class MutationNotifier<TArg, TResult> extends SourceNotifier<MutationState<TResult>>
-    implements Mutation<TArg> {
+    implements MutationDelegate<TArg> {
   final ProviderContainer Function() _readContainer;
   final Future<TResult> Function(MutationRef ref, TArg arg) _mutator;
 
-  MutationNotifier(this._readContainer, this._mutator) : super(IdleMutation<TResult>());
+  MutationNotifier(this._readContainer, this._mutator) : super(MutationIdle<TResult>());
 
   void call(
     TArg arg, {
@@ -72,21 +72,21 @@ class MutationNotifier<TArg, TResult> extends SourceNotifier<MutationState<TResu
 
       state = state.toSuccess(arg: arg, data: result);
       return result;
-    } catch (error) {
+    } catch (error, stackTrace) {
       ref.dispose();
       if (!mounted) rethrow;
 
       unawaited(_tryCall1(onError, error));
       unawaited(_tryCall2(onSettled, error, null));
 
-      state = state.toFailed(arg: arg, error: error);
+      state = state.toFailed(arg: arg, error: error, stackTrace: stackTrace);
       rethrow;
     }
   }
 
   @override
   void updateProgress(TArg arg, double value) {
-    if (state is! LoadingMutation<TResult>) {
+    if (state is! MutationPending<TResult>) {
       lg.info("Bloc isn't mutating! Cant update progress state. $this");
       return;
     }

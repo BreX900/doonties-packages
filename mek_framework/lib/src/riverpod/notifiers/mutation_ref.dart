@@ -6,13 +6,31 @@ abstract class MutationRef {
 
   MutationRef(this._ref);
 
-  bool exists(ProviderBase<Object?> provider) => _ref.exists(provider);
+  bool get mounted;
 
-  void invalidate(ProviderOrFamily provider) => _ref.invalidate(provider);
+  bool exists(ProviderBase<Object?> provider) {
+    MutationRef.ensureIsMounted(this);
+    return _ref.exists(provider);
+  }
 
-  T read<T>(ProviderListenable<T> provider) => _ref.read(provider);
+  void invalidate(ProviderOrFamily provider) {
+    MutationRef.ensureIsMounted(this);
+    _ref.invalidate(provider);
+  }
 
-  T refresh<T>(Refreshable<T> provider) => _ref.refresh(provider);
+  T read<T>(ProviderListenable<T> provider) {
+    MutationRef.ensureIsMounted(this);
+    return _ref.read(provider);
+  }
+
+  T refresh<T>(Refreshable<T> provider) {
+    MutationRef.ensureIsMounted(this);
+    return _ref.refresh(provider);
+  }
 
   void updateProgress(double value);
+
+  static void ensureIsMounted(MutationRef ref) {
+    assert(ref.mounted);
+  }
 }

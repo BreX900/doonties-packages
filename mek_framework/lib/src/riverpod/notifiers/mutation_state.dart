@@ -6,68 +6,89 @@ sealed class MutationState<TData> with EquatableAndDescribable {
 
   const MutationState({required this.args});
 
-  bool get isMutating => args.isNotEmpty;
+  @Deprecated('In favour of isPending')
+  bool get isMutating => isPending || args.isNotEmpty;
 
-  bool get isIdle => this is IdleMutation<TData>;
-  bool get isLoading => this is LoadingMutation<TData>;
-  bool get isFailed => this is FailedMutation<TData>;
-  bool get isSuccess => this is SuccessMutation<TData>;
+  bool get isIdle => this is MutationIdle<TData>;
+
+  bool get isPending => this is MutationPending<TData>;
+
+  bool get hasError => this is MutationError<TData>;
+
+  bool get isSuccess => this is MutationSuccess<TData>;
+
+  @Deprecated('In favour of isPending')
+  bool get isLoading => this is MutationPending<TData>;
+
+  @Deprecated('In favour of isPending')
+  bool get isFailed => this is MutationError<TData>;
 
   Object? get errorOrNull => whenOrNull(failed: (error) => error);
 
   double? get progressOrNull {
     final state = this;
-    return state is LoadingMutation<TData> ? state.status.values.singleOrNull : null;
+    return state is MutationPending<TData> ? state.status.values.singleOrNull : null;
   }
 
   IMap<Object?, double?> get status {
     final state = this;
-    return state is LoadingMutation<TData> ? state.status : const IMap.empty();
+    return state is MutationPending<TData> ? state.status : const IMap.empty();
   }
 
-  const factory MutationState.idle() = IdleMutation<TData>;
+  const factory MutationState.idle() = MutationIdle<TData>;
+
+  const factory MutationState.pending() = MutationPending<TData>;
+
   const factory MutationState.loading({
     required ISet<Object?> args,
     required IMap<Object?, double?> status,
-  }) = LoadingMutation<TData>;
-  const factory MutationState.failed({required ISet<Object?> args, required Object error}) =
-      FailedMutation<TData>;
-  const factory MutationState.success({required ISet<Object?> args, required TData data}) =
-      SuccessMutation<TData>;
+  }) = MutationPending<TData>;
 
-  MutationState<TData> toIdle() => IdleMutation<TData>();
+  const factory MutationState.failed(Object error, StackTrace stackTrace, {ISet<Object?> args}) =
+      MutationError<TData>;
+
+  const factory MutationState.error(Object error, StackTrace stackTrace) = MutationError<TData>;
+
+  const factory MutationState.success({required ISet<Object?> args, required TData data}) =
+      MutationSuccess<TData>;
+
+  MutationState<TData> toIdle() => MutationIdle<TData>();
 
   MutationState<TData> toLoading({required Object? arg, double? progress}) =>
-      LoadingMutation<TData>(args: args.add(arg), status: status.add(arg, progress));
+      MutationPending<TData>(args: args.add(arg), status: status.add(arg, progress));
 
-  MutationState<TData> toFailed({required Object? arg, required Object error}) {
-    return FailedMutation(args: args.remove(arg), error: error);
+  MutationState<TData> toFailed({
+    required Object? arg,
+    required Object error,
+    required StackTrace stackTrace,
+  }) {
+    return MutationError(args: args.remove(arg), error, stackTrace);
   }
 
   MutationState<TData> toSuccess({required Object? arg, required TData data}) {
-    return SuccessMutation(args: args.remove(arg), data: data);
+    return MutationSuccess(args: args.remove(arg), data: data);
   }
 
   R map<R>({
-    required R Function(IdleMutation<TData> state) idle,
-    required R Function(LoadingMutation<TData> state) loading,
-    required R Function(FailedMutation<TData> state) failed,
-    required R Function(SuccessMutation<TData> state) success,
+    required R Function(MutationIdle<TData> state) idle,
+    required R Function(MutationPending<TData> state) loading,
+    required R Function(MutationError<TData> state) failed,
+    required R Function(MutationSuccess<TData> state) success,
   }) {
     final state = this;
     return switch (state) {
-      IdleMutation<TData>() => idle(state),
-      LoadingMutation<TData>() => loading(state),
-      FailedMutation<TData>() => failed(state),
-      SuccessMutation<TData>() => success(state),
+      MutationIdle<TData>() => idle(state),
+      MutationPending<TData>() => loading(state),
+      MutationError<TData>() => failed(state),
+      MutationSuccess<TData>() => success(state),
     };
   }
 
   R maybeMap<R>({
-    R Function(IdleMutation<TData> state)? idle,
-    R Function(LoadingMutation<TData> state)? loading,
-    R Function(FailedMutation<TData> state)? failed,
-    R Function(SuccessMutation<TData> state)? success,
+    R Function(MutationIdle<TData> state)? idle,
+    R Function(MutationPending<TData> state)? loading,
+    R Function(MutationError<TData> state)? failed,
+    R Function(MutationSuccess<TData> state)? success,
     required R Function(MutationState<TData>) orElse,
   }) {
     return map(
@@ -79,10 +100,10 @@ sealed class MutationState<TData> with EquatableAndDescribable {
   }
 
   R? mapOrNull<R>({
-    R Function(IdleMutation<TData> state)? idle,
-    R Function(LoadingMutation<TData> state)? loading,
-    R Function(FailedMutation<TData> state)? failed,
-    R Function(SuccessMutation<TData> state)? success,
+    R Function(MutationIdle<TData> state)? idle,
+    R Function(MutationPending<TData> state)? loading,
+    R Function(MutationError<TData> state)? failed,
+    R Function(MutationSuccess<TData> state)? success,
   }) {
     R? orNull(_) => null;
     return map(
@@ -140,43 +161,52 @@ sealed class MutationState<TData> with EquatableAndDescribable {
   Map<String, Object?> get props => {'args': args};
 }
 
-class IdleMutation<TData> extends MutationState<TData> {
-  const IdleMutation() : super(args: const ISet.empty());
+typedef IdleMutation<TData> = MutationIdle<TData>;
+
+class MutationIdle<TData> extends MutationState<TData> {
+  const MutationIdle() : super(args: const ISet.empty());
 
   @override
   R map<R>({
-    required R Function(IdleMutation<TData> state) idle,
-    required R Function(LoadingMutation<TData> state) loading,
-    required R Function(FailedMutation<TData> state) failed,
-    required R Function(SuccessMutation<TData> state) success,
+    required R Function(MutationIdle<TData> state) idle,
+    required R Function(MutationPending<TData> state) loading,
+    required R Function(MutationError<TData> state) failed,
+    required R Function(MutationSuccess<TData> state) success,
   }) {
     return idle(this);
   }
 }
 
-class LoadingMutation<TData> extends MutationState<TData> {
+typedef LoadingMutation<TData> = MutationPending<TData>;
+
+class MutationPending<TData> extends MutationState<TData> {
   @override
   final IMap<Object?, double?> status;
 
-  const LoadingMutation({required super.args, required this.status});
+  const MutationPending({super.args = const ISet.empty(), this.status = const IMap.empty()});
 
   @override
   Map<String, Object?> get props => super.props..['status'] = status;
 }
 
-class FailedMutation<TData> extends MutationState<TData> {
-  final Object error;
+typedef FailedMutation<TData> = MutationError<TData>;
 
-  const FailedMutation({required super.args, required this.error});
+class MutationError<TData> extends MutationState<TData> {
+  final Object error;
+  final StackTrace stackTrace;
+
+  const MutationError(this.error, this.stackTrace, {super.args = const ISet.empty()});
 
   @override
   Map<String, Object?> get props => super.props..['error'] = error;
 }
 
-class SuccessMutation<TData> extends MutationState<TData> {
+typedef SuccessMutation<TData> = MutationSuccess<TData>;
+
+class MutationSuccess<TData> extends MutationState<TData> {
   final TData data;
 
-  const SuccessMutation({required super.args, required this.data});
+  const MutationSuccess({required super.args, required this.data});
 
   @override
   Map<String, Object?> get props => super.props..['data'] = data;
