@@ -15,7 +15,7 @@ class FlexibleLinearProgressBar extends StatefulWidget {
 class _FlexibleLinearProgressBarState extends State<FlexibleLinearProgressBar>
     with TickerProviderStateMixin {
   late final AnimationController _animationController;
-  late final Animation<double> _topPaddingAnimation;
+  late Animation<double> _topPaddingAnimation;
   var _currentExtent = double.nan;
   var _linearMinHeight = double.nan;
 
