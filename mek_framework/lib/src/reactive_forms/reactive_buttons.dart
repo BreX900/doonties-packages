@@ -67,7 +67,13 @@ class ReactiveClearButton extends SourceWidget {
     final isEnabled = ref.watchSource(field.control.source.status.enabled);
 
     return IconButton(
-      onPressed: isEnabled ? onClear ?? field.control.reset : null,
+      onPressed: isEnabled
+          ? onClear ??
+                () {
+                  field.control.reset();
+                  field.control.setErrors({});
+                }
+          : null,
       icon: const Icon(Icons.clear),
     );
   }
