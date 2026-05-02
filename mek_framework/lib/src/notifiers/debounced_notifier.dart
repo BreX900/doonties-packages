@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mek/src/data/optional.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 import 'package:rivertion/rivertion.dart';
@@ -34,23 +35,23 @@ final class DebouncedState<T> extends Equatable {
   List<Object?> get props => [pending, value];
 }
 
-class DebouncedNotifier<T> extends SourceNotifier<DebouncedState<T>> {
+class DebouncedNotifier<T> extends ValueNotifier<DebouncedState<T>> {
   final Duration _duration;
   Timer? _timer;
 
   DebouncedNotifier(this._duration, T value) : super(DebouncedState._(pending: null, value: value));
 
   void emitDebounced(T value) {
-    final pending = state.pending;
+    final pending = this.value.pending;
     if (pending != null && pending.value == value) return;
     _timer?.cancel();
-    _timer = Timer(_duration, () => state = state.toCompleted(value));
-    state = state.toPending(value);
+    _timer = Timer(_duration, () => this.value = this.value.toCompleted(value));
+    this.value = this.value.toPending(value);
   }
 
   void emitNow(T value) {
     _timer?.cancel();
-    state = state.toCompleted(value);
+    this.value = this.value.toCompleted(value);
   }
 
   @override

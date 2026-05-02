@@ -1,3 +1,5 @@
+// ignore_for_file: experimental_member_use
+
 import 'dart:math' as math_lib;
 
 import 'package:decimal/decimal.dart';
@@ -68,6 +70,7 @@ extension ToFixedIntExtension on int {
 
 extension IterableFixedExtensions on Iterable<Fixed> {
   Fixed get sum => fold(Fixed.zero, (sum, e) => sum + e);
+  Fixed get average => fold(Fixed.zero, (sum, e) => sum + e) / Fixed.fromInt(length);
 }
 
 // extension IterableExtensions on Iterable<Rational> {

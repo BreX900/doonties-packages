@@ -1,13 +1,24 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:mekart/mekart.dart';
+
+extension MutationProviderExtensions on ProviderListenable<MutationState<Object?>> {
+  ProviderListenable<bool> get isIdle => select(_isIdle);
+
+  @Deprecated('In favour of isPending')
+  ProviderListenable<bool> get isMutating => select(_isMutating);
+  ProviderListenable<bool> get isPending => select(_isMutating);
+
+  static bool _isIdle(MutationState<Object?> state) => state.isIdle;
+
+  static bool _isMutating(MutationState<Object?> state) => state.isPending;
+}
 
 sealed class MutationState<TData> with EquatableAndDescribable {
   final ISet<Object?> args;
 
   const MutationState({required this.args});
-
-  @Deprecated('In favour of isPending')
-  bool get isMutating => isPending || args.isNotEmpty;
 
   bool get isIdle => this is MutationIdle<TData>;
 
@@ -16,12 +27,6 @@ sealed class MutationState<TData> with EquatableAndDescribable {
   bool get hasError => this is MutationError<TData>;
 
   bool get isSuccess => this is MutationSuccess<TData>;
-
-  @Deprecated('In favour of isPending')
-  bool get isLoading => this is MutationPending<TData>;
-
-  @Deprecated('In favour of isPending')
-  bool get isFailed => this is MutationError<TData>;
 
   Object? get errorOrNull => whenOrNull(failed: (error) => error);
 

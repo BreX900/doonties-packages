@@ -28,8 +28,8 @@ class _WidgetsBindingRegistry with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state != AppLifecycleState.resumed) return;
-
     if (_listeners.isEmpty) return;
+
     _ListenersEntry? current = _listeners.first;
     while (current != null) {
       final previous = current;

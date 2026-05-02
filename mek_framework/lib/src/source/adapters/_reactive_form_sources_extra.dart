@@ -1,42 +1,43 @@
-part of '../source.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
+import 'package:mek/src/reactive_forms/controls/form_control_typed.dart';
+import 'package:mek/src/reactive_forms/reactive_forms.dart';
+import 'package:reactive_forms/reactive_forms.dart';
 
-extension SourceFormControlExtraExtensions
-    on AbstractControlSource<AbstractControl<Object?>, Object?> {
-  SourceListenable<bool> get isValueInitial => value.selectWith(control, _isValueInitial);
-  SourceListenable<MapEntry<String, Object>?> get error => errors.select(_error);
+extension FormControlExtraProviderExtensions on ProviderListenable<AbstractControl<Object?>> {
+  ProviderListenable<bool> get isValueInitial => select(_isValueInitial);
 
-  static bool _isValueInitial<T extends Object>(AbstractControl control, T? value) {
+  ProviderListenable<MapEntry<String, Object?>?> get error => select(_error);
+
+  static bool _isValueInitial<T extends Object>(AbstractControl control) {
     return switch (control) {
-      FormControlTyped() => control.initialValue == value,
-      FormArray() => control.controls.every((control) => _isValueInitial(control, control.value)),
-      FormGroup() => control.controls.values.every((control) {
-        return _isValueInitial(control, control.value);
-      }),
+      FormControlTyped() => control.initialValue == control.value,
+      FormArray() => control.controls.every(_isValueInitial),
+      FormGroup() => control.controls.values.every(_isValueInitial),
       _ => true,
     };
   }
 
-  static MapEntry<String, Object>? _error(Map<String, Object> errors) => errors.entries.firstOrNull;
+  static MapEntry<String, Object?>? _error(AbstractControl control) =>
+      control.errors.entries.firstOrNull;
 }
 
 // ==========================    CUSTOM FORM CONTROLS      ============================
 
-extension SourceFormListExtraExtensions<C extends AbstractControl<T>, T>
-    on AbstractControlSource<FormList<C, T>, List<T?>> {
-  SourceListenable<List<C>> get controlsTyped => controls.select(_typeControls);
+extension FormListExtraProviderExtensions<C extends AbstractControl<T>, T>
+    on ProviderListenable<FormList<C, T>> {
+  ProviderListenable<List<C>> get controlsTyped => select(_typeControls);
 
-  static List<C> _typeControls<C extends AbstractControl<Object?>>(
-    List<AbstractControl<Object?>> controls,
-  ) => controls as List<C>;
+  List<C> _typeControls(FormList<C, T> control) => control.controls;
 }
 
-extension SourceFormMapExtraExtensions<C extends AbstractControl<T>, T>
-    on AbstractControlSource<FormMap<C, T>, Map<String, Object?>> {
-  SourceListenable<Map<String, T?>> get valueTyped => value.select(_typeValue);
-  SourceListenable<Map<String, C>> get controlsTyped => controls.select(_typeControls);
+extension FormMapExtraProviderExtensions<C extends AbstractControl<T>, T>
+    on ProviderListenable<FormMap<C, T>> {
+  ProviderListenable<Map<String, T?>> get valueTyped => select(_typeValue);
 
-  static Map<String, T?> _typeValue<T>(Map<String, Object?>? value) =>
-      value as Map<String, T?>? ?? const {};
-  static Map<String, C> _typeControls<C>(Map<String, AbstractControl<Object?>> controls) =>
-      controls as Map<String, C>;
+  ProviderListenable<Map<String, C>> get controlsTyped => select(_typeControls);
+
+  Map<String, T?> _typeValue(FormMap<C, T> control) => control.value;
+
+  Map<String, C> _typeControls(FormMap<C, T> control) => control.controls;
 }

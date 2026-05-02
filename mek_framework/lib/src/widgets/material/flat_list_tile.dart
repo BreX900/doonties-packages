@@ -40,7 +40,7 @@ class DropdownListTileMenuItem<T> extends DropdownMenuItem<T> {
 
 class ListTileLayout extends StatelessWidget {
   final Widget? leading;
-  final Widget title;
+  final Widget? title;
   final Widget? subtitle;
   final Widget? trailing;
 
@@ -61,10 +61,13 @@ class ListTileLayout extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [title, if (subtitle != null) subtitle!],
+            children: [
+              if (title case final title?) title,
+              if (subtitle case final subtitle?) subtitle,
+            ],
           ),
         ),
-        if (trailing != null) trailing!,
+        if (trailing case final trailing?) trailing,
       ],
     );
   }
@@ -76,7 +79,7 @@ class ParagraphTile extends StatelessWidget {
   final Color? textColor;
   final VoidCallback? onTap;
   final Widget? leading;
-  final Widget title;
+  final Widget? title;
   final Widget? subtitle;
   final Widget? trailing;
 
@@ -87,7 +90,7 @@ class ParagraphTile extends StatelessWidget {
     this.textColor,
     this.onTap,
     this.leading,
-    required this.title,
+    this.title,
     this.subtitle,
     this.trailing,
   });
@@ -120,12 +123,14 @@ class ParagraphTile extends StatelessWidget {
                     ),
                   )
                 : null,
-            title: DefaultTextStyle(
-              style: (dense ? textTheme.titleMedium : textTheme.titleLarge)!.copyWith(
-                color: textColor ?? color,
-              ),
-              child: title,
-            ),
+            title: title != null
+                ? DefaultTextStyle(
+                    style: (dense ? textTheme.titleMedium : textTheme.titleLarge)!.copyWith(
+                      color: textColor ?? color,
+                    ),
+                    child: title!,
+                  )
+                : null,
             subtitle: subtitle != null
                 ? DefaultTextStyle(
                     style: textTheme.titleMedium!.copyWith(color: textColor ?? color),

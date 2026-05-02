@@ -13,6 +13,7 @@ abstract class Document {
 extension type const Collection<T extends Document>._(IList<T> _self) implements Iterable<T> {
   const Collection.empty() : _self = const IList.empty();
 
+  // ignore: experimental_member_use
   @redeclare
   Iterator<T> get iterator => _self.iterator;
 

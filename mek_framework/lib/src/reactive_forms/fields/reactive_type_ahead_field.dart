@@ -178,7 +178,7 @@ class TypeAheadOptionsView<T extends Object> extends StatelessWidget {
 
     final optionsAlignment = switch (openDirection) {
       OptionsViewOpenDirection.up => AlignmentDirectional.bottomStart,
-      OptionsViewOpenDirection.down => AlignmentDirectional.topStart,
+      OptionsViewOpenDirection.down || _ => AlignmentDirectional.topStart,
     };
 
     return Align(

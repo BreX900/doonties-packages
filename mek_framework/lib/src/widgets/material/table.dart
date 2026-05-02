@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/mek.dart';
 
 class MekColumn extends StatelessWidget {
@@ -17,6 +18,7 @@ class MekRow {
   final List<Widget> children;
 
   bool get isSelected => false;
+
   bool get isDisabled => false;
 
   const MekRow({this.onTap, this.onDoubleTap, this.onSecondaryTap, required this.children});
@@ -166,14 +168,14 @@ class MekTable extends StatelessWidget {
   }
 }
 
-class MekTablePagination extends SourceWidget {
+class MekTablePagination extends ConsumerWidget {
   final CursorBloc cursorBloc;
 
   const MekTablePagination({super.key, required this.cursorBloc});
 
   @override
-  Widget build(BuildContext context, SourceRef ref) {
-    final cursorState = ref.watchSource(cursorBloc.source);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cursorState = ref.watch(cursorBloc.provider);
 
     final localizations = MaterialLocalizations.of(context);
 
