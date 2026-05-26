@@ -22,9 +22,7 @@ class ReactiveSaveButton extends ConsumerWidget {
     final isPristine = ref.watch(field.control.provider.pristine);
     if (isPristine) return const SizedBox.shrink();
 
-    final submit = field.control.handleSubmitWith<Future<void> Function()>(
-      (submit) async => submit(),
-    );
+    final submit = field.control.handleSubmitWith<Future<void> Function()>((submit) => submit());
     return IconButton(
       onPressed: onSubmit != null ? () => submit(onSubmit) : null,
       icon: const Icon(Icons.save),
@@ -33,7 +31,7 @@ class ReactiveSaveButton extends ConsumerWidget {
 }
 
 class ReactiveAddButton extends ConsumerWidget {
-  final FutureOr<void> Function()? onSubmit;
+  final Future<void>? Function()? onSubmit;
 
   const ReactiveAddButton({super.key, required this.onSubmit});
 
@@ -83,7 +81,7 @@ class ReactiveClearButton extends ConsumerWidget {
 class ReactiveEditButton extends ConsumerWidget {
   final ValueNotifier<FieldConfig> controller;
   final bool toggleableObscureText;
-  final FutureOr<void> Function()? onSubmit;
+  final Future<void>? Function()? onSubmit;
 
   const ReactiveEditButton({
     super.key,

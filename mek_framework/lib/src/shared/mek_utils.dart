@@ -28,7 +28,7 @@ abstract final class MekUtils {
         showCloseIcon: false,
         closeIconColor: foregroundColor,
         backgroundColor: backgroundColor,
-        onVisible: () async => progressController.forward().whenComplete(controller.close),
+        onVisible: () => progressController.forward().whenComplete(controller.close),
         content: _ErrorSnackBarContent(
           autoCloseController: progressController,
           foregroundColor: foregroundColor,
@@ -44,7 +44,7 @@ abstract final class MekUtils {
   static Future<void> processAll(
     ProgressEmitter progressEmitter,
     List<Future<void> Function(ProgressEmitter)> tasks,
-  ) async {
+  ) {
     return process(progressEmitter, tasks.toIList(), (task, emitProgress) => task(emitProgress));
   }
 

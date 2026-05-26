@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/mek.dart';
 import 'package:mekfire/src/providers/auth_providers.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-abstract class SignUpScreenBase extends SourceConsumerStatefulWidget {
+abstract class SignUpScreenBase extends ConsumerStatefulWidget {
   AsyncHandler get asyncHandler;
 
   const SignUpScreenBase({super.key});
 
   @override
-  SourceConsumerState<SignUpScreenBase> createState() => _SignUpScreenState();
+  ConsumerState<SignUpScreenBase> createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends SourceConsumerState<SignUpScreenBase> {
+class _SignUpScreenState extends ConsumerState<SignUpScreenBase> {
+  late final _mutation = MutationController<void>(ref);
+
   final _emailFb = FormControlTyped<String>(
     initialValue: const String.fromEnvironment('_DEBUG_EMAIL'),
     validators: [ValidatorsTyped.required(), ValidatorsTyped.email()],
@@ -33,11 +36,12 @@ class _SignUpScreenState extends SourceConsumerState<SignUpScreenBase> {
   @override
   void dispose() {
     _form.dispose();
+    _mutation.dispose();
     super.dispose();
   }
 
-  late final _signUp = ref.mutation(
-    (ref, None _) async {
+  void _signUp() => _mutation(
+    (ref) async {
       _form.markAsDisabled();
       await UserAuthProviders.signUp(
         email: _emailFb.value,
@@ -45,24 +49,21 @@ class _SignUpScreenState extends SourceConsumerState<SignUpScreenBase> {
         passwordConfirmation: _passwordConfirmationFb.value,
       );
     },
-    onError: (_, error) => widget.asyncHandler.showError(context, error),
-    onFinish: (_, _, _) => _form.markAsEnabled(),
+    onError: (error, _) => widget.asyncHandler.showError(context, error),
+    onSettled: (_, _) => _form.markAsEnabled(),
   );
 
   @override
   Widget build(BuildContext context) {
-    final isIdle = !ref.watchIsMutating([_signUp]);
-    final signUp = _form.handleSubmitWith(_signUp);
+    final isIdle = !ref.watch(_mutation.provider.isPending);
+    final signUp = _form.handleSubmit(_signUp);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Sign Up!')),
       bottomNavigationBar: BottomButtonBar(
         children: [
           Expanded(
-            child: ElevatedButton(
-              onPressed: isIdle ? () => signUp(none) : null,
-              child: const Text('Sign Up!'),
-            ),
+            child: ElevatedButton(onPressed: isIdle ? signUp : null, child: const Text('Sign Up!')),
           ),
         ],
       ),

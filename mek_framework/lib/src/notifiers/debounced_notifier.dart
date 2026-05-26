@@ -2,14 +2,26 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:mek/src/data/optional.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 import 'package:rivertion/rivertion.dart';
 
-extension DebouncedNotifierProviderExtension<T> on SourceListenable<DebouncedState<T>> {
+extension DebouncedNotifierSourceExtension<T> on SourceListenable<DebouncedState<T>> {
   SourceListenable<bool> get isPending => select(_isPending);
   SourceListenable<Optional<T>?> get pending => select(_pending);
   SourceListenable<T> get value => select(_value);
+
+  static bool _isPending<T>(DebouncedState<T> state) => state.isPending;
+  static Optional<T>? _pending<T>(DebouncedState<T> state) => state.pending;
+  static T _value<T>(DebouncedState<T> state) => state.value;
+}
+
+extension DebouncedNotifierProviderExtension<T> on ProviderListenable<DebouncedState<T>> {
+  ProviderListenable<bool> get isPending => select(_isPending);
+  ProviderListenable<Optional<T>?> get pending => select(_pending);
+  ProviderListenable<T> get value => select(_value);
 
   static bool _isPending<T>(DebouncedState<T> state) => state.isPending;
   static Optional<T>? _pending<T>(DebouncedState<T> state) => state.pending;

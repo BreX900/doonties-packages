@@ -38,7 +38,6 @@ class _DeferredLibraryBuilderState extends State<DeferredLibraryBuilder> {
   }
 
   void _load(DeferredLibraryLoader loader) {
-    // ignore: discarded_futures
     final loading = _libraryLoaders.putIfAbsent(loader, loader);
     _isLoading = loading != null;
     if (loading != null) unawaited(_waitLoading(loader, loading));

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/mek.dart';
 import 'package:mekfire/src/providers/auth_providers.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-abstract class SignInScreenBase extends SourceConsumerStatefulWidget {
+abstract class SignInScreenBase extends ConsumerStatefulWidget {
   const SignInScreenBase({super.key});
 
   AsyncHandler get asyncHandler;
@@ -13,10 +14,12 @@ abstract class SignInScreenBase extends SourceConsumerStatefulWidget {
   Widget? buildFooter(BuildContext context) => null;
 
   @override
-  SourceConsumerState<SignInScreenBase> createState() => _SignInScreenState();
+  ConsumerState<SignInScreenBase> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends SourceConsumerState<SignInScreenBase> {
+class _SignInScreenState extends ConsumerState<SignInScreenBase> {
+  late final _mutation = MutationController<void>(ref);
+
   final _emailFb = FormControlTyped<String>(
     initialValue: const String.fromEnvironment('_DEBUG_EMAIL'),
     validators: [ValidatorsTyped.required(), ValidatorsTyped.email()],
@@ -29,43 +32,38 @@ class _SignInScreenState extends SourceConsumerState<SignInScreenBase> {
 
   late final _form = FormArray([_emailFb, _passwordFb]);
 
-  late final _signIn = ref.mutation(
-    (ref, None _) async {
+  @override
+  void dispose() {
+    _form.dispose();
+    _mutation.dispose();
+    super.dispose();
+  }
+
+  void _signIn() => _mutation(
+    (ref) async {
       _form.markAsDisabled();
       await UserAuthProviders.signIn(email: _emailFb.value, password: _passwordFb.value);
     },
-    onError: (_, error) {
+    onError: (error, _) {
       _form.markAsEnabled();
       widget.asyncHandler.showError(context, error);
     },
   );
 
-  late final _sendPasswordResetEmail = ref.mutation(
-    (ref, None _) async {
-      await UserAuthProviders.sendPasswordResetEmail(_emailFb.value);
-    },
-    onError: (_, error) {
-      widget.asyncHandler.showError(context, error);
-    },
-    onSuccess: (_, __) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Sent password reset email to ${_emailFb.value}!')));
-    },
+  void _sendPasswordResetEmail() => _mutation(
+    (ref) async => await UserAuthProviders.sendPasswordResetEmail(_emailFb.value),
+    onError: (error, _) => widget.asyncHandler.showError(context, error),
+    onSuccess: (_) => ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Sent password reset email to ${_emailFb.value}!'))),
   );
 
   @override
-  void dispose() {
-    _form.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final isIdle = !ref.watchIsMutating([_signIn, _sendPasswordResetEmail]);
+    final isIdle = !ref.watch(_mutation.provider.isPending);
 
-    final signIn = _form.handleSubmitWith(_signIn);
-    final sendPasswordResetEmail = _emailFb.handleSubmitWith(_sendPasswordResetEmail);
+    final signIn = _form.handleSubmit(_signIn);
+    final sendPasswordResetEmail = _emailFb.handleSubmit(_sendPasswordResetEmail);
 
     List<Widget> buildFields() {
       return [
@@ -80,14 +78,14 @@ class _SignInScreenState extends SourceConsumerState<SignInScreenBase> {
           variant: const TextFieldVariant.password(),
           config: _passwordConfigController,
           textInputAction: TextInputAction.done,
-          onSubmitted: isIdle ? (_) => signIn(none) : null,
+          onSubmitted: isIdle ? (_) => signIn() : null,
           decoration: InputDecoration(
             labelText: 'Password',
             suffixIcon: ReactiveVisibilityButton(controller: _passwordConfigController),
           ),
         ),
         TextButton.icon(
-          onPressed: isIdle ? () => sendPasswordResetEmail(none) : null,
+          onPressed: isIdle ? sendPasswordResetEmail : null,
           icon: const Icon(Icons.lock_reset_outlined),
           label: const Text('Send reset password email'),
         ),
@@ -110,7 +108,7 @@ class _SignInScreenState extends SourceConsumerState<SignInScreenBase> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 FilledButton.icon(
-                  onPressed: isIdle ? () => signIn(none) : null,
+                  onPressed: isIdle ? signIn : null,
                   icon: const Icon(Icons.login),
                   label: const Text('Sign In'),
                 ),

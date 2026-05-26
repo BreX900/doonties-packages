@@ -20,6 +20,7 @@ class PaginationValue<T> extends Equatable {
   final int currentIndex;
   final bool canLoadMore;
   final IMap<int, IList<T>> pages;
+
   IList<T> get models => pages.values.flattenedToList.lockUnsafe;
 
   const PaginationValue({
@@ -46,7 +47,7 @@ class PaginationNotifier<T, Arg extends PaginationModel<Arg>>
     extends AsyncNotifier<PaginationValue<T>> {
   final Arg _arg;
   final PaginationFetcher<T, Arg> _fetcher;
-  final FutureOr<void> Function(Ref ref)? _onCreate;
+  final Future<void>? Function(Ref ref)? _onCreate;
 
   late int _size;
   var _token = Object();
@@ -149,5 +150,6 @@ class PaginationRef {
 
 extension AsyncPaginationValueExtensions on AsyncValue<PaginationValue> {
   bool get canRefresh => !isLoading;
+
   bool get canLoadMore => !isLoading && hasValue && requireValue.canLoadMore;
 }
