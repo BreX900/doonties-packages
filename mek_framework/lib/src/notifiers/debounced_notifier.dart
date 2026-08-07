@@ -1,22 +1,11 @@
 import 'dart:async';
 
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:mek/src/data/optional.dart';
 import 'package:reactive_forms/reactive_forms.dart';
-import 'package:rivertion/rivertion.dart';
-
-extension DebouncedNotifierSourceExtension<T> on SourceListenable<DebouncedState<T>> {
-  SourceListenable<bool> get isPending => select(_isPending);
-  SourceListenable<Optional<T>?> get pending => select(_pending);
-  SourceListenable<T> get value => select(_value);
-
-  static bool _isPending<T>(DebouncedState<T> state) => state.isPending;
-  static Optional<T>? _pending<T>(DebouncedState<T> state) => state.pending;
-  static T _value<T>(DebouncedState<T> state) => state.value;
-}
 
 extension DebouncedNotifierProviderExtension<T> on ProviderListenable<DebouncedState<T>> {
   ProviderListenable<bool> get isPending => select(_isPending);
@@ -47,23 +36,23 @@ final class DebouncedState<T> extends Equatable {
   List<Object?> get props => [pending, value];
 }
 
-class DebouncedNotifier<T> extends ValueNotifier<DebouncedState<T>> {
+class DebouncedNotifier<T> extends StateNotifier<DebouncedState<T>> {
   final Duration _duration;
   Timer? _timer;
 
   DebouncedNotifier(this._duration, T value) : super(DebouncedState._(pending: null, value: value));
 
   void emitDebounced(T value) {
-    final pending = this.value.pending;
+    final pending = state.pending;
     if (pending != null && pending.value == value) return;
     _timer?.cancel();
-    _timer = Timer(_duration, () => this.value = this.value.toCompleted(value));
-    this.value = this.value.toPending(value);
+    _timer = Timer(_duration, () => state = state.toCompleted(value));
+    state = state.toPending(value);
   }
 
   void emitNow(T value) {
     _timer?.cancel();
-    this.value = this.value.toCompleted(value);
+    state = state.toCompleted(value);
   }
 
   @override

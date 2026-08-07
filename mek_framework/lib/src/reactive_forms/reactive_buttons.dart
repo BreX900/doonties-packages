@@ -31,7 +31,8 @@ class ReactiveSaveButton extends ConsumerWidget {
 }
 
 class ReactiveAddButton extends ConsumerWidget {
-  final Future<void>? Function()? onSubmit;
+  // ignore: avoid_futureor_void
+  final FutureOr<void> Function()? onSubmit;
 
   const ReactiveAddButton({super.key, required this.onSubmit});
 

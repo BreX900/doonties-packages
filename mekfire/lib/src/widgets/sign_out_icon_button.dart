@@ -18,6 +18,6 @@ class SignOutIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(onPressed: () async => signOut(context), icon: const Icon(Icons.logout));
+    return IconButton(onPressed: () async => await signOut(context), icon: const Icon(Icons.logout));
   }
 }

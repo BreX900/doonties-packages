@@ -32,7 +32,7 @@ dependencies:
   json_annotation: ^4.9.0
 
 dev_dependencies:
-  mek_lints: ^4.0.0
+  mek_lints: ^7.0.0
 
 index_generator:
   exclude:

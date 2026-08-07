@@ -9,6 +9,7 @@ extension MutationProviderExtensions on ProviderListenable<MutationState<Object?
   @Deprecated('In favour of isPending')
   ProviderListenable<bool> get isMutating => select(_isMutating);
   ProviderListenable<bool> get isPending => select(_isMutating);
+  ProviderListenable<double?> get progressOrNull => select((state) => state.progressOrNull);
 
   static bool _isIdle(MutationState<Object?> state) => state.isIdle;
 

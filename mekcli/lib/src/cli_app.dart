@@ -19,14 +19,14 @@ class CliException implements Exception {
 }
 
 abstract class CliApp {
-  FutureOr<void> run();
+  Future<void>? run();
 }
 
 abstract class App {
   ProviderRef? _ref;
   ProviderRef get ref => _ref!;
 
-  FutureOr<void> run();
+  Future<void>? run();
 }
 
 void runApp(App app) {

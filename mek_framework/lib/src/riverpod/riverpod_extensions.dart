@@ -52,7 +52,7 @@ extension InvalidateFromProviderContainerExtension on ProviderContainer {
     visitor(element);
 
     for (final element in elements) {
-      element.invalidateSelf(asReload: true);
+      element.invalidateSelf(asReload: true, manual: true);
     }
   }
 
