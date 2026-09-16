@@ -32,6 +32,7 @@ export 'src/reactive_forms/control_value_accessors.dart';
 export 'src/reactive_forms/controls/form_control_typed.dart';
 export 'src/reactive_forms/fields/reactive_date_time_field.dart';
 export 'src/reactive_forms/fields/reactive_decorated_slider.dart';
+export 'src/reactive_forms/fields/reactive_dropdown_menu_field.dart';
 export 'src/reactive_forms/fields/reactive_form_field_decorated.dart';
 export 'src/reactive_forms/fields/reactive_multi_dropdown.dart';
 export 'src/reactive_forms/fields/reactive_segmented_button.dart';

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 extension HubOnBuildContext on BuildContext {
@@ -13,17 +14,20 @@ class Nav {
   void pop<T>([T? result]) => _navigator.pop<T>(result);
 
   @optionalTypeArgs
+  @awaitNotRequired
   Future<T?> push<T>(Widget screen) {
     return _navigator.push<T>(_createPage(screen));
   }
 
   @optionalTypeArgs
+  @awaitNotRequired
   Future<T?> popAndPush<T>(Widget screen, [T? result]) {
     _navigator.pop(result);
     return _navigator.push(_createPage(screen));
   }
 
   @optionalTypeArgs
+  @awaitNotRequired
   Future<T?> pushReplacement<T>(Widget screen) {
     return _navigator.pushReplacement(_createPage(screen));
   }

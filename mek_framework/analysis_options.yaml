@@ -8,6 +8,8 @@ analyzer:
 #    - lib/core.dart
   errors:
     deprecated_member_use_from_same_package: ignore
+  exclude:
+    - build/**
 
 # https://dart.dev/tools/linter-rules
 # https://dart-lang.github.io/linter/lints/index.html.

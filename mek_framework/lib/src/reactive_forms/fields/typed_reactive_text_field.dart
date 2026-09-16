@@ -12,6 +12,7 @@ class ReactiveTypedTextField<T> extends StatefulWidget {
   final TextFieldVariant variant;
   final ValueListenable<TextConfig> config;
   final bool? readOnly;
+  final int? minLines;
   final int? maxLines;
   final int? maxLength;
   final TextCapitalization textCapitalization;
@@ -29,6 +30,7 @@ class ReactiveTypedTextField<T> extends StatefulWidget {
     this.variant = TextFieldVariant.none,
     this.config = const TextConfig(),
     this.readOnly,
+    this.minLines = null,
     this.maxLines = 1,
     this.maxLength,
     this.textCapitalization = TextCapitalization.none,
@@ -100,6 +102,7 @@ class _ReactiveTypedTextFieldState<T> extends State<ReactiveTypedTextField<T>> {
       valueAccessor: widget.valueAccessor,
       controller: _controller,
       focusNode: _focusNode,
+      minLines: widget.minLines,
       maxLines: widget.maxLines,
       maxLength: widget.maxLength,
       textCapitalization: widget.textCapitalization,

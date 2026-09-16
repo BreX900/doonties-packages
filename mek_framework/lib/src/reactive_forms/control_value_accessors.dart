@@ -13,6 +13,9 @@ abstract final class MekAccessors {
   static ControlValueAccessor<Fixed, String> decimalToString(NumberFormat format) =>
       _ControlDecimalAccessor(DecimalFormatter(format));
 
+  static ControlValueAccessor<int, String> integerToString(NumberFormat format) =>
+      _ControlIntegerAccessor(format);
+
   static ControlValueAccessor<Fixed, String> decimalPercentToString(NumberFormat format) =>
       _ControlDecimalAccessor.percent(DecimalFormatter(format));
 
@@ -40,6 +43,24 @@ class _DelegateAccessor<ModelDataType, ViewDataType>
   ModelDataType? viewToModelValue(ViewDataType? viewValue) {
     if (viewValue == null) return null;
     return toModel(viewValue);
+  }
+}
+
+class _ControlIntegerAccessor extends ControlValueAccessor<int, String> {
+  final NumberFormat format;
+
+  _ControlIntegerAccessor(this.format);
+
+  @override
+  String? modelToViewValue(int? modelValue) {
+    if (modelValue == null) return null;
+    return format.format(modelValue);
+  }
+
+  @override
+  int? viewToModelValue(String? viewValue) {
+    if (viewValue == null || viewValue.isEmpty) return null;
+    return format.parse(viewValue).toInt();
   }
 }
 
