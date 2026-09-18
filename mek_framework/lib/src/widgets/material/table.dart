@@ -3,9 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/mek.dart';
 
 class MekColumn extends StatelessWidget {
+  final TableColumnWidth columnWidth;
   final Widget label;
 
-  const MekColumn({super.key, required this.label});
+  const MekColumn({
+    super.key,
+    this.columnWidth = const IntrinsicColumnWidth(),
+    required this.label,
+  });
 
   @override
   Widget build(BuildContext context) => label;
@@ -15,15 +20,25 @@ class MekRow {
   final VoidCallback? onTap;
   final VoidCallback? onDoubleTap;
   final VoidCallback? onSecondaryTap;
+  final ValueChanged<bool>? onSelectChanged;
+  final bool selected;
   final List<Widget> children;
 
   bool get isSelected => false;
 
   bool get isDisabled => false;
 
-  const MekRow({this.onTap, this.onDoubleTap, this.onSecondaryTap, required this.children});
+  const MekRow({
+    this.onTap,
+    this.onDoubleTap,
+    this.onSecondaryTap,
+    this.onSelectChanged,
+    this.selected = false,
+    required this.children,
+  });
 
-  bool get hasGestures => onTap != null || onDoubleTap != null || onSecondaryTap != null;
+  bool get hasGestures =>
+      onTap != null || onDoubleTap != null || onSecondaryTap != null || onSelectChanged != null;
 }
 
 class MekTable extends StatelessWidget {
@@ -40,10 +55,11 @@ class MekTable extends StatelessWidget {
   /// The default divider thickness.
   static const double _dividerThickness = 1.0;
 
-  final List<Widget> columns;
+  final ValueSetter<bool>? onSelectAll;
+  final List<MekColumn> columns;
   final List<MekRow> rows;
 
-  const MekTable({super.key, required this.columns, required this.rows});
+  const MekTable({super.key, this.onSelectAll, required this.columns, required this.rows});
 
   @override
   Widget build(BuildContext context) {
@@ -104,10 +120,33 @@ class MekTable extends StatelessWidget {
     );
     final border = Border(top: borderSide);
 
-    final Widget table = Table(
-      columnWidths: {for (var i = 0; i < columns.length; i++) i: const IntrinsicColumnWidth()},
+    final hasCheckboxColumn = rows.any((e) => e.onSelectChanged != null);
+
+    final columns = <MekColumn>[
+      if (hasCheckboxColumn)
+        MekColumn(
+          label: onSelectAll != null
+              ? Checkbox(
+                  value: rows.every((e) => e.selected),
+                  onChanged: (value) => onSelectAll!(value!),
+                )
+              : const SizedBox.shrink(),
+        ),
+
+      ...this.columns,
+    ];
+
+    return Table(
+      columnWidths: columns.map((column) => column.columnWidth).toList().asMap(),
       children: [
         TableRow(
+          decoration: rows.isEmpty
+              ? BoxDecoration(
+                  border: Border(bottom: borderSide),
+                  color:
+                      effectiveDataRowColor?.resolve(const {}) ?? defaultRowColor.resolve(const {}),
+                )
+              : null,
           children: columns.map((e) {
             final isFirst = e == columns.first;
             final isLast = e == columns.last;
@@ -126,14 +165,23 @@ class MekTable extends StatelessWidget {
             if (row.isDisabled) WidgetState.disabled,
           };
 
+          final children = [
+            if (hasCheckboxColumn)
+              if (row.onSelectChanged case final onSelectChanged?)
+                Checkbox(value: row.selected, onChanged: (value) => onSelectChanged(value!))
+              else
+                const SizedBox.shrink(),
+            ...row.children,
+          ];
+
           return TableRow(
             decoration: BoxDecoration(
               border: border,
               color: effectiveDataRowColor?.resolve(states) ?? defaultRowColor.resolve(states),
             ),
-            children: row.children.map((e) {
-              final isFirst = e == row.children.first;
-              final isLast = e == row.children.last;
+            children: children.map((e) {
+              final isFirst = e == children.first;
+              final isLast = e == children.last;
 
               Widget child = Container(
                 padding: resolvePadding(isFirst: isFirst, isLast: isLast),
@@ -147,7 +195,9 @@ class MekTable extends StatelessWidget {
 
               if (row.hasGestures) {
                 child = TableRowInkWell(
-                  onTap: row.onTap,
+                  onTap: isFirst && row.onSelectChanged != null
+                      ? () => row.onSelectChanged!(!row.selected)
+                      : row.onTap,
                   onDoubleTap: row.onDoubleTap,
                   onSecondaryTap: row.onSecondaryTap,
                   child: child,
@@ -160,11 +210,11 @@ class MekTable extends StatelessWidget {
       ],
     );
 
-    final children = <Widget>[table, if (rows.isEmpty) const Text('🪫 No Data 🪫')];
-
-    if (children.length == 1) return children.single;
-
-    return Column(children: children);
+    // final children = <Widget>[table, if (rows.isEmpty) const Text('🪫 No Data 🪫')];
+    //
+    // if (children.length == 1) return children.single;
+    //
+    // return Column(children: children);
   }
 }
 

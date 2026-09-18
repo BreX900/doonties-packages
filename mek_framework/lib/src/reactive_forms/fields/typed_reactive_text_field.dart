@@ -30,7 +30,7 @@ class ReactiveTypedTextField<T> extends StatefulWidget {
     this.variant = TextFieldVariant.none,
     this.config = const TextConfig(),
     this.readOnly,
-    this.minLines = null,
+    this.minLines,
     this.maxLines = 1,
     this.maxLength,
     this.textCapitalization = TextCapitalization.none,

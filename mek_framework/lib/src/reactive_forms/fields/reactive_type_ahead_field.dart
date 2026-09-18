@@ -236,7 +236,7 @@ class _AutocompleteOptionsListState<T extends Object> extends State<_Autocomplet
             widget.highlightedIndex == 0 ? 0.0 : _scrollController.position.maxScrollExtent,
           );
         } else {
-          unawaited(Scrollable.ensureVisible(highlightedContext, alignment: 0.5));
+          Scrollable.ensureVisible(highlightedContext, alignment: 0.5);
         }
       }, debugLabel: 'AutocompleteOptions.ensureVisible');
     }

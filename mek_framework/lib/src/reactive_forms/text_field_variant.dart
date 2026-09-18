@@ -10,8 +10,8 @@ abstract class TextFieldVariant {
 
   static const TextFieldVariant none = _NoneTextFieldVariant();
 
-  const factory TextFieldVariant.integer({bool signed}) = _NumericTextFieldVariant.integer;
-  const factory TextFieldVariant.decimal({bool signed}) = _NumericTextFieldVariant.decimal;
+  const factory TextFieldVariant.integer({bool signed}) = _IntegerTextFieldVariant;
+  const factory TextFieldVariant.decimal({bool signed}) = _DecimalTextFieldVariant;
   const factory TextFieldVariant.email() = _EmailTextFieldVariant;
   const factory TextFieldVariant.password() = _PasswordTextFieldVariant;
   const factory TextFieldVariant.secret() = _SecretTextFieldType;
@@ -24,26 +24,49 @@ class _NoneTextFieldVariant extends TextFieldVariant {
   const _NoneTextFieldVariant();
 }
 
-class _NumericTextFieldVariant extends TextFieldVariant {
+const _signedRegexp = '[-+]?';
+
+class _IntegerTextFieldVariant extends TextFieldVariant {
+  static const _regExp = r'\d*';
+
   final bool signed;
-  final bool decimal;
 
-  const _NumericTextFieldVariant.integer({this.signed = false}) : decimal = false;
+  const _IntegerTextFieldVariant({this.signed = false});
 
-  const _NumericTextFieldVariant.decimal({this.signed = false}) : decimal = true;
+  @override
+  TextConfig buildConfig(BuildContext context, TextConfig data) {
+    return data.mergeWith(
+      keyboardType: TextInputType.numberWithOptions(signed: signed),
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(
+          RegExp('^${signed ? _regExp : '$_signedRegexp$_regExp'}\$'),
+        ),
+      ],
+    );
+  }
+}
+
+class _DecimalTextFieldVariant extends TextFieldVariant {
+  static const _regExp = r'\d*[,.]?\d*';
+
+  final bool signed;
+
+  const _DecimalTextFieldVariant({this.signed = false});
 
   @override
   TextConfig buildConfig(BuildContext context, TextConfig data) {
     final locale = Localizations.localeOf(context);
 
     return data.mergeWith(
-      keyboardType: TextInputType.numberWithOptions(signed: signed, decimal: decimal),
+      keyboardType: TextInputType.numberWithOptions(signed: signed, decimal: true),
       inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'(\d|[,.])*')),
+        FilteringTextInputFormatter.allow(
+          RegExp('^${signed ? _regExp : '$_signedRegexp$_regExp'}\$'),
+        ),
         _NumericTextInputFormatter(
           languageCode: locale.languageCode,
           signed: signed,
-          decimal: decimal,
+          decimal: true,
         ),
       ],
     );

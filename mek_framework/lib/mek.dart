@@ -41,6 +41,7 @@ export 'src/reactive_forms/fields/reactive_type_ahead_field_old.dart';
 export 'src/reactive_forms/fields/typed_reactive_text_field.dart';
 export 'src/reactive_forms/form_control_state_provider.dart';
 export 'src/reactive_forms/mek_validation_messages.dart';
+export 'src/reactive_forms/mek_validators.dart';
 export 'src/reactive_forms/reactive_buttons.dart';
 export 'src/reactive_forms/reactive_forms.dart';
 export 'src/reactive_forms/text_field_variant.dart';

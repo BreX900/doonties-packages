@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 enum _MaterialBarVariant { primary, secondary }
@@ -52,9 +50,9 @@ class _MaterialBarState extends State<MaterialBar> with TickerProviderStateMixin
     if (widget.forceElevated != oldWidget.forceElevated) {
       if (widget.forceElevated != null) {
         if (widget.forceElevated!) {
-          unawaited(_controller.forward());
+          _controller.forward();
         } else {
-          unawaited(_controller.reverse());
+          _controller.reverse();
         }
       }
     }

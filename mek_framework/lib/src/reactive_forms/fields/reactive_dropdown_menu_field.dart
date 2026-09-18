@@ -15,6 +15,7 @@ class ReactiveDropdownMenuField<T> extends ReactiveFocusableFormField<T, T> {
 
            return DropdownMenu(
              controller: field._controller,
+             enableFilter: true,
              focusNode: field.focusNode,
              dropdownMenuEntries: entries,
              initialSelection: field.value,
@@ -44,7 +45,7 @@ class _ReactiveFormFieldState<T, V> extends ReactiveFocusableFormFieldState<T, V
   }
 
   @override
-  void onControlValueChanged(dynamic value) {
+  void onControlValueChanged(Object? value) {
     if (value == null) _controller.text = '';
     super.onControlValueChanged(value);
   }

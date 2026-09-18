@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
@@ -24,7 +23,7 @@ class _RotatorsState extends State<Rotators> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 300),
       upperBound: math.pi,
     );
-    if (widget.isRotating) unawaited(_controller.repeat());
+    if (widget.isRotating) _controller.repeat();
   }
 
   @override
@@ -32,9 +31,9 @@ class _RotatorsState extends State<Rotators> with TickerProviderStateMixin {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.isRotating == widget.isRotating) return;
     if (widget.isRotating) {
-      unawaited(_controller.repeat());
+      _controller.repeat();
     } else {
-      unawaited(_controller.forward());
+      _controller.forward();
     }
   }
 

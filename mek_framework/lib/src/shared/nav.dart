@@ -32,6 +32,10 @@ class Nav {
     return _navigator.pushReplacement(_createPage(screen));
   }
 
+  void replace({required ModalRoute oldRoute, required Widget newRoute}) {
+    _navigator.replace(oldRoute: oldRoute, newRoute: _createPage(newRoute));
+  }
+
   Route<T> _createPage<T>(Widget screen) {
     return MaterialPageRoute(builder: (context) => screen);
   }
