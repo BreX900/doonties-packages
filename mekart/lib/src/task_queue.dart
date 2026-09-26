@@ -36,7 +36,7 @@ class TaskQueue {
 
   void addAll<T>(Iterable<T> elements, Future<void> Function(T element) tasker) {
     for (final element in elements) {
-      add(() async => tasker(element));
+      add(() async => await tasker(element));
     }
   }
 

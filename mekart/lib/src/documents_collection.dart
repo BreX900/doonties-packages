@@ -17,8 +17,6 @@ extension type const Collection<T extends Document>._(IList<T> _self) implements
   @redeclare
   Iterator<T> get iterator => _self.iterator;
 
-  int get length => _self.length;
-
   T operator [](int index) => _self[index];
 
   bool has(String id) => _self.any((e) => e.id == id);

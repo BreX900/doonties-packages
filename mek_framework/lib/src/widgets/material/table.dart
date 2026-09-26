@@ -3,14 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/mek.dart';
 
 class MekColumn extends StatelessWidget {
-  final TableColumnWidth columnWidth;
+  final TableColumnWidth? columnWidth;
   final Widget label;
 
-  const MekColumn({
-    super.key,
-    this.columnWidth = const IntrinsicColumnWidth(),
-    required this.label,
-  });
+  const MekColumn({super.key, this.columnWidth, required this.label});
 
   @override
   Widget build(BuildContext context) => label;
@@ -56,10 +52,17 @@ class MekTable extends StatelessWidget {
   static const double _dividerThickness = 1.0;
 
   final ValueSetter<bool>? onSelectAll;
+  final TableColumnWidth defaultColumnWidth;
   final List<MekColumn> columns;
   final List<MekRow> rows;
 
-  const MekTable({super.key, this.onSelectAll, required this.columns, required this.rows});
+  const MekTable({
+    super.key,
+    this.onSelectAll,
+    this.defaultColumnWidth = const IntrinsicColumnWidth(),
+    required this.columns,
+    required this.rows,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -118,13 +121,14 @@ class MekTable extends StatelessWidget {
           theme.dataTableTheme.dividerThickness ??
           _dividerThickness,
     );
-    final border = Border(top: borderSide);
+    final border = Border(bottom: borderSide);
 
     final hasCheckboxColumn = rows.any((e) => e.onSelectChanged != null);
 
     final columns = <MekColumn>[
       if (hasCheckboxColumn)
         MekColumn(
+          columnWidth: const IntrinsicColumnWidth(),
           label: onSelectAll != null
               ? Checkbox(
                   value: rows.every((e) => e.selected),
@@ -137,16 +141,16 @@ class MekTable extends StatelessWidget {
     ];
 
     return Table(
-      columnWidths: columns.map((column) => column.columnWidth).toList().asMap(),
+      columnWidths: {
+        for (var index = 0; index < columns.length; index++)
+          index: columns[index].columnWidth ?? defaultColumnWidth,
+      },
       children: [
         TableRow(
-          decoration: rows.isEmpty
-              ? BoxDecoration(
-                  border: Border(bottom: borderSide),
-                  color:
-                      effectiveDataRowColor?.resolve(const {}) ?? defaultRowColor.resolve(const {}),
-                )
-              : null,
+          decoration: BoxDecoration(
+            border: border,
+            color: effectiveDataRowColor?.resolve(const {}) ?? defaultRowColor.resolve(const {}),
+          ),
           children: columns.map((e) {
             final isFirst = e == columns.first;
             final isLast = e == columns.last;
@@ -165,7 +169,7 @@ class MekTable extends StatelessWidget {
             if (row.isDisabled) WidgetState.disabled,
           };
 
-          final children = [
+          final cells = [
             if (hasCheckboxColumn)
               if (row.onSelectChanged case final onSelectChanged?)
                 Checkbox(value: row.selected, onChanged: (value) => onSelectChanged(value!))
@@ -179,23 +183,23 @@ class MekTable extends StatelessWidget {
               border: border,
               color: effectiveDataRowColor?.resolve(states) ?? defaultRowColor.resolve(states),
             ),
-            children: children.map((e) {
-              final isFirst = e == children.first;
-              final isLast = e == children.last;
+            children: cells.map((cell) {
+              final isFirstCell = cell == cells.first;
+              final isLastCell = cell == cells.last;
 
               Widget child = Container(
-                padding: resolvePadding(isFirst: isFirst, isLast: isLast),
+                padding: resolvePadding(isFirst: isFirstCell, isLast: isLastCell),
                 constraints: BoxConstraints(
                   minHeight: effectiveDataRowMinHeight,
                   maxHeight: effectiveDataRowMaxHeight,
                 ),
                 alignment: AlignmentDirectional.centerStart,
-                child: DefaultTextStyle(style: effectiveDataTextStyle, child: e),
+                child: DefaultTextStyle(style: effectiveDataTextStyle, child: cell),
               );
 
               if (row.hasGestures) {
                 child = TableRowInkWell(
-                  onTap: isFirst && row.onSelectChanged != null
+                  onTap: (isFirstCell || row.onTap == null) && row.onSelectChanged != null
                       ? () => row.onSelectChanged!(!row.selected)
                       : row.onTap,
                   onDoubleTap: row.onDoubleTap,

@@ -47,7 +47,9 @@ class ReactivePopupMenuButton<T> extends ReactiveFormField<ISet<T>, ISet<T>> {
              padding: EdgeInsets.zero,
              // decoration: state.decorate(decoration, isEnabled: isEnabled),
              surfaceTintColor: theme.canvasColor,
-             itemBuilder: (context) => itemBuilder(field),
+             itemBuilder: (context) => itemBuilder(field).where((item) {
+               return field.value.every((value) => !item.represents(value));
+             }).toList(),
              icon: icon,
              child: builder != null ? buildChild(builder) : null,
            );

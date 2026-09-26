@@ -40,6 +40,14 @@ extension AbstractControlExtensions<T> on AbstractControl<T> {
     if (disabled != null) (disabled ? markAsDisabled : markAsEnabled)();
     if (focus != null) (focus ? this.focus : unfocus)();
   }
+
+  void addValidators(List<Validator<dynamic>> validators) {
+    setValidators([...this.validators, ...validators]);
+  }
+
+  void removeValidators(List<Validator<dynamic>> validators) {
+    setValidators(this.validators.where((validator) => !validators.contains(validator)).toList());
+  }
 }
 
 extension FormArrayExtensions<T> on FormArray<T> {
@@ -59,6 +67,16 @@ extension FormArrayExtensions<T> on FormArray<T> {
   void tryRemove(AbstractControl<T> control) {
     final index = controls.indexOf(control);
     if (index >= 0) removeAt(index);
+  }
+}
+
+extension FormGroupExtensions on FormGroup {
+  void tryRemoveAll(Set<String> names) {
+    names.forEach(tryRemove);
+  }
+
+  void tryRemove(String name) {
+    if (contains(name)) removeControl(name);
   }
 }
 

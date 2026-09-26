@@ -54,14 +54,6 @@ extension type Fixed(Decimal _decimal) implements Decimal {
   Fixed operator /(Fixed other) => Fixed((_decimal / other._decimal).toFixedDecimal());
 
   Decimal toDecimal() => _decimal;
-
-  double toDouble() {
-    final value = _decimal.toDouble();
-    if (value.isFinite) return value;
-    return round(scale: 12).toDouble();
-  }
-
-  String toJson() => _decimal.toJson();
 }
 
 extension ToFixedIntExtension on int {

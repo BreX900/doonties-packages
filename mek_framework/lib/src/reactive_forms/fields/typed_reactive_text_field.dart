@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mek/src/reactive_forms/text_field_variant.dart';
 import 'package:mek/src/reactive_forms/utils/field_config.dart';
 import 'package:reactive_forms/reactive_forms.dart';
@@ -17,6 +18,7 @@ class ReactiveTypedTextField<T> extends StatefulWidget {
   final int? maxLength;
   final TextCapitalization textCapitalization;
   final TextInputAction? textInputAction;
+  final List<TextInputFormatter>? inputFormatters;
   final InputDecoration decoration;
   final ReactiveFormFieldCallback<T>? onTap;
   final ReactiveFormFieldCallback<T>? onEditingComplete;
@@ -34,6 +36,7 @@ class ReactiveTypedTextField<T> extends StatefulWidget {
     this.maxLines = 1,
     this.maxLength,
     this.textCapitalization = TextCapitalization.none,
+    this.inputFormatters,
     this.textInputAction,
     this.decoration = const InputDecoration(),
     this.onTap,
@@ -118,7 +121,7 @@ class _ReactiveTypedTextFieldState<T> extends State<ReactiveTypedTextField<T>> {
       enableSuggestions: config.enableSuggestions,
       autocorrect: config.autocorrect,
       keyboardType: config.keyboardType,
-      inputFormatters: config.inputFormatters,
+      inputFormatters: widget.inputFormatters ?? config.inputFormatters,
     );
   }
 }

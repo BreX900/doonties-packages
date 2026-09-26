@@ -20,7 +20,8 @@ extension IListExtensions<T> on IList<T> {
     return fixedList.insert(after ? index + 1 : index, target);
   }
 
-  IList<T> replaceOrAdd({required T from, required T to}) {
+  IList<T> replaceOrAdd({required T? from, required T to}) {
+    if (from == null) return add(to);
     final index = indexOf(from);
     return index == -1 ? add(to) : replace(index, to);
   }
