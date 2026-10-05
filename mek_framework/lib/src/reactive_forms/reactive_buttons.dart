@@ -9,7 +9,7 @@ import 'package:reactive_forms/reactive_forms.dart';
 import 'package:rivertion/rivertion.dart';
 
 class ReactiveSaveButton extends ConsumerWidget {
-  final Future<void> Function()? onSubmit;
+  final void Function()? onSubmit;
 
   const ReactiveSaveButton({super.key, required this.onSubmit});
 
@@ -22,7 +22,7 @@ class ReactiveSaveButton extends ConsumerWidget {
     final isPristine = ref.watch(field.control.provider.pristine);
     if (isPristine) return const SizedBox.shrink();
 
-    final submit = field.control.handleSubmitWith<Future<void> Function()>((submit) => submit());
+    final submit = field.control.handleSubmitWith<void Function()>((submit) => submit());
     return IconButton(
       onPressed: onSubmit != null ? () => submit(onSubmit) : null,
       icon: const Icon(Icons.save),

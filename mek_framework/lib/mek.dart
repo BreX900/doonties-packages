@@ -62,6 +62,7 @@ export 'src/shared/mek_utils.dart';
 export 'src/shared/nav.dart';
 export 'src/source/adapters/_reactive_form_sources_extra.dart';
 export 'src/source/reactive_forms_providers.dart';
+export 'src/storage/storage.dart';
 export 'src/widgets/bottom_sheet/sheet_bar.dart';
 export 'src/widgets/common/copy_to_clipboard_icon_button.dart';
 export 'src/widgets/common/deferred_library_builder.dart';

@@ -16,17 +16,13 @@ class BinStore<T> {
   final T _fallbackData;
 
   BinStore({
-    required BinSession session,
+    required this._session,
     required this.name,
-    Codec<Object?, String> codec = const JsonCodec(),
-    required BinDeserializer<T> deserializer,
-    BinSerializer<T> serializer = _serialize,
-    required T fallbackData,
-  }) : _session = session,
-       _codec = codec,
-       _deserializer = deserializer,
-       _serializer = serializer,
-       _fallbackData = fallbackData;
+    this._codec = const JsonCodec(),
+    required this._deserializer,
+    this._serializer = _serialize,
+    required this._fallbackData,
+  });
 
   Stream<T> get onChanges =>
       _session.onChanges.where((e) => e.key == name).map((e) => _deserialize(e.value));

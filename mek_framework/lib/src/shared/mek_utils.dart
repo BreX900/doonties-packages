@@ -7,7 +7,11 @@ import 'package:flutter/material.dart';
 typedef ProgressEmitter = void Function(double value);
 
 abstract final class MekUtils {
-  static void showErrorSnackBar({required BuildContext context, required Widget description}) {
+  static void showErrorSnackBar({
+    required BuildContext context,
+    required Widget description,
+    SnackBarAction? action,
+  }) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -32,6 +36,7 @@ abstract final class MekUtils {
         content: _ErrorSnackBarContent(
           autoCloseController: progressController,
           foregroundColor: foregroundColor,
+          action: action,
           child: description,
         ),
       ),
@@ -135,11 +140,13 @@ abstract final class MekUtils {
 class _ErrorSnackBarContent extends StatelessWidget {
   final AnimationController autoCloseController;
   final Color foregroundColor;
+  final SnackBarAction? action;
   final Widget child;
 
   const _ErrorSnackBarContent({
     required this.autoCloseController,
     required this.foregroundColor,
+    required this.action,
     required this.child,
   });
 
@@ -174,6 +181,8 @@ class _ErrorSnackBarContent extends StatelessWidget {
                     child: child,
                   ),
                 ),
+                if (action case final action?)
+                  TextButton(onPressed: action.onPressed, child: Text(action.label)),
                 IconButton(onPressed: () => _close(context), icon: const Icon(Icons.close)),
               ],
             ),

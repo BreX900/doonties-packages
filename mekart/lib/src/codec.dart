@@ -14,6 +14,19 @@ class JsonCodecWithIndent extends Codec<Object?, String> {
   Converter<Object?, String> get encoder => JsonEncoder.withIndent(indent);
 }
 
+class CodecBuilder<S, T> extends SimpleCodec<S, T> {
+  final S Function(T encoded) _decoder;
+  final T Function(S input) _encoder;
+
+  CodecBuilder({required this._decoder, required this._encoder});
+
+  @override
+  S decode(T encoded) => _decoder(encoded);
+
+  @override
+  T encode(S input) => _encoder(input);
+}
+
 class NoneCodec<I, O> extends SimpleCodec<I, O> {
   const NoneCodec();
 
