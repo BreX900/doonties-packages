@@ -6,22 +6,26 @@ import 'package:mek/src/storage/storage.dart';
 import 'package:rivertion/rivertion.dart';
 import 'package:web/web.dart' as web;
 
+web.Storage get _localStorage => web.window.localStorage;
+
 Future<Storage<Object?>> createLocalStorage(String? directoryPath) async {
   final data = <String, Object?>{};
-  for (var index = 0; index < web.window.localStorage.length; index++) {
-    final key = web.window.localStorage.key(index);
-    if (key == null) continue;
-    data[key] = web.window.localStorage.getItem(key);
+  for (var index = 0; index < _localStorage.length; index++) {
+    final key = _localStorage.key(index);
+    if (key == null || !key.startsWith(_WebStorage.prefix)) continue;
+
+    final value = _localStorage.getItem(key.replaceFirst(_WebStorage.prefix, ''));
+    data[key] = value != null ? jsonDecode(value) : null;
   }
   return _WebStorage._(data);
 }
 
 LazyStorage<Object?> createLocalLazyStorage(String? directoryPath) => _WebLazyStorage._();
 
-web.Storage get _localStorage => web.window.localStorage;
-
 class _WebStorage extends StateNotifier<Map<String, Object?>>
     with StorageBase<Object?>, Storage<Object?> {
+  static const String prefix = '_cached_.';
+
   _WebStorage._(super._state);
 
   @override
@@ -33,17 +37,26 @@ class _WebStorage extends StateNotifier<Map<String, Object?>>
   @override
   Future<void> write(String key, Object? value) async {
     state = {...state, key: value};
-    _localStorage.setItem(key, jsonEncode(value));
+    _localStorage.setItem('$prefix$key', jsonEncode(value));
   }
 
   @override
   Future<void> delete(String key) async {
-    state = {...state, key: null};
-    _localStorage.removeItem(key);
+    state = {...state}..remove(key);
+    _localStorage.removeItem('$prefix$key');
+  }
+
+  @override
+  Future<void> clean() async {
+    state = {};
+    for (final key in state.keys) {
+      _localStorage.removeItem('$prefix$key');
+    }
   }
 }
 
 class _WebLazyStorage with StorageBase<String?>, LazyStorage<String?> {
+  static const String prefix = '_lazy_.';
   final _controller = StreamController<MapEntry<String, String?>>.broadcast();
 
   _WebLazyStorage._();
@@ -54,24 +67,32 @@ class _WebLazyStorage with StorageBase<String?>, LazyStorage<String?> {
 
   @override
   Future<String?> read(String key) async {
-    return _localStorage.getItem(key);
+    return _localStorage.getItem('$prefix$key');
   }
 
   @override
   Future<void> write(String key, String? value) async {
     if (value != null) {
-      _localStorage.setItem(key, value);
+      _localStorage.setItem('$prefix$key', value);
       _controller.add(MapEntry(key, value));
     } else {
-      _localStorage.removeItem(key);
-      _controller.add(MapEntry(key, null));
+      await delete(key);
     }
   }
 
   @override
   Future<void> delete(String key) async {
-    _localStorage.removeItem(key);
+    _localStorage.removeItem('$prefix$key');
     _controller.add(MapEntry(key, null));
+  }
+
+  @override
+  Future<void> clean() async {
+    for (var index = 0; index < _localStorage.length; index++) {
+      final key = _localStorage.key(index);
+      if (key == null || !key.startsWith(prefix)) continue;
+      _localStorage.removeItem(key);
+    }
   }
 
   @override

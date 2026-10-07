@@ -7,7 +7,9 @@ import 'package:mek/src/storage/storage.dart';
 import 'package:rivertion/rivertion.dart';
 
 Future<Storage<Object?>> createLocalStorage(String? directoryPath) async {
-  final file = File('$directoryPath/_preferences.json');
+  if (directoryPath == null) throw StateError('"directoryPath" not provided!');
+
+  final file = File('$directoryPath/__preferences.json');
   if (!file.existsSync()) return _FileStorage._(file, {});
 
   final content = await file.readAsString();
@@ -17,6 +19,8 @@ Future<Storage<Object?>> createLocalStorage(String? directoryPath) async {
 }
 
 LazyStorage<Object?> createLocalLazyStorage(String? directoryPath) {
+  if (directoryPath == null) throw StateError('"directoryPath" not provided!');
+
   final storagesDirectory = Directory('$directoryPath/storages');
   if (!storagesDirectory.existsSync()) storagesDirectory.createSync(recursive: true);
 
@@ -45,6 +49,12 @@ class _FileStorage extends StateController<Map<String, Object?>>
   Future<void> delete(String key) async {
     state = {...state, key: null};
     _file.writeAsStringSync(jsonEncode(state));
+  }
+
+  @override
+  Future<void> clean() async {
+    state = {};
+    if (_file.existsSync()) await _file.delete();
   }
 }
 
@@ -80,6 +90,17 @@ class _FileLazyStorage with StorageBase<String?>, LazyStorage<String?> {
   Future<void> delete(String key) async {
     if (_getFile(key).existsSync()) await _getFile(key).delete();
     _controller.add(MapEntry(key, null));
+  }
+
+  @override
+  Future<void> clean() async {
+    await for (final file in _directory.list()) {
+      final fileName = file.path.split(Platform.pathSeparator).last;
+
+      _controller.add(MapEntry(fileName.substring(0, fileName.length - 5), null));
+    }
+    await _directory.delete(recursive: true);
+    if (_directory.existsSync()) await _directory.create();
   }
 
   @override

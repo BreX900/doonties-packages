@@ -17,6 +17,8 @@ mixin StorageBase<T> {
 
   Future<void> write(String key, T value);
 
+  Future<void> clean();
+
   void dispose();
 }
 

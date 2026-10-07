@@ -17,6 +17,11 @@ class MemoryStorage extends StateNotifier<Map<String, Object?>>
 
   @override
   Future<void> delete(String key) async {
-    state = {...state, key: null};
+    state = {...state};
+  }
+
+  @override
+  Future<void> clean() async {
+    state = {};
   }
 }
