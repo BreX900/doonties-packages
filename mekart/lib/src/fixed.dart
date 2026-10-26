@@ -29,6 +29,7 @@ extension type Fixed(Decimal _decimal) implements Decimal {
 
   factory Fixed.fromInt(int value) => Fixed(Decimal.fromInt(value));
   static Fixed parse(String value) => Fixed(Decimal.parse(value));
+  factory Fixed.fromDouble(double value) => Fixed(value.toFixed());
   factory Fixed.fromJson(String value) => Fixed.parse(value);
 
   static T max<T extends Decimal>(T a, T b) => a > b ? a : b;

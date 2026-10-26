@@ -32,6 +32,7 @@ class _FloatingActionButtonInjectorState extends State<FloatingActionButtonInjec
 
   void _findFloatingActionButtonHeight() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final scaffold = context.findAncestorStateOfType<ScaffoldState>();
       var height = 0.0;
       void visitor(Element element) {

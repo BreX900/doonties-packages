@@ -7,17 +7,13 @@ class MutationRefImpl<TArg> extends MutationRef {
   MutationRefImpl(super._ref, this._delegate, this._arg);
 
   @override
-  bool mounted = true;
-
-  @override
   void updateProgress(double value) {
-    MutationRef.ensureIsMounted(this);
+    debugEnsureIsMounted();
     _delegate.updateProgress(_arg, value);
   }
 
-  void dispose() {
-    mounted = false;
-  }
+  @override
+  void dispose() => super.dispose();
 }
 
 abstract class MutationDelegate<TArg> {

@@ -5,8 +5,10 @@ import 'package:flutter/scheduler.dart';
 import 'package:mek/mek.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-typedef FieldViewBuilder<T extends Object> =
-    Widget Function(BuildContext context, TypeAheadConfig<T> field);
+typedef FieldViewBuilder<T extends Object> = Widget Function(
+  BuildContext context,
+  TypeAheadConfig<T> field,
+);
 
 class TypeAheadConfig<T extends Object> {
   final T? value;
@@ -27,8 +29,8 @@ class TypeAheadConfig<T extends Object> {
     required this.errorText,
     required this.controller,
     required this.focusNode,
-    required void Function() onSubmitted,
-  }) : _onSubmitted = onSubmitted;
+    required this._onSubmitted,
+  });
 }
 
 // , ViewValue extends Object

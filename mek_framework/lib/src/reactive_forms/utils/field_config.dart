@@ -6,7 +6,7 @@ sealed class FieldConfigBase<T extends FieldConfigBase<T>> implements ValueListe
 
   bool get readOnly => _readOnly ?? false;
 
-  const FieldConfigBase({required bool? readOnly}) : _readOnly = readOnly;
+  const FieldConfigBase({required this._readOnly});
 
   FieldConfigBase copyWith({bool? readOnly});
 
@@ -47,16 +47,12 @@ class TextConfig extends FieldConfigBase<TextConfig> {
 
   const TextConfig({
     super.readOnly,
-    bool? obscureText,
-    TextInputType? keyboardType,
-    List<TextInputFormatter>? inputFormatters,
-    bool? enableSuggestions,
-    bool? autocorrect,
-  }) : _obscureText = obscureText,
-       _keyboardType = keyboardType,
-       _inputFormatters = inputFormatters,
-       _enableSuggestions = enableSuggestions,
-       _autocorrect = autocorrect;
+    this._obscureText,
+    this._keyboardType,
+    this._inputFormatters,
+    this._enableSuggestions,
+    this._autocorrect,
+  });
 
   static const TextConfig password = TextConfig(obscureText: true);
 

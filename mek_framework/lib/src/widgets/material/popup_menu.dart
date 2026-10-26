@@ -28,6 +28,7 @@ class _PopupMenuDecorationState extends State<PopupMenuTileBar> {
 }
 
 class PopupMenuItemTile<T> extends PopupMenuItem<T> {
+  final VoidCallback? onLongPress;
   final Widget? leading;
   final Widget title;
   final Widget? subtitle;
@@ -35,6 +36,7 @@ class PopupMenuItemTile<T> extends PopupMenuItem<T> {
 
   const PopupMenuItemTile({
     super.key,
+    this.onLongPress,
     super.enabled,
     super.value,
     super.onTap,
@@ -54,7 +56,16 @@ class PopupMenuItemTile<T> extends PopupMenuItem<T> {
 class _PopupMenuItemTileState<T> extends PopupMenuItemState<T, PopupMenuItemTile<T>> {
   @override
   Widget buildChild() {
+    final onTap = widget.onTap;
+    final onLongPress = widget.onLongPress;
     return ListTile(
+      onTap: onLongPress != null ? onTap : null,
+      onLongPress: onLongPress != null
+          ? () {
+              Navigator.pop(context, widget.value);
+              onLongPress();
+            }
+          : null,
       enabled: widget.enabled,
       leading: widget.leading,
       title: widget.title,

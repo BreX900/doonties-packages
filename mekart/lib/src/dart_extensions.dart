@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:meta/meta.dart';
+
 abstract final class Comparators {
   static Comparator<T> by<T, K extends Comparable<Object>>(K Function(T element) keyOf) {
     return (a, b) => keyOf(a).compareTo(keyOf(b));
@@ -33,6 +35,8 @@ extension StringExtensions on String {
   String? get nullIfEmpty => isEmpty ? null : this;
 
   String takeLast(int count) => substring(length - count);
+
+  String toUpperFirstCase() => isEmpty ? this : '${substring(0, 1).toUpperCase()}${substring(1)}';
 }
 
 extension DateTimeExtensions on DateTime {
@@ -219,27 +223,34 @@ extension IterableExtension<T> on Iterable<T> {
     return result;
   }
 
-  // Iterable<T> intersect(T element) sync* {
-  //   final iterator = this.iterator;
-  //   if (!iterator.moveNext()) return;
-  //
-  //   yield iterator.current;
-  //
-  //   while (iterator.moveNext()) {
-  //     yield element;
-  //     yield iterator.current;
+  Iterable<T?> castNullable() => cast<T?>();
+
+  //   T minBy<R extends Comparable<R>>(R Function(T) orderBy) {
+  //     T? minValue;
+  //     R? minOrderBy;
+  //     for (final element in this) {
+  //       final elementOrderBy = orderBy(element);
+  //       if (minOrderBy == null || elementOrderBy.compareTo(minOrderBy) < 0) {
+  //         minValue = element;
+  //         minOrderBy = elementOrderBy;
+  //       }
+  //     }
+  //     if (minValue == null) throw StateError('No element');
+  //     return minValue;
   //   }
-  // }
   //
-  // Iterable<R> intersectExpanded<R>(R element, R Function(T element) mapper) sync* {
-  //   final iterator = this.iterator;
-  //   if (!iterator.moveNext()) return;
-  //
-  //   yield iterator.current;
-  //
-  //   while (iterator.moveNext()) {
-  //     yield element;
-  //     yield iterator.current;
+  //   T maxBy<R extends Comparable<R>>(R Function(T) orderBy) {
+  //     T? minValue;
+  //     R? minOrderBy;
+  //     for (final element in this) {
+  //       final elementOrderBy = orderBy(element);
+  //       if (minOrderBy == null || elementOrderBy.compareTo(minOrderBy) > 0) {
+  //         minValue = element;
+  //         minOrderBy = elementOrderBy;
+  //       }
+  //     }
+  //     if (minValue == null) throw StateError('No element');
+  //     return minValue;
   //   }
   // }
 }
@@ -296,16 +307,54 @@ extension MapExtensions<K, V> on Map<K, V> {
   Map<K, V> asUnmodifiable() =>
       this is UnmodifiableMapView<K, V> ? this : UnmodifiableMapView(this);
 
-  V require(K key, {V Function()? orElse}) {
+  @Deprecated('In favour of getOrThrow')
+  V require(K key, {V Function()? orElse}) => getOrThrow(key, orElse: orElse);
+
+  V getOrThrow(K key, {V Function()? orElse}) {
     if (containsKey(key)) return this[key] as V;
-    if (orElse != null) return orElse();
-    throw StateError('Map<$K, $V> not contains "$key" key\n$this');
+    return _getFallback(key, orElse: orElse);
+  }
+
+  V? getByNull(K? key, {V Function()? orElse}) {
+    if (containsKey(key)) return this[key];
+    if (key == null) return null;
+    return _getFallback(key, orElse: orElse);
   }
 
   Iterable<R> mapEntries<R>(R Function(K key, V value) mapper) => entries.mapTo(mapper);
 
   Map<KR, VR> mapWhereNotNull<KR, VR>(MapEntry<KR, VR>? Function(K key, V value) mapper) =>
       Map.fromEntries(entries.map((e) => mapper(e.key, e.value)).nonNulls);
+
+  V _getFallback(K? key, {V Function()? orElse}) {
+    if (orElse != null) return orElse();
+    throw StateError('Map<$K, $V> not contains "$key" key\n$this');
+  }
+}
+
+extension Record2Extensions<T> on (T, T) {
+  Iterable<T> asIterable() sync* {
+    yield $1;
+    yield $2;
+  }
+}
+
+extension FutureExtensions on Future<Object?> {
+  void get unawaited {}
+}
+
+@immutable
+final class Optional<T> {
+  final T value;
+
+  const Optional(this.value);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is Optional<T> && value == other.value;
+
+  @override
+  int get hashCode => 1 ^ value.hashCode;
 }
 
 FutureOr<List<T>> waitAll<T>(Iterable<FutureOr<T>> entries) {

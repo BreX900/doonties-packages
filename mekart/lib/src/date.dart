@@ -32,17 +32,19 @@ class Date implements Comparable<Date> {
   int get month => _value.month;
   int get day => _value.day;
   int get weekday => _value.weekday;
+  int get millisecondsSinceEpoch => _value.millisecondsSinceEpoch;
+  int get microsecondsSinceEpoch => _value.microsecondsSinceEpoch;
 
   Date(int year, [int month = 1, int day = 1]) : _value = DateTime.utc(year, month, day);
 
-  @Deprecated('In favour of timestamp')
-  factory Date.now() => Date.from(DateTime.now());
+  factory Date.today() => Date.from(DateTime.now());
 
+  @Deprecated('In favour of today')
   factory Date.timestamp() => Date.from(DateTime.timestamp());
 
   factory Date.from(DateTime dateTime) => Date(dateTime.year, dateTime.month, dateTime.day);
 
-  static Date fromJson(String source) => Date.parse(source);
+  factory Date.fromJson(String source) => Date.parse(source);
 
   static Date parse(String source) {
     final segments = source.split('-');

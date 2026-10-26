@@ -12,7 +12,8 @@ class DropdownListTileMenuItem<T> extends DropdownMenuItem<T> {
     Widget? subtitle,
     Widget? trailing,
   }) : super(
-         child: ListTileLayout(
+         child: FlatListTile(
+           padding: .zero,
            leading: leading != null
                ? Builder(
                    builder: (context) {
@@ -237,7 +238,7 @@ class FlatListTile extends StatelessWidget {
     );
 
     Widget? subtitle;
-    if (this.subtitle != null) {
+    if (this.subtitle case final child?) {
       var subtitleStyle =
           subtitleTextStyle ?? tileTheme.subtitleTextStyle ?? defaults.subtitleTextStyle!;
       final subtitleColor = effectiveColor;
@@ -245,7 +246,7 @@ class FlatListTile extends StatelessWidget {
       subtitle = AnimatedDefaultTextStyle(
         style: subtitleStyle,
         duration: kThemeChangeDuration,
-        child: this.subtitle!,
+        child: child,
       );
     }
 

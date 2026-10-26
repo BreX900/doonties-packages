@@ -68,6 +68,14 @@ extension FormArrayExtensions<T> on FormArray<T> {
     final index = controls.indexOf(control);
     if (index >= 0) removeAt(index);
   }
+
+  void tryToggle(AbstractControl<T> control, bool added) {
+    if (added) {
+      tryAdd(control);
+    } else {
+      tryRemove(control);
+    }
+  }
 }
 
 extension FormGroupExtensions on FormGroup {
@@ -117,6 +125,7 @@ extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
     };
   }
 
+  @Deprecated('You cant disable a single FormControls')
   void Function() handleSubmitAsync(
     Future<bool?> Function() onSubmit, {
     bool keepDisabled = false,
@@ -138,6 +147,7 @@ extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
     };
   }
 
+  @Deprecated('You cant disable a single FormControls')
   void Function(T arg) handleSubmitAsyncWith<T>(
     Future<bool?> Function(T arg) onSubmit, {
     bool keepDisabled = false,

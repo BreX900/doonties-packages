@@ -33,10 +33,23 @@ extension ISetExtensions<T> on ISet<T> {
 }
 
 extension IMapExtensions<K, V> on IMap<K, V> {
-  V require(K key, {V Function()? orElse}) {
+  @Deprecated('In favour of getOrThrow')
+  V require(K key, {V Function()? orElse}) => getOrThrow(key, orElse: orElse);
+
+  V getOrThrow(K key, {V Function()? orElse}) {
     if (containsKey(key)) return this[key] as V;
+    return _getFallback(key, orElse: orElse);
+  }
+
+  V? getByNull(K? key, {V Function()? orElse}) {
+    if (containsKey(key)) return this[key as K];
+    if (key == null) return null;
+    return _getFallback(key, orElse: orElse);
+  }
+
+  V _getFallback(K? key, {V Function()? orElse}) {
     if (orElse != null) return orElse();
-    throw StateError('IMap<$K, $V> not contains "$key" key');
+    throw StateError('IMap<$K, $V> not contains "$key" key\n$this');
   }
 }
 

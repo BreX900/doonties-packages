@@ -7,9 +7,7 @@ class ValidationFormats {
   final ValidationFormats? _formats;
   final Formatter<DateTime>? _dateTimeFormatter;
 
-  const ValidationFormats({ValidationFormats? formats, Formatter<DateTime>? dateTimeFormatter})
-    : _formats = formats,
-      _dateTimeFormatter = dateTimeFormatter;
+  const ValidationFormats({this._formats, this._dateTimeFormatter});
 
   String format(Object value) {
     if (value is DateTime) {

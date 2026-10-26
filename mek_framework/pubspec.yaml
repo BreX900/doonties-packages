@@ -4,11 +4,11 @@ version: 0.0.1
 publish_to: 'none'
 
 environment:
-  sdk: ^3.10.0
+  sdk: ^3.13.0
   flutter: ^3.38.0
 
 scripts:
-  bootstrap: dart pub global activate rps 0.7.0
+  bootstrap: dart pub global activate rps 0.10.1
 
   # To generate .g files:
   generate-code: dart run build_runner watch --delete-conflicting-outputs

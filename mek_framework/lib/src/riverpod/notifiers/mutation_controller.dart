@@ -12,50 +12,55 @@ typedef ErrorMutationListenerV2 = FutureOr<void> Function(Object error, StackTra
 typedef DataMutationListenerV2<Result> = FutureOr<void> Function(Result result);
 typedef ResultMutationListenerV2<Result> = FutureOr<void> Function(Object? error, Result? result);
 
-class MutationController<TResult> extends ValueNotifier<MutationState<TResult>>
+class MutationController<T> extends ValueNotifier<MutationState<T>>
     with NotifierMount
     implements MutationDelegate<void> {
+  final ValueNotifier<int>? _parent;
   final ProviderContainer Function() _containerReader;
 
-  MutationController(WidgetRef ref)
+  MutationController(WidgetRef ref, [this._parent])
     : _containerReader = (() => ref.container),
-      super(MutationIdle<TResult>());
+      super(MutationIdle<T>());
 
-  MutationController.internal(this._containerReader) : super(MutationIdle<TResult>());
+  MutationController.internal(this._containerReader, [this._parent]) : super(MutationIdle<T>());
 
-  void call(
-    Future<TResult> Function(MutationRef ref) mutator, {
+  void call<R extends T>(
+    Future<R> Function(MutationRef ref) mutator, {
     required ErrorMutationListenerV2? onError,
-    DataMutationListenerV2<TResult>? onSuccess,
-    ResultMutationListenerV2<TResult>? onSettled,
+    DataMutationListenerV2<R>? onSuccess,
+    ResultMutationListenerV2<R>? onSettled,
   }) => unawaited(execute(mutator, onError: onError, onSuccess: onSuccess, onSettled: onSettled));
 
-  Future<bool?> execute(
-    Future<TResult> Function(MutationRef ref) mutator, {
+  Future<bool?> execute<R extends T>(
+    Future<R> Function(MutationRef ref) mutator, {
     required ErrorMutationListenerV2? onError,
-    DataMutationListenerV2<TResult>? onSuccess,
-    ResultMutationListenerV2<TResult>? onSettled,
-  }) async {
-    try {
-      await run(mutator, onError: onError, onSuccess: onSuccess, onSettled: onSettled);
-      if (!mounted) return null;
-      return true;
-    } catch (error, stackTrace) {
-      if (!mounted) return null;
-      NotifierObserver.current.onUncaughtError(this, error, stackTrace);
-      return false;
-    }
+    DataMutationListenerV2<R>? onSuccess,
+    ResultMutationListenerV2<R>? onSettled,
+  }) {
+    if (!mounted) throw StateError("Can't mutate if is closed!");
+    if (value.isPending) throw StateError("Can't mutate if is mutating!");
+
+    return Future.sync(() async {
+      try {
+        await _run<R>(mutator, onError: onError, onSuccess: onSuccess, onSettled: onSettled);
+        if (!mounted) return null;
+        return true;
+      } catch (error, stackTrace) {
+        if (!mounted) return null;
+        NotifierObserver.current.onUncaughtError(this, error, stackTrace);
+        return false;
+      }
+    });
   }
 
-  Future<TResult> run(
-    Future<TResult> Function(MutationRef ref) mutator, {
+  Future<R> _run<R extends T>(
+    Future<R> Function(MutationRef ref) mutator, {
     required ErrorMutationListenerV2? onError,
-    DataMutationListenerV2<TResult>? onSuccess,
-    ResultMutationListenerV2<TResult>? onSettled,
+    DataMutationListenerV2<R>? onSuccess,
+    ResultMutationListenerV2<R>? onSettled,
   }) async {
-    if (!mounted) throw StateError("Can't mutate if bloc is closed!");
-
     value = value.toLoading(arg: null);
+    _parent?.value += 1;
 
     final ref = MutationRefImpl(_containerReader(), this, null);
     try {
@@ -77,12 +82,14 @@ class MutationController<TResult> extends ValueNotifier<MutationState<TResult>>
 
       value = value.toFailed(arg: null, error: error, stackTrace: stackTrace);
       rethrow;
+    } finally {
+      _parent?.value -= 1;
     }
   }
 
   @override
   void updateProgress(void arg, double value) {
-    if (this.value is! MutationPending<TResult>) {
+    if (this.value is! MutationPending<T>) {
       lg.info("Bloc isn't mutating! Cant update progress state. $this");
       return;
     }

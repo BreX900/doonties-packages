@@ -3,10 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mek/src/shared/mek_utils.dart';
 import 'package:mek/src/widgets/material/info_tile.dart';
 
-extension AsyncValueExtensions on AsyncValue {
-  bool get isUpdating => isLoading && hasValue;
-}
-
 extension BuildViewAsyncValue<T> on AsyncValue<T> {
   R buildWhen<R>({
     required R Function() loading,
@@ -16,6 +12,36 @@ extension BuildViewAsyncValue<T> on AsyncValue<T> {
     if (hasValue) return data(requireValue);
     if (isLoading) return loading();
     return error(this.error!, stackTrace!);
+  }
+
+  R? handleCallback<R>(R Function(T data) callback) {
+    if (isLoading || hasError || !hasValue) return null;
+    return callback(requireValue);
+  }
+
+  R maybeBuild<R>({
+    R Function()? loading,
+    R Function(Object error, StackTrace stackTrace)? error,
+    R Function(T data)? data,
+    required R Function() orElse,
+  }) {
+    return buildWhen(
+      loading: loading ?? orElse,
+      error: error ?? (_, _) => orElse(),
+      data: data ?? (_) => orElse(),
+    );
+  }
+
+  R? buildOrNull<R>({
+    R Function()? loading,
+    R Function(Object error, StackTrace stackTrace)? error,
+    R Function(T data)? data,
+  }) {
+    return buildWhen(
+      loading: loading ?? () => null,
+      error: error ?? (_, _) => null,
+      data: data ?? (_) => null,
+    );
   }
 }
 
