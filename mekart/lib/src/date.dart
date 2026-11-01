@@ -9,6 +9,12 @@ class DateRange {
 
   bool contains(Date dateTime) => dateTime.isAfter(start) && dateTime.isBefore(end);
 
+  bool containsOrEquals(Date dateTime) {
+    if (dateTime.isBefore(start)) return false;
+    if (dateTime.isAfter(end)) return false;
+    return true;
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -92,6 +98,8 @@ class Date implements Comparable<Date> {
     assert(weekday >= 1 && weekday <= 7);
     return copyWith(day: day - (this.weekday - 1) + (weekday - 1));
   }
+
+  Duration difference(Date startsAt) => _value.difference(startsAt._value);
 
   DateTime asDateTime() => _value;
 

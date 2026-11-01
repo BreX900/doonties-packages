@@ -42,7 +42,7 @@ class Nav {
 }
 
 mixin TypedWidgetMixin<T> on Widget {
-  void pop(BuildContext context, [T? result]) => Navigator.pop<T>(context, result);
+  void pop(BuildContext context, T? result) => Navigator.pop<T>(context, result);
 }
 
 Future<T?> showTypedDialog<T>({

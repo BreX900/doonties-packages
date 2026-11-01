@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -69,6 +70,7 @@ extension FormArrayExtensions<T> on FormArray<T> {
     if (index >= 0) removeAt(index);
   }
 
+  // ignore: avoid_positional_boolean_parameters
   void tryToggle(AbstractControl<T> control, bool added) {
     if (added) {
       tryAdd(control);
@@ -176,6 +178,7 @@ extension HandleSubmitAbstractControlExtension on AbstractControl<Object?> {
         return false;
       case ControlStatus.invalid:
         markAllAsTouched();
+        if (kDebugMode) print(errors);
         return false;
       case ControlStatus.valid:
         return true;

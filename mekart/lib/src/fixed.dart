@@ -54,6 +54,9 @@ extension type Fixed(Decimal _decimal) implements Decimal {
   @redeclare
   Fixed operator /(Fixed other) => Fixed((_decimal / other._decimal).toFixedDecimal());
 
+  @redeclare
+  Fixed abs() => Fixed(_decimal.abs());
+
   Decimal toDecimal() => _decimal;
 }
 
