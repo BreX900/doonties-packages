@@ -72,6 +72,7 @@ export 'src/widgets/common/harmonic_scaffold.dart';
 export 'src/widgets/common/harmonic_single_child_scroll_view.dart';
 export 'src/widgets/common/inherited_value.dart';
 export 'src/widgets/common/rotators.dart';
+export 'src/widgets/common/scaffold_layout.dart';
 export 'src/widgets/common/shared_app_value.dart';
 export 'src/widgets/common/sliver_persistent_preferred_size_header.dart';
 export 'src/widgets/common/text_icon.dart';

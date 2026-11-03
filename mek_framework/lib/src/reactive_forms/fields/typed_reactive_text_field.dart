@@ -12,7 +12,6 @@ class ReactiveTypedTextField<T> extends StatefulWidget {
   final ControlValueAccessor<T, String>? valueAccessor;
   final TextFieldVariant variant;
   final ValueListenable<TextConfig> config;
-  final bool? readOnly;
   final int? minLines;
   final int? maxLines;
   final int? maxLength;
@@ -31,7 +30,6 @@ class ReactiveTypedTextField<T> extends StatefulWidget {
     this.valueAccessor,
     this.variant = TextFieldVariant.none,
     this.config = const TextConfig(),
-    this.readOnly,
     this.minLines,
     this.maxLines = 1,
     this.maxLength,
@@ -105,6 +103,7 @@ class _ReactiveTypedTextFieldState<T> extends State<ReactiveTypedTextField<T>> {
       valueAccessor: widget.valueAccessor,
       controller: _controller,
       focusNode: _focusNode,
+      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       minLines: widget.minLines,
       maxLines: widget.maxLines,
       maxLength: widget.maxLength,
