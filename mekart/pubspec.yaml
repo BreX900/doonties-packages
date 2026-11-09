@@ -33,6 +33,7 @@ dependencies:
   state_notifier: ^1.0.0
   timezone: ^0.11.2
   mek_data_class: ^2.2.0
+  shelf: ^1.4.3
 
 dev_dependencies:
   mek_lints: ^7.0.0

@@ -7,6 +7,7 @@ import 'package:mek/src/core/_log.dart';
 import 'package:mek/src/notifiers/notifier_mount.dart';
 import 'package:mek/src/notifiers/notifier_observer.dart';
 import 'package:mek/src/riverpod/notifiers/_mutation.dart';
+import 'package:mekart/mekart.dart';
 
 typedef ErrorMutationListenerV2 = FutureOr<void> Function(Object error, StackTrace stackTrace);
 typedef DataMutationListenerV2<Result> = FutureOr<void> Function(Result result);
@@ -29,7 +30,19 @@ class MutationController<T> extends ValueNotifier<MutationState<T>>
     required ErrorMutationListenerV2? onError,
     DataMutationListenerV2<R>? onSuccess,
     ResultMutationListenerV2<R>? onSettled,
-  }) => unawaited(execute(mutator, onError: onError, onSuccess: onSuccess, onSettled: onSettled));
+  }) {
+    _ensureCanMutate();
+
+    final originStackTrace = StackTrace.current;
+    Future<void>.sync(() async {
+      try {
+        await _run<R>(mutator, onError: onError, onSuccess: onSuccess, onSettled: onSettled);
+      } catch (error, stackTrace) {
+        if (!mounted) return;
+        NotifierObserver.current.onUncaughtError(this, error, stackTrace.combine(originStackTrace));
+      }
+    }).unawaited;
+  }
 
   Future<bool?> execute<R extends T>(
     Future<R> Function(MutationRef ref) mutator, {
@@ -37,9 +50,9 @@ class MutationController<T> extends ValueNotifier<MutationState<T>>
     DataMutationListenerV2<R>? onSuccess,
     ResultMutationListenerV2<R>? onSettled,
   }) {
-    if (!mounted) throw StateError("Can't mutate if is closed!");
-    if (value.isPending) throw StateError("Can't mutate if is mutating!");
+    _ensureCanMutate();
 
+    final originStackTrace = StackTrace.current;
     return Future.sync(() async {
       try {
         await _run<R>(mutator, onError: onError, onSuccess: onSuccess, onSettled: onSettled);
@@ -47,10 +60,15 @@ class MutationController<T> extends ValueNotifier<MutationState<T>>
         return true;
       } catch (error, stackTrace) {
         if (!mounted) return null;
-        NotifierObserver.current.onUncaughtError(this, error, stackTrace);
+        NotifierObserver.current.onUncaughtError(this, error, stackTrace.combine(originStackTrace));
         return false;
       }
     });
+  }
+
+  void _ensureCanMutate() {
+    if (!mounted) throw StateError("Can't mutate if is closed!");
+    if (value.isPending) throw StateError("Can't mutate if is mutating!");
   }
 
   Future<R> _run<R extends T>(
@@ -112,5 +130,19 @@ class MutationController<T> extends ValueNotifier<MutationState<T>>
     } catch (error, stackTrace) {
       NotifierObserver.current.onUncaughtError(this, error, stackTrace);
     }
+  }
+}
+
+final class CombinedStackTrace._(final StackTrace top, final StackTrace bottom)
+    implements StackTrace {
+  @override
+  String toString() => '$top\n$bottom';
+}
+
+extension CombineStackTraceExtension on StackTrace {
+  StackTrace combine(StackTrace bottom) {
+    if (bottom == .empty) return this;
+    if (this == .empty) return bottom;
+    return CombinedStackTrace._(this, bottom);
   }
 }

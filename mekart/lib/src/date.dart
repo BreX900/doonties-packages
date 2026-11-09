@@ -50,6 +50,9 @@ class Date implements Comparable<Date> {
 
   factory Date.from(DateTime dateTime) => Date(dateTime.year, dateTime.month, dateTime.day);
 
+  factory Date.fromMillisecondsSinceEpoch(int millisecondsSinceEpoch) =>
+      Date.from(DateTime.fromMillisecondsSinceEpoch(millisecondsSinceEpoch));
+
   factory Date.fromJson(String source) => Date.parse(source);
 
   static Date parse(String source) {
