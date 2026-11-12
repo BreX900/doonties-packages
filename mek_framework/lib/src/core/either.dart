@@ -31,7 +31,7 @@ sealed class Either<L, R> {
   }
 }
 
-class LeftEither<L, R> extends Either<L, R> with EquatableMixin {
+class LeftEither<L, R> extends Either<L, R> with Equatable {
   final L value;
 
   const LeftEither(this.value);
@@ -43,7 +43,7 @@ class LeftEither<L, R> extends Either<L, R> with EquatableMixin {
   List<Object?> get props => [value];
 }
 
-class RightEither<L, R> extends Either<L, R> with EquatableMixin {
+class RightEither<L, R> extends Either<L, R> with Equatable {
   final R value;
 
   const RightEither(this.value);

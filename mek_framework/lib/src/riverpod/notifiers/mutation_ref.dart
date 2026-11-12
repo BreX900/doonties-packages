@@ -11,11 +11,6 @@ abstract class MutationRef {
 
   bool get mounted => _mounted;
 
-  bool exists(ProviderBase<Object?> provider) {
-    debugEnsureIsMounted();
-    return _ref.exists(provider);
-  }
-
   T read<T>(ProviderListenable<T> provider) {
     debugEnsureIsMounted();
     return _subscribe(provider).read();

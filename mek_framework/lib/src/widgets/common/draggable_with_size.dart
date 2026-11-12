@@ -72,7 +72,6 @@ class DraggableWithSize<T extends Object> extends StatelessWidget {
 }
 
 class DragTargetWithSize<T extends Object> extends StatefulWidget {
-  // ignore: avoid_positional_boolean_parameters
   final void Function(DragTargetDetails<T> details, bool after) onAcceptWithDetails;
   final Widget child;
 

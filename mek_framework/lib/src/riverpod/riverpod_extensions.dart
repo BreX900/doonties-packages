@@ -36,7 +36,7 @@ extension RefreshAndInvalidateAncestorsWidgetRefExtension on WidgetRef {
 
 extension InvalidateFromProviderContainerExtension on ProviderContainer {
   void invalidateAncestors<T>($ProviderBaseImpl<Object?> provider) {
-    if (!exists(provider)) return;
+    if (!read(provider.exists)) return;
 
     final element = pointerManager.readElement(provider);
     final elements = <ProviderElement<dynamic, dynamic>>[];

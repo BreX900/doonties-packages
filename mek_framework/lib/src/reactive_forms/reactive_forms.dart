@@ -70,7 +70,6 @@ extension FormArrayExtensions<T> on FormArray<T> {
     if (index >= 0) removeAt(index);
   }
 
-  // ignore: avoid_positional_boolean_parameters
   void tryToggle(AbstractControl<T> control, bool added) {
     if (added) {
       tryAdd(control);

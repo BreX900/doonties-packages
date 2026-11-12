@@ -14,7 +14,6 @@ extension type const Collection<T extends Document<String>>._(IList<T> _self)
     implements Iterable<T> {
   const Collection.empty() : _self = const IList.empty();
 
-  // ignore: experimental_member_use
   @redeclare
   Iterator<T> get iterator => _self.iterator;
 
@@ -63,7 +62,6 @@ extension type const Collection<T extends Document<String>>._(IList<T> _self)
 extension type const Bundle<K, T extends Document<K>>._(IList<T> _self) implements Iterable<T> {
   const Bundle.empty() : _self = const IList.empty();
 
-  // ignore: experimental_member_use
   @redeclare
   Iterator<T> get iterator => _self.iterator;
 

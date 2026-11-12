@@ -134,8 +134,6 @@ class PaginationRef {
 
   T read<T>(ProviderListenable<T> provider) => _ref.read(provider);
 
-  bool exists(ProviderBase<Object?> provider) => _ref.exists(provider);
-
   T watch<T>(ProviderListenable<T> provider) => _ref.watch(provider);
 }
 
