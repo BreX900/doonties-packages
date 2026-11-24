@@ -101,6 +101,22 @@ class ParagraphTile extends StatelessWidget {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
 
+    var leading = this.leading;
+    if (leading != null) {
+      leading = ConstrainedBox(
+        constraints: const BoxConstraints(
+          minWidth: kMinInteractiveDimension,
+          minHeight: kMinInteractiveDimension,
+        ),
+        child: Center(
+          child: DefaultTextStyle(
+            style: textTheme.bodyMedium!.copyWith(color: textColor ?? color),
+            child: leading,
+          ),
+        ),
+      );
+    }
+
     return InkWell(
       onTap: onTap,
       child: ConstrainedBox(
@@ -110,20 +126,7 @@ class ParagraphTile extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: ListTileLayout(
-            leading: leading != null
-                ? ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      minWidth: kMinInteractiveDimension,
-                      minHeight: kMinInteractiveDimension,
-                    ),
-                    child: Center(
-                      child: DefaultTextStyle(
-                        style: textTheme.bodyMedium!.copyWith(color: textColor ?? color),
-                        child: leading!,
-                      ),
-                    ),
-                  )
-                : null,
+            leading: leading,
             title: title != null
                 ? DefaultTextStyle(
                     style: (dense ? textTheme.titleMedium : textTheme.titleLarge)!.copyWith(

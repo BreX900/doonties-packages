@@ -2,6 +2,26 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 
+sealed class Union2<T, T1 extends T, T2 extends T> {
+  const Union2._();
+
+  T get value;
+
+  const factory Union2.$1(T1 value) = Union2$1<T, T1, T2>._;
+
+  const factory Union2.$2(T2 value) = Union2$2<T, T1, T2>._;
+}
+
+final class const Union2$1<T, T1 extends T, T2 extends T>._(@override final T1 value)
+    extends Union2<T, T1, T2> {
+  this : super._();
+}
+
+final class const Union2$2<T, T1 extends T, T2 extends T>._(@override final T2 value)
+    extends Union2<T, T1, T2> {
+  this : super._();
+}
+
 sealed class Either<L, R> {
   const Either();
 

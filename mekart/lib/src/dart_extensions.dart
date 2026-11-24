@@ -341,6 +341,14 @@ extension Record2Extensions<T> on (T, T) {
 
 extension FutureExtensions on Future<Object?> {
   void get unawaited {}
+
+  Future<void> ignoreError() async {
+    try {
+      await this;
+    } on Object {
+      // ignore
+    }
+  }
 }
 
 @immutable

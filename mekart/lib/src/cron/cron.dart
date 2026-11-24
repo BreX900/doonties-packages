@@ -103,9 +103,11 @@ class const CronState<T>({
   }
 }
 
+final class CronContext._({required final DateTime startedAt});
+
 @optionalTypeArgs
 class CronJob<T>(
-  final Future<T> Function() _executor, {
+  final Future<T> Function(CronContext context) _executor, {
   final String _timezone = 'Etc/UTC',
   required final int _hour,
   final int _minute = 0,
@@ -123,7 +125,8 @@ class CronJob<T>(
     final startedAt = tz.TZDateTime.now(tz.getLocation(_timezone));
     _state = _state._toExecuting(startedAt);
     try {
-      final result = await _executor();
+      final context = CronContext._(startedAt: startedAt);
+      final result = await _executor(context);
 
       final endedAt = tz.TZDateTime.now(tz.getLocation(_timezone));
       _state = _state._toSuccess(endedAt.difference(startedAt), result);

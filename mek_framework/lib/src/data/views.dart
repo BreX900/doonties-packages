@@ -33,9 +33,9 @@ extension BuildViewAsyncValue<T> on AsyncValue<T> {
   }
 
   R? buildOrNull<R>({
-    R Function()? loading,
-    R Function(Object error, StackTrace stackTrace)? error,
-    R Function(T data)? data,
+    R? Function()? loading,
+    R? Function(Object error, StackTrace stackTrace)? error,
+    R? Function(T data)? data,
   }) {
     return buildWhen(
       loading: loading ?? () => null,
