@@ -1,4 +1,4 @@
-name: mekerver
+name: meker
 description: A starting point for Dart libraries or applications.
 version: 1.0.0
 publish_to: 'none'
@@ -19,7 +19,7 @@ dependencies:
   yaml_codec: ^1.0.0
 
 dev_dependencies:
-  lints: ^6.0.0
+  mek_lints: ^7.0.0
 
 executables:
-  mekerver:
+  meker:

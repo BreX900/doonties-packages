@@ -3,15 +3,15 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
-import 'package:mekerver/src/migrator/schema_snapshot.dart';
-import 'package:mekerver/src/migrator/schema_table.dart';
+import 'package:meker/src/migrator/schema_snapshot.dart';
+import 'package:meker/src/migrator/schema_table.dart';
 import 'package:yaml_codec/yaml_codec.dart';
 
 const _moduleDirectory = '.dart_tool/build/generated/server/lib';
 const _moduleSuffix = '.drift_module.json';
 const _databaseModule = 'api/database/app_database.dart.drift_module.json';
 
-final _yamlCodec = YamlCodec(toEncodable: (data) => data.toJson());
+final _yamlCodec = YamlCodec(toEncodable: (data) => (data as dynamic).toJson());
 
 Future<void> exportSchema() async {
   final build = await Process.start('dart', [

@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:mekerver/src/migrator/schema_snapshot.dart';
-import 'package:mekerver/src/migrator/schema_table.dart';
+import 'package:meker/src/migrator/schema_snapshot.dart';
+import 'package:meker/src/migrator/schema_table.dart';
 import 'package:yaml_codec/yaml_codec.dart';
 
 final _columnTypes = {for (final type in SchemaColumnType.values) type.driftName: type};

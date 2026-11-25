@@ -1,13 +1,13 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:mekerver/src/migrator/export_schema.dart';
-import 'package:mekerver/src/migrator/generate_migrator.dart';
+import 'package:meker/src/migrator/export_schema.dart';
+import 'package:meker/src/migrator/generate_migrator.dart';
 
 Future<void> main(List<String> args) async {
   final runner =
       CommandRunner<void>(
-          'mekerver',
+          'meker',
           'Gestisce gli schemi e le migrazioni Drift. Esegui dalla directory del server.',
         )
         ..addCommand(_ExportSchema())

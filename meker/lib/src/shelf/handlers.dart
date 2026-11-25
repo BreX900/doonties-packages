@@ -1,5 +1,5 @@
-import 'package:mekerver/src/shelf/cache_middleware.dart';
-import 'package:mekerver/src/shelf/multithread_middleware.dart';
+import 'package:meker/src/shelf/cache_middleware.dart';
+import 'package:meker/src/shelf/multithread_middleware.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_static/shelf_static.dart';
 

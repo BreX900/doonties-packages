@@ -1,4 +1,4 @@
-import 'package:mekerver/src/migrator/schema_table.dart';
+import 'package:meker/src/migrator/schema_table.dart';
 
 final class SnapshotDatabase {
   final Map<String, SnapshotTable> tables;
@@ -8,7 +8,7 @@ final class SnapshotDatabase {
   factory SnapshotDatabase.fromJson(Map<Object?, Object?> json) {
     return SnapshotDatabase(
       tables: (json['tables']! as Map<Object?, Object?>).map((key, value) {
-        return MapEntry(key as String, SnapshotTable.fromJson(value! as Map<Object?, Object?>));
+        return MapEntry(key! as String, SnapshotTable.fromJson(value! as Map<Object?, Object?>));
       }),
     );
   }
@@ -109,11 +109,11 @@ final class SnapshotTable {
   factory SnapshotTable.fromJson(Map<Object?, Object?> json) {
     return SnapshotTable(
       columns: (json['columns']! as Map<Object?, Object?>).map((key, value) {
-        return MapEntry(key as String, SnapshotColumn.fromJson(value! as Map<Object?, Object?>));
+        return MapEntry(key! as String, SnapshotColumn.fromJson(value! as Map<Object?, Object?>));
       }),
       primaryKey: (json['primaryKey']! as List<Object?>).cast<String>().toList(),
       uniqueKeys: (json['uniqueKeys'] as List<Object?>? ?? const []).map((keys) {
-        return (keys as List<Object?>).cast<String>();
+        return (keys! as List<Object?>).cast<String>();
       }).toList(),
       customConstraints: (json['customConstraints'] as List<Object?>? ?? const [])
           .cast<String>()
