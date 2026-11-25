@@ -31,13 +31,6 @@ dependencies:
   dio: ^5.9.0
   json_annotation: ^4.9.0
   state_notifier: ^1.0.0
-  timezone: ^0.11.2
-  mek_data_class: ^2.2.0
-
-  # Shelf
-  shelf: ^1.4.3
-  glob: ^2.2.0
-  shelf_static: ^1.2.0
 
 dev_dependencies:
   mek_lints: ^7.0.0

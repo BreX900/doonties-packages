@@ -10,16 +10,21 @@ scripts:
   activate: dart pub global activate --source=path .
 
 dependencies:
-  args: ^2.7.0
+
   collection: ^1.19.1
+  meta: ^1.19.0
 
   shelf: ^1.4.3
   glob: ^2.2.0
   shelf_static: ^1.2.0
-  yaml_codec: ^1.0.0
+  timezone: ^0.11.2
+  mek_data_class: ^2.2.0
 
 dev_dependencies:
   mek_lints: ^7.0.0
 
+  args: ^2.7.0
+  yaml_codec: ^1.0.0
+
 executables:
-  meker:
+  meker: meker

@@ -1,8 +1,10 @@
 import 'dart:io';
 
+// ignore: depend_on_referenced_packages
 import 'package:args/command_runner.dart';
-import 'package:meker/src/migrator/export_schema.dart';
-import 'package:meker/src/migrator/generate_migrator.dart';
+
+import '../tool/export_schema.dart';
+import '../tool/generate_migrator.dart';
 
 Future<void> main(List<String> args) async {
   final runner =

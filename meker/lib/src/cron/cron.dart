@@ -12,8 +12,6 @@ final class Cron {
 
   Cron();
 
-  void initializeTimeZone() => tz_db.initializeTimeZones();
-
   void schedule(CronJob job) {
     _jobs.add(job);
   }
@@ -23,6 +21,8 @@ final class Cron {
   }
 
   void start() {
+    tz_db.initializeTimeZones();
+
     for (final job in _jobs) {
       unawaited(_startJob(job));
     }
@@ -51,6 +51,7 @@ final class Cron {
 enum CronStatus { idle, waiting, executing, error, success }
 
 class const CronState<T>({
+  required final int count,
   required final CronStatus status,
   required final DateTime? startsAt,
   required final DateTime? startedAt,
@@ -59,6 +60,7 @@ class const CronState<T>({
   required final T? result,
 }) {
   factory CronState.idle() => CronState(
+    count: 0,
     status: .idle,
     startsAt: null,
     startedAt: null,
@@ -72,6 +74,7 @@ class const CronState<T>({
   CronState<T> _toWaiting(DateTime startsAt) => copyWith(status: .waiting, startsAt: startsAt);
 
   CronState<T> _toExecuting(DateTime startedAt) => copyWith(
+    count: count + 1,
     status: .executing,
     startedAt: startedAt,
     completedIn: null,
@@ -85,7 +88,8 @@ class const CronState<T>({
       copyWith(status: .success, completedIn: completedIn, result: result);
 
   CronState<T> copyWith({
-    FutureOr<DateTime>? startsAt = const Unspecified(),
+    FutureOr<int> count = const Unspecified(),
+    FutureOr<DateTime> startsAt = const Unspecified(),
     FutureOr<DateTime?> startedAt = const Unspecified(),
     FutureOr<Duration?> completedIn = const Unspecified(),
     FutureOr<CronStatus> status = const Unspecified(),
@@ -93,6 +97,7 @@ class const CronState<T>({
     FutureOr<T?> result = const Unspecified(),
   }) {
     return CronState(
+      count: Unspecified.resolve(this.count, count),
       startsAt: Unspecified.resolve(this.startsAt, startsAt),
       startedAt: Unspecified.resolve(this.startedAt, startedAt),
       completedIn: Unspecified.resolve(this.completedIn, completedIn),
@@ -103,7 +108,7 @@ class const CronState<T>({
   }
 }
 
-final class CronContext._({required final DateTime startedAt});
+final class CronContext._({required final DateTime startedAt, required final int count});
 
 @optionalTypeArgs
 class CronJob<T>(
@@ -125,7 +130,7 @@ class CronJob<T>(
     final startedAt = tz.TZDateTime.now(tz.getLocation(_timezone));
     _state = _state._toExecuting(startedAt);
     try {
-      final context = CronContext._(startedAt: startedAt);
+      final context = CronContext._(startedAt: startedAt, count: _state.count);
       final result = await _executor(context);
 
       final endedAt = tz.TZDateTime.now(tz.getLocation(_timezone));

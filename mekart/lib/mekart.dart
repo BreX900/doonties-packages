@@ -11,7 +11,6 @@ export 'src/bin/cached_bin_store.dart';
 export 'src/bin/value_bin_store.dart';
 export 'src/codec.dart';
 export 'src/converter.dart';
-export 'src/cron/cron.dart';
 export 'src/dart_extensions.dart';
 export 'src/date.dart';
 export 'src/decimal_extensions.dart';

@@ -1,5 +1,6 @@
 library;
 
+export 'src/cron/cron.dart';
 export 'src/shelf/cache_middleware.dart';
 export 'src/shelf/cors_middleware.dart';
 export 'src/shelf/handlers.dart';
