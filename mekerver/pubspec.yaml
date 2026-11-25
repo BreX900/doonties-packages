@@ -1,0 +1,25 @@
+name: mekerver
+description: A starting point for Dart libraries or applications.
+version: 1.0.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.14.0
+
+scripts:
+  activate: dart pub global activate --source=path .
+
+dependencies:
+  args: ^2.7.0
+  collection: ^1.19.1
+
+  shelf: ^1.4.3
+  glob: ^2.2.0
+  shelf_static: ^1.2.0
+  yaml_codec: ^1.0.0
+
+dev_dependencies:
+  lints: ^6.0.0
+
+executables:
+  mekerver:
